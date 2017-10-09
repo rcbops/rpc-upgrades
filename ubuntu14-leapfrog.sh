@@ -22,18 +22,9 @@ set -o pipefail
 ## Base dir ------------------------------------------------------------------
 # Location of the leapfrog tooling (where we'll do our checkouts and move the
 # code at the end)
-export NEWTON_BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")"/../../ && pwd)"
+export NEWTON_BASE_DIR="$(dirname ${0})"
 
 ## Loading variables ---------------------------------------------------------
-
-if [ -z ${BUILD_URL+x} ]; then
-    export IS_GATING="FALSE"
-else
-    echo "YOU ARE RUNNING THE GATES"
-    export IS_GATING="TRUE"
-fi
-source ${NEWTON_BASE_DIR}/scripts/functions.sh
-
 # BASE_DIR and variable files should be loaded.
 # By default BASE_DIR could be where KILO is, if newton is checked out into
 # a different folder. We need to take this case into consideration.
@@ -47,26 +38,19 @@ export OA_OPS_REPO=${OA_OPS_REPO:-'https://github.com/openstack/openstack-ansibl
 # Please bump the following when a patch for leapfrog is merged into osa-ops
 # If you are developping, just clone your ops repo into (by default)
 # /opc/rpc-leapfrog/openstack-ansible-ops
-export OA_OPS_REPO_BRANCH=${OA_OPS_REPO_BRANCH:-'b291961361c6f3a3921ca55f73cef36211876f1a'}
+export OA_OPS_REPO_BRANCH=${OA_OPS_REPO_BRANCH:-'16e5db982c04118584e25617e6d22343e10454ec'}
 # Instead of storing the debug's log of run in /tmp, we store it in an
 # folder that will get archived for gating logs
+export REDEPLOY_OA_FOLDER="${RPCO_DEFAULT_FOLDER}/openstack-ansible"
+export BOOTSTRAP_ANSIBLE_FOLDER="${RPCO_DEFAULT_FOLDER}"
 export DEBUG_PATH="/var/log/osa-leapfrog-debug.log"
 export UPGRADE_LEAP_MARKER_FOLDER="/etc/openstack_deploy/upgrade-leap"
-export PRE_LEAP_STEPS="${NEWTON_BASE_DIR}/scripts/leapfrog/pre_leap.sh"
-export POST_LEAP_STEPS="${NEWTON_BASE_DIR}/scripts/leapfrog/post_leap.sh"
+export PRE_LEAP_STEPS="${NEWTON_BASE_DIR}/pre_leap.sh"
+export POST_LEAP_STEPS="${NEWTON_BASE_DIR}/post_leap.sh"
 export RPCD_DEFAULTS='/etc/openstack_deploy/user_rpco_variables_defaults.yml'
 export OA_DEFAULTS='/etc/openstack_deploy/user_osa_variables_defaults.yml'
 
 ### Functions -----------------------------------------------------------------
-function set_gating_vars {
-    if [[ -f /etc/openstack_deploy/user_variables.yml ]]; then
-    cat << EOF >> /etc/openstack_deploy/user_variables.yml
-neutron_legacy_ha_tool_enabled: "yes"
-lxc_container_backing_store: "dir"
-EOF
-    fi
-}
-
 function log {
     echo "Task: $1 status: $2" >> ${DEBUG_PATH}
     if [[ "$2" == "ok" ]]; then
@@ -75,14 +59,6 @@ function log {
 }
 
 ### Main ----------------------------------------------------------------------
-if [[ "${IS_GATING}" == "TRUE" ]]; then
-    set -x
-    # force the skip of the input validation.
-    export VALIDATE_UPGRADE_INPUT=False
-    export AUTOMATIC_VAR_MIGRATE_FLAG="--for-testing-take-new-vars-only"
-    set_gating_vars
-fi
-
 # Setup the base work folders
 if [[ ! -d ${LEAPFROG_DIR} ]]; then
     mkdir -p ${LEAPFROG_DIR}
@@ -153,7 +129,8 @@ pushd ${LEAPFROG_DIR}
 
     if [[ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/osa-leap.complete" ]]; then
         pushd openstack-ansible-ops/leap-upgrades/
-            export REDEPLOY_EXTRA_SCRIPT=${RPCO_DEFAULT_FOLDER}/scripts/leapfrog/pre_redeploy.sh
+            export PRE_SETUP_INFRASTRUCTURE_HOOK="${RPCO_DEFAULT_FOLDER}/rpcd/playbooks/stage-python-artifacts.yml"
+            export REDEPLOY_EXTRA_SCRIPT="${NEWTON_BASE_DIR}/pre_redeploy.sh"
             . ./run-stages.sh
         popd
         log "osa-leap" "ok"

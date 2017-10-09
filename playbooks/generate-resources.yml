@@ -1,10 +1,31 @@
 ---
+# Copyright 2017, Rackspace US, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 - name: Add resource load to deployment
   hosts: utility_all[0]
   tasks:
+    - name: Check if instances already exist
+      shell: ". ~/openrc; nova list"
+      register: instance_check
+    - name: Set if instances exist
+      set_fact:
+        existing_instances: "{{ 'test_server_' in instance_check.stdout }}"
     - name: Install virtualenv
       pip:
         name: "virtualenv"
+      when: not existing_instances | bool
     - name: Prepare a virtualenv for generate_resources.py
       pip:
         name: "{{ item }}"
@@ -12,13 +33,13 @@
         extra_args: "--isolated"
       with_items:
         - "ipaddress==1.0.18"
-        - "keystoneauth1==2.21.0"
         - "python-cinderclient==2.2.0"
-        - "python-glanceclient==2.7.0"
-        - "python-neutronclient==6.3.0"
+        - "python-openstacksdk==0.5.2"
         - "python-novaclient==9.0.0"
+        - "os-client-config==1.28.0"
+      when: not existing_instances | bool
     - name: Generate resources
-      script: "../generate_resources.py --servers {{ server_count }} --volumes {{ volume_count }} --networks {{ network_count }} --infinite-quotas"
+      script: "files/generate_resources.py --servers {{ server_count }} --volumes {{ volume_count }} --networks {{ network_count }} --infinite-quotas --output-file /tmp/generated_resources.json"
       environment:
         OS_ENDPOINT_TYPE: "internalURL"
         OS_USERNAME: "admin"
@@ -28,9 +49,16 @@
         OS_USER_DOMAIN_NAME: "Default"
         OS_PROJECT_DOMAIN_NAME: "Default"
         PATH: "{{ venv }}/bin"
+      when: not existing_instances | bool
+    - fetch:
+        src: "/tmp/generated_resources.json"
+        dest: "/etc/"
+        flat: "yes"
+      when: not existing_instances | bool
     - name: Remove virtualenv
       file:
         path: "{{ venv }}"
         state: "absent"
+      when: not existing_instances | bool
   vars:
     venv: "/tmp/load_gen_venv"

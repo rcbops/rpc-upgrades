@@ -1,0 +1,5 @@
+[flake8.extension]
+rpco.git_title_bug = rpco_checks:OnceGitCheckCommitTitleBug
+rpco.git_title_length = rpco_checks:OnceGitCheckCommitTitleLength
+rpco.git_title_period = rpco_checks:OnceGitCheckCommitTitlePeriodEnding
+

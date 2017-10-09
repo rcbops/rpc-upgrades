@@ -1,4 +1,5 @@
----
+#!/usr/bin/env bash
+
 # Copyright 2017, Rackspace US, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,16 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- hosts: hosts
-  gather_facts: no
-  tasks:
-    - name: Get list of old containers
-      command: "cat /etc/openstack_deploy/leapfrog_remove_remaining_old_containers"
-      run_once: true
-      delegate_to: localhost
-      register: old_containers
+export VALIDATE_UPGRADE_INPUT=False
+export AUTOMATIC_VAR_MIGRATE_FLAG="--for-testing-take-new-vars-only"
 
-    - name: Remove old MaaS neutron container config files
-      shell: "rm /etc/rackspace-monitoring-agent.conf.d/*{{ item }}*"
-      with_items: old_containers.stdout_lines
-      ignore_errors: true
+../ubuntu14-leapfrog.sh
