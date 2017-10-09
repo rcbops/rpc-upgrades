@@ -95,11 +95,11 @@ These variables are required by later versions, but are not defined in Kilo or L
 The next step is to execute the leapfrog upgrade script
 
 ```
-root@kilo:/rpc-openstack# scripts/leapfrog/ubuntu14-leapfrog.sh
+root@kilo:/rpc-upgrades# ./ubuntu14-leapfrog.sh
 ```
 
 ## Structure of the leapfrog process.
-<img align="right" src="docs/images/leapfrog_structure_diagram.png"/>
+<img align="right" src="doc/images/leapfrog_structure_diagram.png"/>
 The RPCO leapfrog scripts are a thin wrapper around OSA-OPS leapfrog tools. 
 
 For details please refer to the scripts themselves. Paths are omitted for
@@ -147,7 +147,7 @@ If a leapfrog upgrade is interrupted, it can be resumed. Each major step of the
 leapfrog upgrade process creates a marker file, which will be used to skip
 completed tasks on subsequent runs.
 
-To resume, run scripts/leapfrog/ubuntu14-leapfrog.sh.
+To resume, run ./ubuntu14-leapfrog.sh.
 
 If a step fails information about that step will be printed along with all the
 remaining steps. The operator must fix the failure before re-running the
