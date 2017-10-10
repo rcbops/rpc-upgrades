@@ -106,7 +106,7 @@ The next step is to execute the leapfrog upgrade script
 
 .. code-block:: shell
 
-    root@kilo:/rpc-upgrades# ./ubuntu14-leapfrog.sh
+    root@kilo:/rpc-upgrades# ./scripts/ubuntu14-leapfrog.sh
 
 
 Structure of the leapfrog process

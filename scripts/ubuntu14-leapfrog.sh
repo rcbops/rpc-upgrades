@@ -22,7 +22,7 @@ set -o pipefail
 ## Base dir ------------------------------------------------------------------
 # Location of the leapfrog tooling (where we'll do our checkouts and move the
 # code at the end)
-export NEWTON_BASE_DIR="$(dirname ${0})"
+export LEAP_BASE_DIR="$(readlink -e $(dirname ${0}))"
 
 ## Loading variables ---------------------------------------------------------
 # BASE_DIR and variable files should be loaded.
@@ -45,10 +45,12 @@ export REDEPLOY_OA_FOLDER="${RPCO_DEFAULT_FOLDER}/openstack-ansible"
 export BOOTSTRAP_ANSIBLE_FOLDER="${RPCO_DEFAULT_FOLDER}"
 export DEBUG_PATH="/var/log/osa-leapfrog-debug.log"
 export UPGRADE_LEAP_MARKER_FOLDER="/etc/openstack_deploy/upgrade-leap"
-export PRE_LEAP_STEPS="${NEWTON_BASE_DIR}/pre_leap.sh"
-export POST_LEAP_STEPS="${NEWTON_BASE_DIR}/post_leap.sh"
+export PRE_LEAP_STEPS="${LEAP_BASE_DIR}/pre_leap.sh"
+export POST_LEAP_STEPS="${LEAP_BASE_DIR}/post_leap.sh"
 export RPCD_DEFAULTS='/etc/openstack_deploy/user_rpco_variables_defaults.yml'
 export OA_DEFAULTS='/etc/openstack_deploy/user_osa_variables_defaults.yml'
+# Set the target checkout used when leaping forward.
+export RPC_TARGET_CHECKOUT=${RPC_TARGET_CHECKOUT:-'r14.2.0'}
 
 ### Functions -----------------------------------------------------------------
 function log {
@@ -75,25 +77,24 @@ pushd ${LEAPFROG_DIR}
     if [[ ! -d "openstack-ansible-ops" ]]; then
         git clone ${OA_OPS_REPO} openstack-ansible-ops
         log "clone" "ok"
+        pushd openstack-ansible-ops
+            git fetch --all
+            git checkout ${OA_OPS_REPO_BRANCH}
+            log "osa-ops-checkout" "ok"
+        popd
     fi
-    pushd openstack-ansible-ops
-        git fetch --all
-        git checkout ${OA_OPS_REPO_BRANCH}
-        log "osa-ops-checkout" "ok"
-    popd
 
     # Prepare rpc folder
     if [[ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/rpc-prep.complete" ]]; then
-        # If newton was cloned into a different folder than our
-        # standard location (leapfrog folder?), we should make sure we
-        # deploy the checked in version. If any remnabt RPC folder exist,
-        # keep it under the LEAPFROG_DIR.
-        if [[ ${NEWTON_BASE_DIR} != ${RPCO_DEFAULT_FOLDER} ]]; then
+        if [[ ! -d "${LEAPFROG_DIR}/rpc-openstack.pre-newton" ]]; then
             # Cleanup existing RPC, replace with new RPC
-            if [[ -d ${RPCO_DEFAULT_FOLDER} ]]; then
-                mv ${RPCO_DEFAULT_FOLDER} ${LEAPFROG_DIR}/rpc-openstack.pre-newton
-                cp -r ${NEWTON_BASE_DIR} ${RPCO_DEFAULT_FOLDER}
-            fi
+            mv ${RPCO_DEFAULT_FOLDER} ${LEAPFROG_DIR}/rpc-openstack.pre-newton
+            git clone --recursive https://github.com/rcbops/rpc-openstack ${RPCO_DEFAULT_FOLDER}
+            pushd /opt/rpc-openstack
+                git fetch --all
+                git checkout "${RPC_TARGET_CHECKOUT}"
+                (git submodule init && git submodule update) || true
+            popd
         fi
         log "rpc-prep" "ok"
     else
@@ -130,7 +131,7 @@ pushd ${LEAPFROG_DIR}
     if [[ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/osa-leap.complete" ]]; then
         pushd openstack-ansible-ops/leap-upgrades/
             export PRE_SETUP_INFRASTRUCTURE_HOOK="${RPCO_DEFAULT_FOLDER}/rpcd/playbooks/stage-python-artifacts.yml"
-            export REDEPLOY_EXTRA_SCRIPT="${NEWTON_BASE_DIR}/pre_redeploy.sh"
+            export REDEPLOY_EXTRA_SCRIPT="${LEAP_BASE_DIR}/pre_redeploy.sh"
             . ./run-stages.sh
         popd
         log "osa-leap" "ok"

@@ -1,5 +1,4 @@
-#!/usr/bin/env bash
-
+---
 # Copyright 2017, Rackspace US, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +13,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-export VALIDATE_UPGRADE_INPUT=false
-export AUTOMATIC_VAR_MIGRATE_FLAG="--for-testing-take-new-vars-only"
-
-sudo --preserve-env $(readlink -e $(dirname ${0}))/../scripts/ubuntu14-leapfrog.sh
+- include: "../playbooks/generate-resources.yml"
+- include: "../playbooks/remove-old-agents-from-maas.yml"
