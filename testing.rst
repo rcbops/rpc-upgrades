@@ -15,7 +15,7 @@ desired branch, set the IRR_CONEXT and run the script
 
 .. code-block:: shell
 
-    IRR_CONTEXT=kilo ./run-tests.sh
+    IRR_SERIES=kilo ./run-tests.sh
 
 
 If you wish to run the tests against a specific checkout within a
@@ -26,7 +26,7 @@ wish to test with.
 
     # Build the environment using the kilo context
     #  Use RPC-O version r11.1.1 to create our AIO.
-    IRR_CONTEXT=kilo IRR_SERIES=r11.1.1 ./run-tests.sh
+    IRR_CONTEXT=r11.1.1 IRR_SERIES=kilo ./run-tests.sh
 
 
 When you executing the `run-tests.sh` script a full AIO will be

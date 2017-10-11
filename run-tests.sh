@@ -24,11 +24,11 @@ export FUNCTIONAL_TEST=${FUNCTIONAL_TEST:-true}
 
 # Install python2 for Ubuntu 16.04 and CentOS 7
 if which apt-get; then
-    sudo apt-get update && sudo apt-get install -y python
+    sudo apt-get update && sudo apt-get install -y python wget
 fi
 
 if which yum; then
-    sudo yum install -y python
+    sudo yum install -y python wget
 fi
 
 # Install pip.

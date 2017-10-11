@@ -17,7 +17,7 @@ Terms
 * `OSA <https://github.com/openstack/openstack-ansible>`_:  OpenStack Ansible
 * `OSA-OPS <https://github.com/openstack/openstack-ansible-ops>`_:  OpenStack Operations
 * `Kilo <https://github.com/rcbops/rpc-openstack/tree/kilo>`_: The RPCO release of OpenStack Kilo
-* `r14.1.0 <https://github.com/rcbops/rpc-openstack/tree/r14.1.0>`_: The second RPCO release of OpenStack Newton. This version includes Leapfrog upgrade tools.
+* `r14.2.0 <https://github.com/rcbops/rpc-openstack/tree/r14.2.0>`_: The second RPCO release of OpenStack Newton. This version includes Leapfrog upgrade tools.
 
 
 Pre Leapfrog Tasks
