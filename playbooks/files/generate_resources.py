@@ -18,7 +18,6 @@ from datetime import datetime, timedelta
 from ipaddress import IPv4Network
 from itertools import chain, izip, repeat, islice
 from json import dumps
-import os
 from time import sleep
 
 from openstack import exceptions

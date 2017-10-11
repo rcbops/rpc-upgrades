@@ -25,8 +25,9 @@ set -o pipefail
 if [[ -f /etc/openstack_deploy/user_rpcm_default_variables.yml ]]; then
     sed -i '/ansible_host/d' /etc/openstack_deploy/user_rpcm_default_variables.yml
 fi
-OSA_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )"/../../openstack-ansible && pwd)"
-pushd $OSA_PATH
+
+# Check for ceph
+pushd "/opt/rpc-openstack/openstack-ansible"
     if ! scripts/inventory-manage.py -g | grep ceph > /dev/null; then
         echo "No ceph found, we can continue"
     else

@@ -25,22 +25,31 @@ env
 echo "+-------------------- AIO ENV VARS --------------------+"
 
 ## Vars ----------------------------------------------------------------------
-
 export IRR_CONTEXT="${IRR_CONTEXT:-master}"
-export IRR_SERIES="${IRR_SERIES:-undefined}"
+# NOTE(cloudnull): The series parameter is unused for now, We need to change
+#                  the gate job to contain checkout for our test matrix.
+# export IRR_SERIES="${IRR_SERIES:-undefined}"
+export IRR_SERIES="undefined"  # This should be reverted when the gate jobs are pointed at specific checkouts.
+
 export TESTING_HOME="${TESTING_HOME:-$HOME}"
 export ANSIBLE_LOG_DIR="${TESTING_HOME}/.ansible/logs"
 export ANSIBLE_LOG_PATH="${ANSIBLE_LOG_DIR}/ansible-aio.log"
+export OSA_PATH="/opt/rpc-openstack/openstack-ansible"
 
 ## Functions -----------------------------------------------------------------
 function pin_jinja {
   # Pin Jinja2 because versions >2.9 is broken w/ earlier versions of Ansible.
-  if ! grep -i 'jinja2' /opt/openstack-ansible/global-requirement-pins.txt; then
-    echo 'Jinja2==2.8' | tee -a /opt/openstack-ansible/global-requirement-pins.txt
-  else
-    sed -i 's|^Jinja2.*|Jinja2==2.8|g' /opt/openstack-ansible/global-requirement-pins.txt
+  if [[ -f "${OSA_PATH}/global-requirement-pins.txt" ]]; then
+    if ! grep -i 'jinja2' ${OSA_PATH}/global-requirement-pins.txt; then
+      echo 'Jinja2==2.8' | tee -a ${OSA_PATH}/global-requirement-pins.txt
+    else
+      sed -i 's|^Jinja2.*|Jinja2==2.8|g' ${OSA_PATH}/global-requirement-pins.txt
+    fi
   fi
-  sed -i 's|^Jinja2.*|Jinja2==2.8|g' /opt/openstack-ansible/requirements.txt
+
+  if [[ -f "${OSA_PATH}/requirements.txt" ]]; then
+    sed -i 's|^Jinja2.*|Jinja2==2.8|g' ${OSA_PATH}/requirements.txt
+  fi
 }
 
 function pin_galera {
@@ -77,6 +86,7 @@ function git_checkout {
 }
 
 function set_gating_vars {
+  # NOTE(cloudnull): Set gate specific vars needed for AIOs.
   if [[ ! -d "/etc/openstack_deploy" ]]; then
     mkdir -p /etc/openstack_deploy
   fi
@@ -86,6 +96,34 @@ function set_gating_vars {
 neutron_legacy_ha_tool_enabled: true
 lxc_container_backing_store: dir
 EOF
+}
+
+function kilo_caches {
+  # NOTE(cloudnull): Set variables to ensure Kilo caches are functional.
+  cat > /etc/openstack_deploy/user_kilo_caches.yml <<EOF
+---
+repo_mirror_excludes:
+  - '/repos'
+  - '/mirror'
+  - '/rpcgit'
+  - '/openstackgit'
+  - '/python_packages'
+  - '/lxc-images'
+
+lxc_cache_commands:
+  - 'apt-get update'
+  - 'apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -y upgrade'
+  - 'apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -y install python2.7'
+  - 'rm -f /usr/bin/python'
+  - 'ln -s /usr/bin/python2.7 /usr/bin/python'
+EOF
+}
+
+function unset_affinity {
+  # NOTE(cloudnull) This RPC release used affinity groups which are not needed
+  #                 for this test.
+  # Change Affinity - only create 1 galera/rabbit/keystone/horizon and repo server
+  sed -i 's/\(_container\: \).*/\11/' ${OSA_PATH}/etc/openstack_deploy/openstack_user_config.yml.aio
 }
 
 ## Main ----------------------------------------------------------------------
@@ -108,20 +146,34 @@ fi
 
 mkdir -p "${ANSIBLE_LOG_DIR}"
 
-if [ ! -d "/opt/openstack-ansible" ]; then
-  git clone https://github.com/openstack/openstack-ansible /opt/openstack-ansible
+if [ ! -d "/opt/rpc-openstack" ]; then
+  git clone --recursive https://github.com/rcbops/rpc-openstack /opt/rpc-openstack
 else
-  pushd /opt/openstack-ansible
+  pushd /opt/rpc-openstack
     git fetch --all
   popd
 fi
 
-# Enter the OSA workspace
-pushd /opt/openstack-ansible
+# Enter the RPC-O workspace
+pushd /opt/rpc-openstack
   if [ "${IRR_CONTEXT}" == "kilo" ]; then
-    git_checkout "97e3425871659881201106d3e7fd406dc5bd8ff3"  # Last commit of Kilo
-    pin_jinja
-    pin_galera "5.5"
+    git_checkout "kilo"  # Last commit of Kilo
+    (git submodule init && git submodule update) || true
+
+    # NOTE(cloudnull): The kilo RPC-O deployment tools are inflexable and
+    #                  require further tuning to mimic a customer deploy. To
+    #                  get the basic setup we change this one condition so that
+    #                  we can pre-load some extra configs.
+    sed -i 's|! -d /etc/openstack_deploy/|-d "/etc/openstack_deploy/"|g' /opt/rpc-openstack/scripts/deploy.sh
+
+    # NOTE(cloudnull): Within an AIO the data disk is not needed. This disables
+    #                  it so that we're not waisting cycles.
+    sed -i 's|bootstrap_host_data_disk_device is defined|disable_data_disk_device is defined|g' ${OSA_PATH}/tests/roles/bootstrap-host/tasks/main.yml
+    sed -i 's|bootstrap_host_data_disk_device is defined|disable_data_disk_device is defined|g' ${OSA_PATH}/tests/roles/bootstrap-host/tasks/check-requirements.yml
+
+    # NOTE(cloudnull): Pycrypto has to be limited.
+    sed -i 's|pycrypto.*|pycrypto<=2.6.1|g' ${OSA_PATH}/requirements.txt
+
     # NOTE(cloudnull): In kilo we had a broken version of the ssh plugin listed in the role
     #                  requirements file. This patch gets the role from master and puts
     #                  into place which satisfies the role requirement.
@@ -129,16 +181,25 @@ pushd /opt/openstack-ansible
     if [[ ! -d "/etc/ansible/roles/sshd" ]]; then
       git clone https://github.com/willshersystems/ansible-sshd /etc/ansible/roles/sshd
     fi
+
+    # NOTE(cloudnull): Used to set basic Kilo variables.
+    export DEPLOY_HAPROXY="yes"
+    export DEPLOY_MAAS="no"
+    export DEPLOY_AIO="yes"
+    pin_jinja
+    pin_galera "5.5"
+    unset_affinity
+    kilo_caches
   elif [ "${IRR_CONTEXT}" == "liberty" ]; then
-    git_checkout "06d0fd344b5b06456a418745fe9937a3fbedf9b2"  # Last commit of Liberty
+    git_checkout "liberty"  # Last commit of Liberty
     pin_jinja
     pin_galera "10.0"
-    # Change Affinity - only create 1 galera/rabbit/keystone/horizon and repo server for testing MaaS
-    sed -i 's/\(_container\: \).*/\11/' /opt/openstack-ansible/etc/openstack_deploy/openstack_user_config.yml.aio
+    unset_affinity
   elif [ "${IRR_CONTEXT}" == "mitaka" ]; then
-    git_checkout "fbafe397808ef3ee3447fe8fefa6ac7e5c6ff144"  # Last commit of Mitaka
+    git_checkout "mitaka"  # Last commit of Mitaka
     pin_jinja
     pin_galera "10.0"
+    unset_affinity
   else
     if ! git_checkout ${IRR_CONTEXT}; then
       echo "FAIL!"
@@ -154,7 +215,7 @@ pushd /opt/openstack-ansible
   fi
 
   # Disable tempest on older releases
-  sed -i '/.*run-tempest.sh.*/d' scripts/gate-check-commit.sh  # Disable the tempest run
+  sed -i '/.*run-tempest.sh.*/d' ${OSA_PATH}/scripts/gate-check-commit.sh  # Disable the tempest run
 
   # Disable the sec role
   disable_security_role
@@ -163,5 +224,5 @@ pushd /opt/openstack-ansible
   set_gating_vars
 
   # Setup an AIO
-  ./scripts/gate-check-commit.sh
+  scripts/deploy.sh
 popd

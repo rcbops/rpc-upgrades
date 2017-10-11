@@ -23,12 +23,6 @@
 set -e -u -x
 set -o pipefail
 
-# These variables should have been defined in the main script, with a
-# conditional value depending on if this run is inside our gates or not
-# For safety, we ensure that these variables are defined, and set
-# to the safest value if not already defined.
-# The following must be TRUE to skip questions
-export IS_GATING="${IS_GATING:-FALSE}"
 # The following must be "--for-testing-take-new-vars-only" to skip questions
 export AUTOMATIC_VAR_MIGRATE_FLAG="${AUTOMATIC_VAR_MIGRATE_FLAG:-}"
 
@@ -91,7 +85,7 @@ pushd ${LEAPFROG_DIR}
         # This message only needs to appears the first time the user variable migration was successful
         # This way, if a user mistakenly Ctrl-C, the variable migration process will be skipped on
         # the next run
-        if [[ "${IS_GATING}" != "TRUE" ]]; then
+        if [ "${VALIDATE_UPGRADE_INPUT}" != false ]; then
             notice "Please verify your migrated secrets in /etc/openstack_deploy"
             warning "DO NOT CTRL-C this process to verify your secrets."
             read -p "Press enter to continue when ready"

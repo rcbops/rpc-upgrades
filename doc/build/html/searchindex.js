@@ -1,1 +1,0 @@
-Search.setIndex({docnames:["index"],envversion:50,filenames:["index.rst"],objects:{},objnames:{},objtypes:{},terms:{ansibl:0,categori:0,cloud:0,deploy:0,instal:0,nix:0,nova:0,privat:0,rackspac:0,setup:0,tag:0},titles:["RPC-OpenStack"],titleterms:{openstack:0,rpc:0}})

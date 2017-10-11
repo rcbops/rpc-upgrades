@@ -48,9 +48,10 @@ if which yum; then
 fi
 
 if [ "${FUNCTIONAL_TEST}" = true ]; then
-  tox -e bindep
-  # Run maas functional tests
-  tox -e functional
+  sudo -H --preserve-env ./run-bindep.sh
+  sudo -H --preserve-env pip install -r test-requirements.txt
+  sudo -H --preserve-env ./tests/aio-create.sh
+  sudo -H --preserve-env ./tests/test-leapfrog.sh
 else
-  tox
+  sudo -H --preserve-env tox
 fi
