@@ -33,7 +33,6 @@ export ANSIBLE_LOG_DIR="${TESTING_HOME}/.ansible/logs"
 export ANSIBLE_LOG_PATH="${ANSIBLE_LOG_DIR}/ansible-aio.log"
 export OSA_PATH="/opt/rpc-openstack/openstack-ansible"
 
-
 ## Functions -----------------------------------------------------------------
 function pin_jinja {
   # Pin Jinja2 because versions >2.9 is broken w/ earlier versions of Ansible.
@@ -201,13 +200,6 @@ pushd /opt/rpc-openstack
     allow_frontloading_vars
     rpco_exports
     get_ssh_role
-
-    # NOTE(cloudnull): Within an AIO the data disk is not needed. This disables
-    #                  it so that we're not waisting cycles.
-    if [[ -d "${OSA_PATH}/tests/roles/bootstrap-host" ]]; then
-      sed -i 's|bootstrap_host_data_disk_device is defined|disable_data_disk_device is defined|g' ${OSA_PATH}/tests/roles/bootstrap-host/tasks/main.yml
-      sed -i 's|bootstrap_host_data_disk_device is defined|disable_data_disk_device is defined|g' ${OSA_PATH}/tests/roles/bootstrap-host/tasks/check-requirements.yml
-    fi
 
     # NOTE(cloudnull): Pycrypto has to be limited.
     sed -i 's|pycrypto.*|pycrypto<=2.6.1|g' ${OSA_PATH}/requirements.txt
