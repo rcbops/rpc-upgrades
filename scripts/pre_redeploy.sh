@@ -25,6 +25,9 @@ set -o pipefail
 
 # The following must be "--for-testing-take-new-vars-only" to skip questions
 export AUTOMATIC_VAR_MIGRATE_FLAG="${AUTOMATIC_VAR_MIGRATE_FLAG:-}"
+export RPCD_DIR="${RPCD_DIR:-/opt/rpc-openstack/rpcd}"
+export RPCD_OVERRIDES="${RPCD_OVERRIDES:-/etc/openstack_deploy/user_rpco_variables_overrides.yml}"
+export OA_OVERRIDES="${OA_OVERRIDES:-/etc/openstack_deploy/user_osa_variables_overrides.yml}"
 
 warning "Please DO NOT interrupt this process."
 notice "Pre redeploy steps"

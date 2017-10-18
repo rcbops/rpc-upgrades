@@ -17,7 +17,7 @@
 
 ## Shell Opts ----------------------------------------------------------------
 
-set -eovu
+set -evu
 
 echo "Building an AIO"
 echo "+-------------------- AIO ENV VARS --------------------+"
@@ -25,16 +25,14 @@ env
 echo "+-------------------- AIO ENV VARS --------------------+"
 
 ## Vars ----------------------------------------------------------------------
-export IRR_CONTEXT="${IRR_CONTEXT:-master}"
-# NOTE(cloudnull): The series parameter is unused for now, We need to change
-#                  the gate job to contain checkout for our test matrix.
-# export IRR_SERIES="${IRR_SERIES:-undefined}"
-export IRR_SERIES="undefined"  # This should be reverted when the gate jobs are pointed at specific checkouts.
+export IRR_SERIES="${IRR_SERIES:-master}"
+export IRR_CONTEXT="${IRR_CONTEXT:-undefined}"
 
 export TESTING_HOME="${TESTING_HOME:-$HOME}"
 export ANSIBLE_LOG_DIR="${TESTING_HOME}/.ansible/logs"
 export ANSIBLE_LOG_PATH="${ANSIBLE_LOG_DIR}/ansible-aio.log"
 export OSA_PATH="/opt/rpc-openstack/openstack-ansible"
+
 
 ## Functions -----------------------------------------------------------------
 function pin_jinja {
@@ -52,13 +50,18 @@ function pin_jinja {
   fi
 }
 
-function pin_galera {
-  # NOTE(cloudnull): The MariaDB repos in these releases used https, this broke the deployment.
-  #                  These patches simply point at the same repos just without https.
-  # Create the configuration dir if it's not present
+function _ensure_osa_dir {
+  # NOTE(cloudnull): Create the OSA dir if it's not present.
   if [[ ! -d "/etc/openstack_deploy" ]]; then
     mkdir -p /etc/openstack_deploy
   fi
+}
+
+function pin_galera {
+  # NOTE(cloudnull): The MariaDB repos in these releases used https, this broke
+  #                  the deployment. These patches simply point at the same
+  #                  repos just without https.
+  _ensure_osa_dir
 
   cat > /etc/openstack_deploy/user_rpco_galera.yml <<EOF
 ---
@@ -70,26 +73,23 @@ EOF
 
 function disable_security_role {
   # NOTE(cloudnull): The security role is tested elsewhere, there's no need to run it here.
-  if [[ ! -d "/etc/openstack_deploy" ]]; then
-    mkdir -p /etc/openstack_deploy
-  fi
+  _ensure_osa_dir
+
   echo "apply_security_hardening: false" | tee -a /etc/openstack_deploy/user_nosec.yml
 }
 
 function git_checkout {
-  # Checkout the provided when the series undefined
-  if [ "${IRR_SERIES}" == "undefined" ]; then
+  # NOTE(cloudnull): Checkout the provided when the series undefined
+  if [ "${IRR_CONTEXT}" == "undefined" ]; then
     git checkout "${1}"
   else
-    git checkout "${IRR_SERIES}"
+    git checkout "${IRR_CONTEXT}"
   fi
 }
 
 function set_gating_vars {
-  # NOTE(cloudnull): Set gate specific vars needed for AIOs.
-  if [[ ! -d "/etc/openstack_deploy" ]]; then
-    mkdir -p /etc/openstack_deploy
-  fi
+  # NOTE(cloudnull): Set variables to ensure AIO gate success.
+  _ensure_osa_dir
 
   cat > /etc/openstack_deploy/user_rpco_leap.yml <<EOF
 ---
@@ -100,8 +100,16 @@ EOF
 
 function kilo_caches {
   # NOTE(cloudnull): Set variables to ensure Kilo caches are functional.
+  _ensure_osa_dir
+
+  # NOTE(cloudnull): Early kilo versions fail system bootstrap due to the get
+  #                  pip script and general SSL issues.
+  export GET_PIP_URL="https://raw.githubusercontent.com/pypa/get-pip/master/get-pip.py"
+
   cat > /etc/openstack_deploy/user_kilo_caches.yml <<EOF
 ---
+pip_get_pip_url: 'https://raw.githubusercontent.com/pypa/get-pip/master/get-pip.py'
+
 repo_mirror_excludes:
   - '/repos'
   - '/mirror'
@@ -126,8 +134,35 @@ function unset_affinity {
   sed -i 's/\(_container\: \).*/\11/' ${OSA_PATH}/etc/openstack_deploy/openstack_user_config.yml.aio
 }
 
-## Main ----------------------------------------------------------------------
+function allow_frontloading_vars {
+  # NOTE(cloudnull): The kilo/liberty RPC-O deployment tools are inflexable and
+  #                  require further tuning to mimic a customer deploy. To
+  #                  get the basic setup we change this one condition so that
+  #                  we can pre-load some extra configs.
+  sed -i 's|! -d /etc/openstack_deploy/|-d "/etc/openstack_deploy/"|g' /opt/rpc-openstack/scripts/deploy.sh
+}
 
+function rpco_exports {
+  # NOTE(cloudnull): Used to set basic AIO Deployment variables.
+  export DEPLOY_HAPROXY="yes"
+  export DEPLOY_MAAS="no"
+  export DEPLOY_AIO="yes"
+}
+
+function get_ssh_role {
+  # NOTE(cloudnull): We have a broken version of the ssh role listed in the role
+  #                  requirements file. This patch gets the role from master and
+  #                  puts into a place which satisfies the role requirement.
+  if [[ ! -d "/etc/ansible/roles" ]]; then
+    mkdir -p /etc/ansible/roles
+  fi
+
+  if [[ ! -d "/etc/ansible/roles/sshd" ]]; then
+    git clone https://github.com/willshersystems/ansible-sshd /etc/ansible/roles/sshd
+  fi
+}
+
+## Main ----------------------------------------------------------------------
 echo "Gate test starting
 with:
   IRR_CONTEXT: ${IRR_CONTEXT}
@@ -156,52 +191,59 @@ fi
 
 # Enter the RPC-O workspace
 pushd /opt/rpc-openstack
-  if [ "${IRR_CONTEXT}" == "kilo" ]; then
+  if [ "${IRR_SERIES}" == "kilo" ]; then
     git_checkout "kilo"  # Last commit of Kilo
     (git submodule init && git submodule update) || true
 
-    # NOTE(cloudnull): The kilo RPC-O deployment tools are inflexable and
-    #                  require further tuning to mimic a customer deploy. To
-    #                  get the basic setup we change this one condition so that
-    #                  we can pre-load some extra configs.
-    sed -i 's|! -d /etc/openstack_deploy/|-d "/etc/openstack_deploy/"|g' /opt/rpc-openstack/scripts/deploy.sh
+    # NOTE(cloudnull): Run Kilo pre-setup functions
+    pin_jinja
+    kilo_caches
+    allow_frontloading_vars
+    rpco_exports
+    get_ssh_role
 
     # NOTE(cloudnull): Within an AIO the data disk is not needed. This disables
     #                  it so that we're not waisting cycles.
-    sed -i 's|bootstrap_host_data_disk_device is defined|disable_data_disk_device is defined|g' ${OSA_PATH}/tests/roles/bootstrap-host/tasks/main.yml
-    sed -i 's|bootstrap_host_data_disk_device is defined|disable_data_disk_device is defined|g' ${OSA_PATH}/tests/roles/bootstrap-host/tasks/check-requirements.yml
+    if [[ -d "${OSA_PATH}/tests/roles/bootstrap-host" ]]; then
+      sed -i 's|bootstrap_host_data_disk_device is defined|disable_data_disk_device is defined|g' ${OSA_PATH}/tests/roles/bootstrap-host/tasks/main.yml
+      sed -i 's|bootstrap_host_data_disk_device is defined|disable_data_disk_device is defined|g' ${OSA_PATH}/tests/roles/bootstrap-host/tasks/check-requirements.yml
+    fi
 
     # NOTE(cloudnull): Pycrypto has to be limited.
     sed -i 's|pycrypto.*|pycrypto<=2.6.1|g' ${OSA_PATH}/requirements.txt
 
-    # NOTE(cloudnull): In kilo we had a broken version of the ssh plugin listed in the role
-    #                  requirements file. This patch gets the role from master and puts
-    #                  into place which satisfies the role requirement.
-    mkdir -p /etc/ansible/roles
-    if [[ ! -d "/etc/ansible/roles/sshd" ]]; then
-      git clone https://github.com/willshersystems/ansible-sshd /etc/ansible/roles/sshd
-    fi
-
-    # NOTE(cloudnull): Used to set basic Kilo variables.
-    export DEPLOY_HAPROXY="yes"
-    export DEPLOY_MAAS="no"
-    export DEPLOY_AIO="yes"
-    pin_jinja
-    pin_galera "5.5"
-    unset_affinity
-    kilo_caches
-  elif [ "${IRR_CONTEXT}" == "liberty" ]; then
+    # NOTE(cloudnull): Early kilo versions forced repo-clone from our mirrors.
+    #                  Sadly this takes forever and is largely broken. This
+    #                  changes the default behaviour to build.
+    echo -e "---\n- include: repo-server.yml\n- include: repo-build.yml" | tee ${OSA_PATH}/playbooks/repo-install.yml
+  elif [ "${IRR_SERIES}" == "liberty" ]; then
     git_checkout "liberty"  # Last commit of Liberty
+    (git submodule init && git submodule update) || true
+
+    # NOTE(cloudnull): Run Liberty pre-setup functions
     pin_jinja
     pin_galera "10.0"
     unset_affinity
-  elif [ "${IRR_CONTEXT}" == "mitaka" ]; then
+    allow_frontloading_vars
+    rpco_exports
+    get_ssh_role
+
+    # NOTE(cloudnull): The global requirement pins for early Liberty are broken.
+    #                  This pull the pins forward so that we can continue with
+    #                  the AIO deployment for liberty
+    echo -e "pip==9.0.1\nsetuptools==28.8.0\nwheel==0.26.0" | tee ${OSA_PATH}/global-requirement-pins.txt
+  elif [ "${IRR_SERIES}" == "mitaka" ]; then
     git_checkout "mitaka"  # Last commit of Mitaka
+    (git submodule init && git submodule update) || true
+
+    # NOTE(cloudnull): Run Mitaka pre-setup functions
     pin_jinja
     pin_galera "10.0"
     unset_affinity
+    allow_frontloading_vars
+    rpco_exports
   else
-    if ! git_checkout ${IRR_CONTEXT}; then
+    if ! git_checkout ${IRR_SERIES}; then
       echo "FAIL!"
       echo "This job requires the IRR_CONTEXT or IRR_SERIES to be a valid checkout within OSA"
       exit 99
@@ -215,7 +257,9 @@ pushd /opt/rpc-openstack
   fi
 
   # Disable tempest on older releases
-  sed -i '/.*run-tempest.sh.*/d' ${OSA_PATH}/scripts/gate-check-commit.sh  # Disable the tempest run
+  if [[ -f "${OSA_PATH}/scripts/gate-check-commit.sh" ]]; then
+    sed -i '/.*run-tempest.sh.*/d' ${OSA_PATH}/scripts/gate-check-commit.sh  # Disable the tempest run
+  fi
 
   # Disable the sec role
   disable_security_role
