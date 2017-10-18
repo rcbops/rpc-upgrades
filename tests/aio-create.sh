@@ -32,7 +32,7 @@ export TESTING_HOME="${TESTING_HOME:-$HOME}"
 export ANSIBLE_LOG_DIR="${TESTING_HOME}/.ansible/logs"
 export ANSIBLE_LOG_PATH="${ANSIBLE_LOG_DIR}/ansible-aio.log"
 export OSA_PATH="/opt/rpc-openstack/openstack-ansible"
-
+export DATA_DISK_DEVICE=xvde
 
 ## Functions -----------------------------------------------------------------
 function pin_jinja {
