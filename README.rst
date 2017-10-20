@@ -7,7 +7,7 @@ Overview
 --------
 
 A Leapfrog upgrade is a major upgrade that skips at least one release. Currently
-RPCO supports leapfrog upgrades from kilo to r14.1.0 (newton).
+RPCO supports leapfrog upgrades from kilo to r14.2.0 (newton).
 
 
 Terms
