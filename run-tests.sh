@@ -52,6 +52,7 @@ if [ "${FUNCTIONAL_TEST}" = true ]; then
   sudo -H --preserve-env pip install -r test-requirements.txt
   sudo -H --preserve-env ./tests/aio-create.sh
   sudo -H --preserve-env ./tests/test-leapfrog.sh
+  sudo -H --preserve-env ./tests/run-tempest.sh
 else
   sudo -H --preserve-env tox
 fi

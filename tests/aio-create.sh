@@ -158,6 +158,10 @@ function get_ssh_role {
 
   if [[ ! -d "/etc/ansible/roles/sshd" ]]; then
     git clone https://github.com/willshersystems/ansible-sshd /etc/ansible/roles/sshd
+    pushd /etc/ansible/roles/sshd
+      # checks out commit before it breaks by using "package" on Ansible 1.9x
+      git checkout f85838007002e47712dde60d7bbf747400264dc9
+    popd
   fi
 }
 
