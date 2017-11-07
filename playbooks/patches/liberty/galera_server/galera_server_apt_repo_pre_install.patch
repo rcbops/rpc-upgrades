@@ -1,0 +1,41 @@
+diff --git a/playbooks/roles/galera_server/tasks/galera_pre_install.yml b/playbooks/roles/galera_server/tasks/galera_pre_install.yml
+index 4b84ac6..cf96eb6 100644
+--- a/playbooks/roles/galera_server/tasks/galera_pre_install.yml
++++ b/playbooks/roles/galera_server/tasks/galera_pre_install.yml
+@@ -67,6 +67,36 @@
+   tags:
+     - galera-apt-keys
+
++- name: Reset apt cache
++  file:
++    path: "{{ item }}"
++    state: "absent"
++  with_items:
++    - /var/cache/apt
++    - /var/lib/apt/lists
++  tags:
++    - galera-apt-packages
++
++- name: Regen apt dirs
++  file:
++    path: "{{ item }}"
++    state: "directory"
++  with_items:
++    - /var/cache/apt
++    - /var/lib/apt/lists
++  tags:
++    - galera-apt-packages
++
++- name: Update apt sources
++  apt:
++    update_cache: yes
++  register: apt_update
++  until: apt_update|success
++  retries: 5
++  delay: 2
++  tags:
++    - galera-apt-packages
++
+ - name: Drop galera repo pin
+   template:
+     src: "galera_pin.pref.j2"

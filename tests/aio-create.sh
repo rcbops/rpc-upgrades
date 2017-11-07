@@ -32,6 +32,7 @@ export TESTING_HOME="${TESTING_HOME:-$HOME}"
 export ANSIBLE_LOG_DIR="${TESTING_HOME}/.ansible/logs"
 export ANSIBLE_LOG_PATH="${ANSIBLE_LOG_DIR}/ansible-aio.log"
 export OSA_PATH="/opt/rpc-openstack/openstack-ansible"
+export WORKSPACE_PATH=`pwd`
 
 ## Functions -----------------------------------------------------------------
 function pin_jinja {
@@ -95,13 +96,6 @@ function set_gating_vars {
 neutron_legacy_ha_tool_enabled: true
 lxc_container_backing_store: dir
 EOF
-}
-
-function run_bootstrap {
-  # run the bootstrap to pull down all roles in case we need to modify by context
-  export DEPLOY_AIO="yes"
-  export DEPLOY_OA="no"
-  scripts/deploy.sh
 }
 
 function kilo_caches {
@@ -173,17 +167,13 @@ function get_ssh_role {
 }
 
 function fix_galera_apt_cache {
-  # galera server role doesn't refresh apt cache for repos
-  if grep '\scache_valid_time\:' /etc/ansible/roles/galera_server/tasks/galera_install.yml; then
-    sed -i '/\scache_valid_time:.*/d' /etc/ansible/roles/galera_server/tasks/galera_install.yml
-  fi
-}
-
-function run_deploy {
-  export DEPLOY_AIO=yes
-  export DEPLOY_OA=yes
-  export DEPLOY_RPC=yes
-  scripts/deploy.sh
+  # if old percona key, then add new key and regen apt cache
+  pushd /opt/rpc-openstack/openstack-ansible
+    if grep '0x1c4cbdcdcd2efd2a' /opt/rpc-openstack/openstack-ansible/playbooks/roles/galera_server/defaults/main.yml; then
+      patch -p1 < ${WORKSPACE_PATH}/playbooks/patches/liberty/galera_server/galera_server_apt_repo_defaults.patch
+      patch -p1 < ${WORKSPACE_PATH}/playbooks/patches/liberty/galera_server/galera_server_apt_repo_pre_install.patch
+    fi
+  popd
 }
 
 ## Main ----------------------------------------------------------------------
@@ -284,13 +274,7 @@ pushd /opt/rpc-openstack
 
   # Run the leapfrog job with gate specific vars
   set_gating_vars
- 
-  # Run initial bootstrap but don't deploy OSA yet
-  run_bootstrap
 
-  fix_galera_apt_cache
- 
   # Setup an AIO
-  run_deploy
-
+  scripts/deploy.sh
 popd

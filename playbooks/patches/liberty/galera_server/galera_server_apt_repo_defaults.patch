@@ -1,0 +1,13 @@
+diff --git a/playbooks/roles/galera_server/defaults/main.yml b/playbooks/roles/galera_server/defaults/main.yml
+index 6f84c07..84835af 100644
+--- a/playbooks/roles/galera_server/defaults/main.yml
++++ b/playbooks/roles/galera_server/defaults/main.yml
+@@ -75,7 +75,7 @@ galera_gpg_keys:
+   - key_name: 'percona-xtrabackup'
+     keyserver: 'hkp://keyserver.ubuntu.com:80'
+     fallback_keyserver: 'hkp://p80.pool.sks-keyservers.net:80'
+-    hash_id: '0x1c4cbdcdcd2efd2a'
++    hash_id: '0x9334A25F8507EFA5'
+
+ # Repositories
+ galera_apt_repo_url: "https://mirror.rackspace.com/mariadb/repo/10.0/ubuntu"
