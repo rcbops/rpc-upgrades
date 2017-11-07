@@ -97,6 +97,13 @@ lxc_container_backing_store: dir
 EOF
 }
 
+function run_bootstrap {
+  # run the bootstrap to pull down all roles in case we need to modify by context
+  export DEPLOY_AIO="yes"
+  export DEPLOY_OA="no"
+  scripts/deploy.sh
+}
+
 function kilo_caches {
   # NOTE(cloudnull): Set variables to ensure Kilo caches are functional.
   _ensure_osa_dir
@@ -165,6 +172,20 @@ function get_ssh_role {
   fi
 }
 
+function fix_galera_apt_cache {
+  # galera server role doesn't refresh apt cache for repos
+  if grep '\scache_valid_time\:' /etc/ansible/roles/galera_server/tasks/galera_install.yml; then
+    sed -i '/\scache_valid_time:.*/d' /etc/ansible/roles/galera_server/tasks/galera_install.yml
+  fi
+}
+
+function run_deploy {
+  export DEPLOY_AIO=yes
+  export DEPLOY_OA=yes
+  export DEPLOY_RPC=yes
+  scripts/deploy.sh
+}
+
 ## Main ----------------------------------------------------------------------
 echo "Gate test starting
 with:
@@ -223,6 +244,7 @@ pushd /opt/rpc-openstack
     allow_frontloading_vars
     rpco_exports
     get_ssh_role
+    fix_galera_apt_cache
 
     # NOTE(cloudnull): The global requirement pins for early Liberty are broken.
     #                  This pull the pins forward so that we can continue with
@@ -262,7 +284,13 @@ pushd /opt/rpc-openstack
 
   # Run the leapfrog job with gate specific vars
   set_gating_vars
+ 
+  # Run initial bootstrap but don't deploy OSA yet
+  run_bootstrap
 
+  fix_galera_apt_cache
+ 
   # Setup an AIO
-  scripts/deploy.sh
+  run_deploy
+
 popd
