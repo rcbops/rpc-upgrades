@@ -32,6 +32,7 @@ export TESTING_HOME="${TESTING_HOME:-$HOME}"
 export ANSIBLE_LOG_DIR="${TESTING_HOME}/.ansible/logs"
 export ANSIBLE_LOG_PATH="${ANSIBLE_LOG_DIR}/ansible-aio.log"
 export OSA_PATH="/opt/rpc-openstack/openstack-ansible"
+export WORKSPACE_PATH=`pwd`
 
 ## Functions -----------------------------------------------------------------
 function pin_jinja {
@@ -158,7 +159,21 @@ function get_ssh_role {
 
   if [[ ! -d "/etc/ansible/roles/sshd" ]]; then
     git clone https://github.com/willshersystems/ansible-sshd /etc/ansible/roles/sshd
+    pushd /etc/ansible/roles/sshd
+      # checks out commit before it breaks by using "package" on Ansible 1.9x
+      git checkout f85838007002e47712dde60d7bbf747400264dc9
+    popd
   fi
+}
+
+function fix_galera_apt_cache {
+  # if old percona key, then add new key and regen apt cache
+  pushd /opt/rpc-openstack/openstack-ansible
+    if grep '0x1c4cbdcdcd2efd2a' /opt/rpc-openstack/openstack-ansible/playbooks/roles/galera_server/defaults/main.yml; then
+      patch -p1 < ${WORKSPACE_PATH}/playbooks/patches/liberty/galera_server/galera_server_apt_repo_defaults.patch
+      patch -p1 < ${WORKSPACE_PATH}/playbooks/patches/liberty/galera_server/galera_server_apt_repo_pre_install.patch
+    fi
+  popd
 }
 
 ## Main ----------------------------------------------------------------------
@@ -219,6 +234,7 @@ pushd /opt/rpc-openstack
     allow_frontloading_vars
     rpco_exports
     get_ssh_role
+    fix_galera_apt_cache
 
     # NOTE(cloudnull): The global requirement pins for early Liberty are broken.
     #                  This pull the pins forward so that we can continue with

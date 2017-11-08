@@ -27,5 +27,5 @@ elif [ "${IRR_SERIES}" == "mitaka" ]; then
   export RPC_TARGET_CHECKOUT="newton"
   export OA_OPS_REPO_BRANCH="0690bb608527b90596e5522cc852ffa655228807"
 fi
-  
+
 sudo --preserve-env $(readlink -e $(dirname ${0}))/../scripts/ubuntu14-leapfrog.sh
