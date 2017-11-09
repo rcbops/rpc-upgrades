@@ -25,9 +25,8 @@ env
 echo "+-------------------- AIO ENV VARS --------------------+"
 
 ## Vars ----------------------------------------------------------------------
-export IRR_SERIES="${IRR_SERIES:-master}"
-export IRR_CONTEXT="${IRR_CONTEXT:-undefined}"
-
+export RE_JOB_SERIES="${RE_JOB_SERIES:-master}"
+export RE_JOB_CONTEXT="${RE_JOB_CONTEXT:-undefined}"
 export TESTING_HOME="${TESTING_HOME:-$HOME}"
 export ANSIBLE_LOG_DIR="${TESTING_HOME}/.ansible/logs"
 export ANSIBLE_LOG_PATH="${ANSIBLE_LOG_DIR}/ansible-aio.log"
@@ -80,10 +79,10 @@ function disable_security_role {
 
 function git_checkout {
   # NOTE(cloudnull): Checkout the provided when the series undefined
-  if [ "${IRR_CONTEXT}" == "undefined" ]; then
+  if [ "${RE_JOB_CONTEXT}" == "undefined" ]; then
     git checkout "${1}"
   else
-    git checkout "${IRR_CONTEXT}"
+    git checkout "${RE_JOB_CONTEXT}"
   fi
 }
 
@@ -179,8 +178,10 @@ function fix_galera_apt_cache {
 ## Main ----------------------------------------------------------------------
 echo "Gate test starting
 with:
-  IRR_CONTEXT: ${IRR_CONTEXT}
-  IRR_SERIES: ${IRR_SERIES}
+  RE_JOB_CONTEXT: ${RE_JOB_CONTEXT}
+  RE_JOB_SERIES: ${RE_JOB_SERIES}
+  RE_JOB_UPGRADE_TO: ${RE_JOB_UPGRADE_TO}
+  RE_JOB_UPGRADE_ACTION: ${RE_JOB_UPGRADE_ACTION}
   TESTING_HOME: ${TESTING_HOME}
   ANSIBLE_LOG_PATH: ${ANSIBLE_LOG_PATH}
 "
@@ -205,7 +206,7 @@ fi
 
 # Enter the RPC-O workspace
 pushd /opt/rpc-openstack
-  if [ "${IRR_SERIES}" == "kilo" ]; then
+  if [ "${RE_JOB_SERIES}" == "kilo" ]; then
     git_checkout "kilo"  # Last commit of Kilo
     (git submodule init && git submodule update) || true
 
@@ -223,7 +224,7 @@ pushd /opt/rpc-openstack
     #                  Sadly this takes forever and is largely broken. This
     #                  changes the default behaviour to build.
     echo -e "---\n- include: repo-server.yml\n- include: repo-build.yml" | tee ${OSA_PATH}/playbooks/repo-install.yml
-  elif [ "${IRR_SERIES}" == "liberty" ]; then
+  elif [ "${RE_JOB_SERIES}" == "liberty" ]; then
     git_checkout "liberty"  # Last commit of Liberty
     (git submodule init && git submodule update) || true
 
@@ -240,7 +241,7 @@ pushd /opt/rpc-openstack
     #                  This pull the pins forward so that we can continue with
     #                  the AIO deployment for liberty
     echo -e "pip==9.0.1\nsetuptools==28.8.0\nwheel==0.26.0" | tee ${OSA_PATH}/global-requirement-pins.txt
-  elif [ "${IRR_SERIES}" == "mitaka" ]; then
+  elif [ "${RE_JOB_SERIES}" == "mitaka" ]; then
     git_checkout "mitaka"  # Last commit of Mitaka
     (git submodule init && git submodule update) || true
 
@@ -251,9 +252,9 @@ pushd /opt/rpc-openstack
     allow_frontloading_vars
     rpco_exports
   else
-    if ! git_checkout ${IRR_SERIES}; then
+    if ! git_checkout ${RE_JOB_SERIES}; then
       echo "FAIL!"
-      echo "This job requires the IRR_CONTEXT or IRR_SERIES to be a valid checkout within OSA"
+      echo "This job requires the RE_JOB_CONTEXT or RE_JOB_SERIES to be a valid checkout within OSA"
       exit 99
     fi
   fi
