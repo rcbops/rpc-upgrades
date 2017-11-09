@@ -90,7 +90,7 @@ function set_gating_vars {
   # NOTE(cloudnull): Set variables to ensure AIO gate success.
   _ensure_osa_dir
 
-  cat > /etc/openstack_deploy/user_rpco_leap.yml <<EOF
+  cat > /etc/openstack_deploy/user_rpco_upgrade.yml <<EOF
 ---
 neutron_legacy_ha_tool_enabled: true
 lxc_container_backing_store: dir
@@ -251,6 +251,16 @@ pushd /opt/rpc-openstack
     unset_affinity
     allow_frontloading_vars
     rpco_exports
+  elif [ "${RE_JOB_SERIES}" == "newton" ]; then
+    git_checkout "newton"  # Last commit of Newton
+    (git submodule init && git submodule update) || true
+
+    # NOTE(cloudnull): Run Newton pre-setup functions
+    pin_jinja
+    pin_galera "10.0"
+    unset_affinity
+    allow_frontloading_vars
+    rpco_exports
   else
     if ! git_checkout ${RE_JOB_SERIES}; then
       echo "FAIL!"
@@ -273,7 +283,7 @@ pushd /opt/rpc-openstack
   # Disable the sec role
   disable_security_role
 
-  # Run the leapfrog job with gate specific vars
+  # Run the upgrade job with gate specific vars
   set_gating_vars
 
   # Setup an AIO
