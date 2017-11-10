@@ -17,13 +17,13 @@
 export VALIDATE_UPGRADE_INPUT=false
 export AUTOMATIC_VAR_MIGRATE_FLAG="--for-testing-take-new-vars-only"
 
-if [ "${IRR_SERIES}" == "kilo" ]; then
+if [ "${RE_JOB_SERIES}" == "kilo" ]; then
   export RPC_TARGET_CHECKOUT="r14.2.0"
   export OA_OPS_REPO_BRANCH="50f3fd6df7579006748a00c271bb03d22b17ae89"
-elif [ "${IRR_SERIES}" == "liberty" ]; then
+elif [ "${RE_JOB_SERIES}" == "liberty" ]; then
   export RPC_TARGET_CHECKOUT="newton"
   export OA_OPS_REPO_BRANCH="0690bb608527b90596e5522cc852ffa655228807"
-elif [ "${IRR_SERIES}" == "mitaka" ]; then
+elif [ "${RE_JOB_SERIES}" == "mitaka" ]; then
   export RPC_TARGET_CHECKOUT="newton"
   export OA_OPS_REPO_BRANCH="0690bb608527b90596e5522cc852ffa655228807"
 fi

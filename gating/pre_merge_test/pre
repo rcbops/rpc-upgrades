@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Copyright 2015, Rackspace US, Inc.
+# Copyright 2017, Rackspace US, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,11 +16,10 @@
 set -xeuo pipefail
 
 echo "Gate job started"
+echo "Running pre_merge_test/pre hook"
 echo "+-------------------- START ENV VARS --------------------+"
 env
 echo "+-------------------- START ENV VARS --------------------+"
-
-export FUNCTIONAL_TEST=${FUNCTIONAL_TEST:-true}
 
 # Install python2 for Ubuntu 16.04 and CentOS 7
 if which apt-get; then
@@ -45,14 +44,4 @@ sudo pip install bindep tox
 #   epel-release    - required to install python-ndg_httpsclient/python2-pyasn1
 if which yum; then
     sudo yum -y install redhat-lsb-core epel-release
-fi
-
-if [ "${FUNCTIONAL_TEST}" = true ]; then
-  sudo -H --preserve-env ./run-bindep.sh
-  sudo -H --preserve-env pip install -r test-requirements.txt
-  sudo -H --preserve-env ./tests/aio-create.sh
-  sudo -H --preserve-env ./tests/test-leapfrog.sh
-#  sudo -H --preserve-env ./tests/run-tempest.sh
-else
-  sudo -H --preserve-env tox
 fi
