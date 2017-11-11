@@ -31,6 +31,7 @@ export LEAP_BASE_DIR="$(readlink -e $(dirname ${0}))"
 
 ## Leapfrog Vars ----------------------------------------------------------------------
 export RPCO_DEFAULT_FOLDER="/opt/rpc-openstack"
+export RPC_UPGRADES_DEFAULT_FOLDER="/opt/rpc-upgrades"
 # Temp location for the code and config files backups.
 export LEAPFROG_DIR=${LEAPFROG_DIR:-"/opt/rpc-leapfrog"}
 # OSA leapfrog tooling location
