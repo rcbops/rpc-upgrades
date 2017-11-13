@@ -21,6 +21,16 @@ echo "+-------------------- START ENV VARS --------------------+"
 env
 echo "+-------------------- START ENV VARS --------------------+"
 
+# If the current folder's basename is rpc-upgrades then we assume
+# that it is the root of the git clone. If the git clone is not in
+# /opt then we symlink the current folder there so that all the
+# rpc-upgrades scripts work as expected.
+if [[ "$(basename ${PWD})" == "rpc-upgrades" ]]; then
+  if [[ "${PWD}" != "/opt/rpc-upgrades" ]]; then
+    ln -sfn ${PWD} /opt/rpc-upgrades
+  fi
+fi
+
 # Install python2 for Ubuntu 16.04 and CentOS 7
 if which apt-get; then
     sudo apt-get update && sudo apt-get install -y python wget
