@@ -62,6 +62,11 @@ function log {
 }
 
 ### Main ----------------------------------------------------------------------
+# Pre-flight check
+pushd /opt/rpc-upgrades/playbooks
+    openstack-ansible preflight-check.yml
+popd
+
 # Setup the base work folders
 if [[ ! -d ${LEAPFROG_DIR} ]]; then
     mkdir -p ${LEAPFROG_DIR}
