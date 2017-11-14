@@ -56,7 +56,7 @@ fi
 if [ "${FUNCTIONAL_TEST}" = true ]; then
   sudo -H --preserve-env ./run-bindep.sh
   sudo -H --preserve-env pip install -r test-requirements.txt
-  if [ "${RE_JOB_IMAGE}" = "mnaio"]; then
+  if [ "${RE_JOB_IMAGE}" = "mnaio" ]; then
     sudo -H --preserve-env ./tests/mnaio-create.sh
   else
     sudo -H --preserve-env ./tests/aio-create.sh
