@@ -54,6 +54,9 @@ else
 fi
 
 if [ "${FUNCTIONAL_TEST}" = true ]; then
+  pushd /opt/rpc-openstack/rpcd/playbooks
+    sudo -H --preserve-env openstack-ansible /opt/rpc-upgrades/playbooks/preflight-check.yml
+  popd
   sudo -H --preserve-env ./run-bindep.sh
   sudo -H --preserve-env pip install -r test-requirements.txt
   if [ "${RE_JOB_IMAGE}" = "mnaio" ]; then
