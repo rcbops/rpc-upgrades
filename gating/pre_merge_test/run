@@ -17,7 +17,7 @@ export FUNCTIONAL_TEST=${FUNCTIONAL_TEST:-true}
 # here to cater for situations where someone is executing the test
 # outside of the CI environment.
 export RE_JOB_NAME="${RE_JOB_NAME:-}"
-export RE_JOB_IMAGE="${RE_JOB_IMAGE:-}"
+export RE_JOB_IMAGE="${RE_JOB_IMAGE:-trusty_aio}"
 export RE_JOB_SCENARIO="${RE_JOB_SCENARIO:-swift}"
 export RE_JOB_ACTION="${RE_JOB_ACTION:-undefined}"
 export RE_JOB_FLAVOR="${RE_JOB_FLAVOR:-}"
@@ -30,6 +30,9 @@ export RE_JOB_CONTEXT=`echo ${RE_JOB_ACTION} | awk -F'_' {'print $1'}`
 export RE_JOB_UPGRADE_TO=`echo ${RE_JOB_ACTION} | awk -F'_' {'print $3'}`
 export RE_JOB_UPGRADE_ACTION=`echo ${RE_JOB_ACTION} | awk -F'_' {'print $4'}`
 
+# translates RE_JOB_IMAGE
+export RE_JOB_IMAGE_OS=`echo ${RE_JOB_IMAGE} | awk -F'_' {'print $1'}`
+export RE_JOB_IMAGE_TYPE=`echo ${RE_JOB_IMAGE} | awk -F'_' {'print $2'}`
 
 export TESTING_HOME="${TESTING_HOME:-$HOME}"
 export ANSIBLE_LOG_DIR="${TESTING_HOME}/.ansible/logs"
@@ -56,7 +59,7 @@ fi
 if [ "${FUNCTIONAL_TEST}" = true ]; then
   sudo -H --preserve-env ./run-bindep.sh
   sudo -H --preserve-env pip install -r test-requirements.txt
-  if [ "${RE_JOB_IMAGE}" = "mnaio" ]; then
+  if [ "${RE_JOB_IMAGE_TYPE}" = "mnaio" ]; then
     sudo -H --preserve-env ./tests/mnaio-create.sh
   else
     sudo -H --preserve-env ./tests/aio-create.sh
