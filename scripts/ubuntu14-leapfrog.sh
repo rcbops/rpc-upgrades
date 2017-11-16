@@ -90,11 +90,9 @@ pushd ${LEAPFROG_DIR}
         if [[ ! -d "${LEAPFROG_DIR}/rpc-openstack.pre-newton" ]]; then
             # Cleanup existing RPC, replace with new RPC
             mv ${RPCO_DEFAULT_FOLDER} ${LEAPFROG_DIR}/rpc-openstack.pre-newton
-            git clone --recursive https://github.com/rcbops/rpc-openstack ${RPCO_DEFAULT_FOLDER}
+            git clone -b "${RPC_TARGET_CHECKOUT}" --recursive https://github.com/rcbops/rpc-openstack ${RPCO_DEFAULT_FOLDER}
             pushd /opt/rpc-openstack
                 git fetch --all
-                git checkout "${RPC_TARGET_CHECKOUT}"
-                (git submodule init && git submodule update) || true
             popd
         fi
         log "rpc-prep" "ok"
