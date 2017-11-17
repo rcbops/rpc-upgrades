@@ -13,5 +13,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- include: "../playbooks/generate-resources.yml"
-- include: "../playbooks/remove-old-agents-from-maas.yml"
+#- include: "../playbooks/generate-resources.yml"
+#- include: "../playbooks/remove-old-agents-from-maas.yml"
