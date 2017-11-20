@@ -19,15 +19,10 @@
 set -e -u
 set -o pipefail
 
-# Choose if preserve Elasticsearch data in the leap
-read -p 'Enter "YES" to make sure you want to preserve Elasticsearch logs in leapfrog or anything else to skip: ' TO_UPGRADE_ELASTICSEARCH
-if ["$TO_UPGRADE_ELASTICSEARCH" == "YES"]; then
-    echo 'Elasticsearch logs will be preserved.'
-    export UPGRADE_ELASTICSEARCH="YES"
-    export CONTAINERS_TO_DESTROY='all_containers:!galera_all:!neutron_agent:!ceph_all:!rsyslog_all:!elasticsearch_all'
-else
-    echo 'Elasticsearch logs will not be preserved.'
-fi
+# Preserve Elasticsearch data in the leap
+echo 'Elasticsearch logs will be preserved.'
+export UPGRADE_ELASTICSEARCH="YES"
+export CONTAINERS_TO_DESTROY='all_containers:!galera_all:!neutron_agent:!ceph_all:!rsyslog_all:!elasticsearch_all'
 
 # Branches lower than Newton may have ansible_host: ansible_ssh_host mapping
 # that will fail because ansible_ssh_host is undefined on ansible 2.1
