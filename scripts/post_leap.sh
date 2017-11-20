@@ -35,4 +35,11 @@ if [[ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/deploy-rpc.complete" ]]; then
 else
   log "deploy-rpc" "skipped"
 fi
+
+if [ -f "$UPGRADE_ELASTICSEARCH" ]; then
+    pushd /opt/rpc-upgrades/scripts
+        source ./elasticsearch_upgrade.sh
+    popd
+fi
+
 echo "LEAPFROG COMPLETE."
