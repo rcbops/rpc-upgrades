@@ -18,12 +18,6 @@
 set -e -u -x
 set -o pipefail
 
-# Check upgrade flag
-if ! [[ "$UPGRADE_ELASTICSEARCH" == "YES" ]]; then
-    echo 'ELasticserach logs are not preserved.'
-    return 99
-fi
-
 pushd /opt/rpc-openstack/rpcd/playbooks
     # Update pip.conf on Elasticsearch container
     openstack-ansible /opt/rpc-upgrades/playbooks/elasticsearch-postleap-pip-upgrade.yml

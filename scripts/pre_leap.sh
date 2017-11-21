@@ -20,9 +20,8 @@ set -e -u
 set -o pipefail
 
 # Preserve Elasticsearch data in the leap
-echo 'Elasticsearch logs will be preserved.'
-export UPGRADE_ELASTICSEARCH="YES"
-export CONTAINERS_TO_DESTROY='all_containers:!galera_all:!neutron_agent:!ceph_all:!rsyslog_all:!elasticsearch_all'
+export UPGRADE_ELASTICSEARCH=${UPGRADE_ELASTICSEARCH:-"yes"}
+export CONTAINERS_TO_DESTROY=${CONTAINERS_TO_DESTROY:-'all_containers:!galera_all:!neutron_agent:!ceph_all:!rsyslog_all:!elasticsearch_all'}
 
 # Branches lower than Newton may have ansible_host: ansible_ssh_host mapping
 # that will fail because ansible_ssh_host is undefined on ansible 2.1

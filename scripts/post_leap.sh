@@ -36,7 +36,7 @@ else
   log "deploy-rpc" "skipped"
 fi
 
-if [ -f "$UPGRADE_ELASTICSEARCH" ]; then
+if [ "$UPGRADE_ELASTICSEARCH"="yes" ]; then
     pushd /opt/rpc-upgrades/scripts
         source ./elasticsearch_upgrade.sh
     popd
