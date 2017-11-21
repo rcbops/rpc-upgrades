@@ -14,4 +14,3 @@
 # limitations under the License.
 
 - include: "../playbooks/generate-resources.yml"
-- include: "../playbooks/remove-old-agents-from-maas.yml"

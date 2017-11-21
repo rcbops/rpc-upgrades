@@ -19,6 +19,8 @@
     - name: Check if instances already exist
       shell: ". ~/openrc; nova list"
       register: instance_check
+      tags:
+        - skip_ansible_lint
     - name: Set if instances exist
       set_fact:
         existing_instances: "{{ 'test_server_' in instance_check.stdout }}"
@@ -50,7 +52,8 @@
         OS_PROJECT_DOMAIN_NAME: "Default"
         PATH: "{{ venv }}/bin"
       when: not existing_instances | bool
-    - fetch:
+    - name: Fetch resources JSON
+      fetch:
         src: "/tmp/generated_resources.json"
         dest: "/etc/"
         flat: "yes"
