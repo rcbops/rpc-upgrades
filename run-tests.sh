@@ -15,44 +15,7 @@
 
 set -xeuo pipefail
 
-echo "Gate job started"
-echo "+-------------------- START ENV VARS --------------------+"
-env
-echo "+-------------------- START ENV VARS --------------------+"
+export RE_JOB_ACTION="${RE_JOB_ACTION:-liberty_to_newton_leap}"
 
-export FUNCTIONAL_TEST=${FUNCTIONAL_TEST:-true}
-
-# Install python2 for Ubuntu 16.04 and CentOS 7
-if which apt-get; then
-    sudo apt-get update && sudo apt-get install -y python wget
-fi
-
-if which yum; then
-    sudo yum install -y python wget
-fi
-
-# Install pip.
-if ! which pip; then
-  curl --silent --show-error --retry 5 \
-    https://bootstrap.pypa.io/get-pip.py | sudo python2.7
-fi
-
-# Install bindep and tox with pip.
-sudo pip install bindep tox
-
-# CentOS 7 requires two additional packages:
-#   redhat-lsb-core - for bindep profile support
-#   epel-release    - required to install python-ndg_httpsclient/python2-pyasn1
-if which yum; then
-    sudo yum -y install redhat-lsb-core epel-release
-fi
-
-if [ "${FUNCTIONAL_TEST}" = true ]; then
-  sudo -H --preserve-env ./run-bindep.sh
-  sudo -H --preserve-env pip install -r test-requirements.txt
-  sudo -H --preserve-env ./tests/aio-create.sh
-  sudo -H --preserve-env ./tests/test-upgrade.sh
-#  sudo -H --preserve-env ./tests/run-tempest.sh
-else
-  sudo -H --preserve-env tox
-fi
+sudo -H --preserve-env ./gating/pre_merge_test/pre
+sudo -H --preserve-env ./gating/pre_merge_test/run
