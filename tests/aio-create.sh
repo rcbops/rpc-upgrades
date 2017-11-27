@@ -177,6 +177,13 @@ function fix_galera_apt_cache {
   popd
 }
 
+function maas_tweaks {
+  # RLM-518 older versions of liberty did not set maas_swift_accesscheck_password
+  if ! grep '^maas_swift_accesscheck_password\:' /opt/rpc-openstack/rpcd/etc/openstack_deploy/user_extras_secrets.yml; then
+    echo 'maas_swift_accesscheck_password:' >> /opt/rpc-openstack/rpcd/etc/openstack_deploy/user_extras_secrets.yml
+  fi
+}
+
 ## Main ----------------------------------------------------------------------
 echo "Gate test starting
 with:
@@ -236,6 +243,7 @@ pushd /opt/rpc-openstack
     rpco_exports
     get_ssh_role
     fix_galera_apt_cache
+    maas_tweaks
 
     # NOTE(cloudnull): The global requirement pins for early Liberty are broken.
     #                  This pull the pins forward so that we can continue with
