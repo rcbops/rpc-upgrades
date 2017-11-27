@@ -20,7 +20,8 @@ set -evu
 
 pushd /opt/rpc-upgrades/playbooks
   # install maas
-  openstack-ansible maas-setup.yml -vv
+  openstack-ansible maas-get.yml -vv
+  openstack-ansible /opt/rpc-maas/playbooks/site.yml -vv
   # verify maax is running
   openstack-ansible /opt/rpc-maas/playbooks/maas-verify.yml -vv
 popd
