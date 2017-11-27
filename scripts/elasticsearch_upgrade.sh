@@ -18,16 +18,20 @@
 set -e -u -x
 set -o pipefail
 
-pushd /opt/rpc-openstack/rpcd/playbooks
+pushd /opt/rpc-upgrades/playbooks
     # Update pip.conf on Elasticsearch container
-    openstack-ansible /opt/rpc-upgrades/playbooks/elasticsearch-postleap-pip-upgrade.yml
+    openstack-ansible elasticsearch-postleap-pip-upgrade.yml
 
     # Stop logstash service on Logstash container
-    openstack-ansible /opt/rpc-upgrades/playbooks/logstash-stop.yml
+    openstack-ansible logstash-stop.yml
+popd
 
+pushd /opt/rpc-openstack/rpcd/playbooks
     # Run elasticsearch upgrade playbook
     openstack-ansible -e 'logging_upgrade=true' --tags 'reindex-wrapper,elasticsearch-upgrade' elasticsearch.yml
+popd
 
+pushd /opt/rpc-upgrades/playbooks
     # Restore logstash service on Logstash container
-    openstack-ansible /opt/rpc-upgrades/playbooks/logstash-start.yml
+    openstack-ansible logstash-start.yml
 popd
