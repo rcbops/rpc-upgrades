@@ -13,6 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+- name: Upgrade pip on Elasticsearch container
+  hosts: elasticsearch_all
+  user: root
+  roles:
+    - role: "pip_install"
+
 - name: Stop logstash serivce
   hosts: logstash_all
   user: root
@@ -21,4 +27,23 @@
       service:
         name: logstash
         state: stopped
+        pattern: logstash
+
+- name: New session to reindex Elasticsearch
+  command: "{{ item }}"
+  args:
+    chdir: /opt/rpc-openstack/rpcd/playbooks
+  with_items:
+    - tmux new-session -d -s es-reindex
+    - tmux select-pane -t es-reindex
+    - tmux send-keys "openstack-ansible -e 'logging_upgrade=true' --tags 'reindex-wrapper,elasticsearch-upgrade' elasticsearch.yml" C-m
+
+- name: Start logstash serivce
+  hosts: logstash_all
+  user: root
+  tasks:
+    - name: Service start
+      service:
+        name: logstash
+        state: started
         pattern: logstash
