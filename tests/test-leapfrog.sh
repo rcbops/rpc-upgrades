@@ -14,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+set -evu
+
 export VALIDATE_UPGRADE_INPUT=false
 export AUTOMATIC_VAR_MIGRATE_FLAG="--for-testing-take-new-vars-only"
 
@@ -32,7 +34,7 @@ sudo --preserve-env $(readlink -e $(dirname ${0}))/../scripts/ubuntu14-leapfrog.
 
 # if rpc-maas repo exists, run maas-verify
 if [ -d "/opt/rpc-maas" ]; then
-  pushd /opt/rpc-upgrades/playbooks
+  pushd /opt/rpc-maas/playbooks
     openstack-ansible maas-verify.yml -vv
   popd
 fi
