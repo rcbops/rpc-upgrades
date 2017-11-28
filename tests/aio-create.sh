@@ -95,7 +95,6 @@ function set_gating_vars {
 neutron_legacy_ha_tool_enabled: true
 lxc_container_backing_store: dir
 maas_use_api: false
-maas_release: master
 EOF
 }
 

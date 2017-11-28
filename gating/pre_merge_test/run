@@ -66,6 +66,7 @@ if [ "${FUNCTIONAL_TEST}" = true ]; then
   fi
   sudo -H --preserve-env ./tests/maas-install.sh
   sudo -H --preserve-env ./tests/test-upgrade.sh
+  sudo -H --preserve-env ./tests/maas-install.sh
 #  sudo -H --preserve-env ./tests/run-tempest.sh
 else
   sudo -H --preserve-env tox

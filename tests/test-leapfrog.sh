@@ -22,14 +22,12 @@ export RPC_TARGET_CHECKOUT=${RE_JOB_UPGRADE_TO:-'newton'}
 
 if [ "${RE_JOB_SERIES}" == "kilo" ]; then
   export OA_OPS_REPO_BRANCH="50f3fd6df7579006748a00c271bb03d22b17ae89"
+  export UPGRADE_ELASTICSEARCH=no
+  export CONTAINERS_TO_DESTROY='all_containers:!galera_all:!neutron_agent:!ceph_all:!rsyslog_all'
+elif [ "${RE_JOB_SERIES}" == "liberty" ]; then
+  export UPGRADE_ELASTICSEARCH=no
+  export CONTAINERS_TO_DESTROY='all_containers:!galera_all:!neutron_agent:!ceph_all:!rsyslog_all'
 fi
 
 # execute leapfrog
 sudo --preserve-env $(readlink -e $(dirname ${0}))/../scripts/ubuntu14-leapfrog.sh
-
-# if rpc-maas repo exists, run maas-verify
-#if [ -d "/opt/rpc-maas" ]; then
-#  pushd /opt/rpc-upgrades/playbooks
-#    openstack-ansible /opt/rpc-maas/playbooks/maas-verify.yml -vv
-#  popd
-#fi
