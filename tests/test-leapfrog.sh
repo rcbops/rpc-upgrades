@@ -33,8 +33,8 @@ fi
 sudo --preserve-env $(readlink -e $(dirname ${0}))/../scripts/ubuntu14-leapfrog.sh
 
 # if rpc-maas repo exists, run maas-verify
-if [ -d "/opt/rpc-maas" ]; then
-  pushd /opt/rpc-upgrades/playbooks
-    openstack-ansible /opt/rpc-maas/playbooks/maas-verify.yml -vv
-  popd
-fi
+#if [ -d "/opt/rpc-maas" ]; then
+#  pushd /opt/rpc-upgrades/playbooks
+#    openstack-ansible /opt/rpc-maas/playbooks/maas-verify.yml -vv
+#  popd
+#fi
