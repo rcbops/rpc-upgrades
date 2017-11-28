@@ -34,4 +34,11 @@ if [[ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/deploy-rpc.complete" ]]; then
 else
   log "deploy-rpc" "skipped"
 fi
+
+if [ "$UPGRADE_ELASTICSEARCH" == "yes" ]; then
+  pushd /opt/rpc-upgrades/playbooks
+    openstack-ansible elasticsearch-reindex.yml
+  popd
+fi
+
 echo "LEAPFROG COMPLETE."

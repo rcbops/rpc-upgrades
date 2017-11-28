@@ -102,6 +102,15 @@ before proceeding with the upgrade
 
 These variables are required by later versions, but are not defined in Kilo or Liberty.
 
+Elasticsearch container keeps all logs and will not be rebuilt in leapfrog.
+User can override envrionment variables to force it reset and rebuilt before proceeding with the upgrade
+
+.. code-block:: shell
+
+    export UPGRADE_ELASTICSEARCH="no"
+    export CONTAINERS_TO_DESTROY='all_containers:!galera_all:!neutron_agent:!ceph_all:!rsyslog_all'
+
+
 The next step is to execute the leapfrog upgrade script
 
 .. code-block:: shell
