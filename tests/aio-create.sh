@@ -231,6 +231,8 @@ pushd /opt/rpc-openstack
     #                  Sadly this takes forever and is largely broken. This
     #                  changes the default behaviour to build.
     echo -e "---\n- include: repo-server.yml\n- include: repo-build.yml" | tee ${OSA_PATH}/playbooks/repo-install.yml
+    # don't attempt an elasticsearch upgrade on kilo
+    export UPGRADE_ELASTICSEARCH="no"
   elif [ "${RE_JOB_SERIES}" == "liberty" ]; then
     git_checkout "liberty"  # Last commit of Liberty
     (git submodule init && git submodule update) || true

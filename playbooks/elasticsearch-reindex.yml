@@ -30,13 +30,17 @@
         pattern: logstash
 
 - name: New session to reindex Elasticsearch
-  command: "{{ item }}"
-  args:
-    chdir: /opt/rpc-openstack/rpcd/playbooks
-  with_items:
-    - tmux new-session -d -s es-reindex
-    - tmux select-pane -t es-reindex
-    - tmux send-keys "openstack-ansible -e 'logging_upgrade=true' --tags 'reindex-wrapper,elasticsearch-upgrade' elasticsearch.yml" C-m
+  hosts: localhost
+  user: root
+  tasks:
+    - name: Session to reindex Elasticsearch
+      command: "{{ item }}"
+      args:
+        chdir: /opt/rpc-openstack/rpcd/playbooks
+      with_items:
+        - tmux new-session -d -s es-reindex
+        - tmux select-pane -t es-reindex
+        - tmux send-keys "openstack-ansible -e 'logging_upgrade=true' --tags 'reindex-wrapper,elasticsearch-upgrade' elasticsearch.yml" C-m
 
 - name: Start logstash serivce
   hosts: logstash_all
