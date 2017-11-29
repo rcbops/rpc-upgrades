@@ -204,7 +204,7 @@ fi
 mkdir -p "${ANSIBLE_LOG_DIR}"
 
 if [ ! -d "/opt/rpc-openstack" ]; then
-  git clone --recursive https://github.com/rcbops/rpc-openstack /opt/rpc-openstack
+  git clone https://github.com/rcbops/rpc-openstack /opt/rpc-openstack
 else
   pushd /opt/rpc-openstack
     git fetch --all
