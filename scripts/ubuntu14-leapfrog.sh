@@ -52,6 +52,7 @@ export RPCD_DEFAULTS='/etc/openstack_deploy/user_rpco_variables_defaults.yml'
 export OA_DEFAULTS='/etc/openstack_deploy/user_osa_variables_defaults.yml'
 # Set the target checkout used when leaping forward.
 export RPC_TARGET_CHECKOUT=${RPC_TARGET_CHECKOUT:-'r14.2.0'}
+export QC_TEST=${QC_TEST:-'no'}
 
 ### Functions -----------------------------------------------------------------
 function log {

@@ -35,6 +35,10 @@ else
   log "deploy-rpc" "skipped"
 fi
 
+if [ "QC_TEST" == "yes" ]; then
+  . /opt/rpc-upgrades/tests/qc-test.sh
+fi
+
 if [ "$UPGRADE_ELASTICSEARCH" == "yes" ]; then
   pushd /opt/rpc-upgrades/playbooks
     openstack-ansible elasticsearch-reindex.yml
