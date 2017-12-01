@@ -18,10 +18,26 @@
 
 set -evu
 
+## Vars ----------------------------------------------------------------------
+export RE_JOB_SERIES="${RE_JOB_SERIES:-newton}"
+
+# sets the desired maas_release to test
+MAAS_RELEASE=master
+
 pushd /opt/rpc-upgrades/playbooks
-  # install maas
-  openstack-ansible maas-get.yml -vv
-  openstack-ansible /opt/rpc-maas/playbooks/site.yml -vv
-  # verify maax is running
+  # checkout rpc-maas
+  if [ ! -d "/opt/rpc-maas" ]; then
+    openstack-ansible maas-get.yml -e maas_release="${MAAS_RELEASE}" -vv
+  fi
+
+  # install rpc-maas
+  # if kilo and hasn't leaped, use a different swift_recon_path since kilo doesn't use venvs
+  if [[ ${RE_JOB_SERIES} == "kilo" && ! -f /etc/openstack_deploy/upgrade-leap/osa-leap.complete ]]; then
+    openstack-ansible /opt/rpc-maas/playbooks/site.yml -e swift_recon_path="/usr/local/bin/" -vv
+  else
+   openstack-ansible /opt/rpc-maas/playbooks/site.yml -vv
+  fi
+
+  # verify rpc-maas
   openstack-ansible /opt/rpc-maas/playbooks/maas-verify.yml -vv
 popd
