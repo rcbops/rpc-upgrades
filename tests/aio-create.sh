@@ -183,6 +183,13 @@ function maas_tweaks {
   fi
 }
 
+function ansible_retry {
+  # RLM-434 Implement ansible retries for mitaka and below
+  export ANSIBLE_SSH_RETRIES=3
+  export ANSIBLE_GIT_RELEASE=ssh_retry
+  export ANSIBLE_GIT_REPO=https://github.com/hughsaunders/ansible
+}
+
 ## Main ----------------------------------------------------------------------
 echo "Gate test starting
 with:
@@ -222,6 +229,7 @@ pushd /opt/rpc-openstack
     allow_frontloading_vars
     rpco_exports
     get_ssh_role
+    ansible_retry
 
     # NOTE(cloudnull): Pycrypto has to be limited.
     sed -i 's|pycrypto.*|pycrypto<=2.6.1|g' ${OSA_PATH}/requirements.txt
@@ -245,7 +253,7 @@ pushd /opt/rpc-openstack
     get_ssh_role
     fix_galera_apt_cache
     maas_tweaks
-
+    ansible_retry
     # NOTE(cloudnull): The global requirement pins for early Liberty are broken.
     #                  This pull the pins forward so that we can continue with
     #                  the AIO deployment for liberty
@@ -260,6 +268,7 @@ pushd /opt/rpc-openstack
     unset_affinity
     allow_frontloading_vars
     rpco_exports
+    ansible_retry
   elif [ "${RE_JOB_SERIES}" == "newton" ]; then
     git_checkout "newton"  # Last commit of Newton
     (git submodule init && git submodule update) || true
