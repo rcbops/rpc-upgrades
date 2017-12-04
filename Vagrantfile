@@ -19,10 +19,10 @@ job_actions = [
   "kilo_to_newton_leap",
   "kilo_to_r14.2.0_leap",
   "liberty_to_newton_leap",
-  "r12.2.8_to_r14.4.1_leap",
-  "r12.1.2_to_r14.4.1_leap",
-  "r12.2.2_to_r14.4.1_leap",
-  "r12.2.5_to_r14.4.1_leap",
+  "r12.2.8_to_r14.5.0_leap",
+  "r12.1.2_to_r14.5.0_leap",
+  "r12.2.2_to_r14.5.0_leap",
+  "r12.2.5_to_r14.5.0_leap",
 ]
 
 Vagrant.configure("2") do |config|
