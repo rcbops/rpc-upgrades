@@ -19,6 +19,15 @@
 set -e -u -x
 set -o pipefail
 
+function get_latest_maas_release {
+  if [ ! -d "/opt/rpc-maas" ]; then
+    git clone https://github.com/rcbops/rpc-maas /opt/rpc-maas
+  fi
+  pushd /opt/rpc-maas
+    LATEST_MAAS_TAG="$(git tag -l |grep -v '[a-zA-Z]\|^\(9\.\|10\.\)' |sort -n |tail -n 1)"
+  popd
+}
+
 echo "POST LEAP STEPS"
 
 if [[ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/deploy-rpc.complete" ]]; then
@@ -26,6 +35,9 @@ if [[ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/deploy-rpc.complete" ]]; then
     unset ANSIBLE_INVENTORY
     sed -i 's#export ANSIBLE_INVENTORY=.*#export ANSIBLE_INVENTORY="${ANSIBLE_INVENTORY:-/opt/rpc-openstack/openstack-ansible/playbooks/inventory}"#g' /usr/local/bin/openstack-ansible.rc
     sed -i 's#\*"/opt/openstack-ansible"\*#\*"/opt/rpc-openstack/openstack-ansible"\*#' /usr/local/bin/ansible
+    # get latest maas_release and update config variable
+    get_latest_maas_release
+    sed -i 's/^maas_release:.*/maas_release: ${LATEST_MAAS_TAG}/g' /etc/openstack_deploy/user_rpco_variables_defaults.yml
     # TODO(remove the following hack to restart the neutron agents, when fixed upstream)
     ansible -m shell -a "restart neutron-linuxbridge-agent" nova_compute -i /opt/rpc-openstack/openstack-ansible/playbooks/inventory/dynamic_inventory.py
     openstack-ansible ${RPC_UPGRADES_DEFAULT_FOLDER}/playbooks/remove-old-agents-from-maas.yml
