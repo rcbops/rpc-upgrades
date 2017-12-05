@@ -41,3 +41,6 @@ fi
 if grep '^horizon_custom_uploads\:' /etc/openstack_deploy/user_variables.yml; then
   sed -i '/horizon_custom_uploads:/,/src:.*logo-splash.png/d' /etc/openstack_deploy/user_variables.yml
 fi
+
+# RLM-682 versions past 2.5.2 break things
+echo "python-ldap==2.5.2" >> /opt/rpc-openstack/openstack-ansible/global-requirement-pins.txt
