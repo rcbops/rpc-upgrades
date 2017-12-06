@@ -1,5 +1,5 @@
 ---
-# Copyright 2017, Rackspace US, Inc.
+# Copyright 2018, Rackspace US, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,10 +13,36 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Quality checking after leaping
-  hosts: "hosts:all_containers"
-  gather_facts: false
-  user: root
-  tasks:
-    - name: Ping check
-      ping:
+- name: Post Upgrade Environment QC
+  hosts: localhost
+  any_errors_fatal: true
+  roles:
+    - environment_qc
+
+- name: Post Upgrade Infrastructure QC
+  hosts: localhost
+  any_errors_fatal: true
+  roles:
+    - infrastructure_qc
+
+- name: Post Upgrade Openstack QC
+  hosts: localhost
+  any_errors_fatal: true
+  roles:
+    - openstack_qc
+
+- name: Post Upgrade Swift QC
+  hosts: localhost
+  any_errors_fatal: true
+  roles:
+   - swift_qc
+
+- name: Post Upgrade RPC QC
+  hosts: localhost
+  any_errors_fatal: true
+  roles:
+   - rpc_qc
+
+## Here we need to gather all errors that were registered and alert the user
+## on how to fix them / where to fix them
+## jwagner

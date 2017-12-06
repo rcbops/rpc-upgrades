@@ -1,0 +1,39 @@
+---
+# Copyright 2018, Rackspace US, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+## Connect to horizon and do things????
+## We will need to maybe curl the dashboard and check that it is up and running?
+
+- name: Ensure Apache2 is up and running
+  shell: "service apache2 status"
+  args:
+    executable: /bin/bash
+  register: apache2_status
+  delegate_to: "{{ groups['horizon'][0] }}"
+
+- name: Output Apache2 status
+  debug:
+    var: apache2_status.stdout
+
+- name: Check Horizon ports are open and listening
+  shell: "netstat -ntlp | egrep ':80|:443' | egrep 'LISTEN'"
+  args:
+    executable: /bin/bash
+  register: horizon_port_status
+  delegate_to: "{{ groups['horizon'][0] }}"
+
+- name: Output Horizon port status
+  debug:
+    var: horizon_port_status.stdout_lines
