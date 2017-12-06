@@ -13,15 +13,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Clone MaaS
+- name: Clone rpc-maas
   hosts: localhost
   gather_facts: false
   tasks:
-    - name: Clone RPC-MaaS
+    - name: Clone rpc-maas
       git:
         repo: "https://github.com/rcbops/rpc-maas"
         dest: "/opt/rpc-maas"
-        version: "{{ maas_release }}"
+        version: "{{ rpc_maas_release }}"
     - name: Ensure openstack_deploy exists
       file:
         dest: "/etc/openstack_deploy"
