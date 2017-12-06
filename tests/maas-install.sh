@@ -20,15 +20,18 @@ set -evu
 
 ## Vars ----------------------------------------------------------------------
 export RE_JOB_SERIES="${RE_JOB_SERIES:-newton}"
+export RPCO_RELEASE=`cat /etc/openstack-release | grep DISTRIB_CODENAME | cut -d '"' -f2`
+export MAAS_RELEASE=master
 
-# sets the desired maas_release to test
-MAAS_RELEASE=master
+## Main ----------------------------------------------------------------------
+# workaround for kilos incorrect code name
+if [[ ${RPCO_RELEASE} == "1AndOne=11" ]]; then
+  RPCO_RELEASE=kilo
+fi
 
 pushd /opt/rpc-upgrades/playbooks
   # checkout rpc-maas
-  if [ ! -d "/opt/rpc-maas" ]; then
-    openstack-ansible maas-get.yml -e maas_release="${MAAS_RELEASE}" -vv
-  fi
+  openstack-ansible maas-get.yml -e maas_release="${MAAS_RELEASE}" -e rpco_release="${RPCO_RELEASE}" -vv
 
   # install rpc-maas
   # if kilo and hasn't leaped, use a different swift_recon_path since kilo doesn't use venvs
