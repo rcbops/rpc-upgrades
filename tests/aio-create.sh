@@ -70,13 +70,6 @@ galera_apt_percona_xtrabackup_url: "http://repo.percona.com/apt"
 EOF
 }
 
-function disable_security_role {
-  # NOTE(cloudnull): The security role is tested elsewhere, there's no need to run it here.
-  _ensure_osa_dir
-
-  echo "apply_security_hardening: false" | tee -a /etc/openstack_deploy/user_nosec.yml
-}
-
 function git_checkout {
   # NOTE(cloudnull): Checkout the provided when the series undefined
   if [ "${RE_JOB_CONTEXT}" == "undefined" ]; then
@@ -147,6 +140,7 @@ function rpco_exports {
   export DEPLOY_HAPROXY="yes"
   export DEPLOY_MAAS="no"
   export DEPLOY_AIO="yes"
+  export DEPLOY_HARDENING="yes"
 }
 
 function get_ssh_role {
@@ -297,9 +291,6 @@ pushd /opt/rpc-openstack
   if [[ -f "${OSA_PATH}/scripts/gate-check-commit.sh" ]]; then
     sed -i '/.*run-tempest.sh.*/d' ${OSA_PATH}/scripts/gate-check-commit.sh  # Disable the tempest run
   fi
-
-  # Disable the sec role
-  disable_security_role
 
   # Run the upgrade job with gate specific vars
   set_gating_vars
