@@ -27,6 +27,7 @@ echo "+-------------------- AIO ENV VARS --------------------+"
 ## Vars ----------------------------------------------------------------------
 export RE_JOB_SERIES="${RE_JOB_SERIES:-master}"
 export RE_JOB_CONTEXT="${RE_JOB_CONTEXT:-undefined}"
+export RE_JOB_IMAGE_TYPE="${RE_JOB_IMAGE_TYPE:-aio}"
 export TESTING_HOME="${TESTING_HOME:-$HOME}"
 export ANSIBLE_LOG_DIR="${TESTING_HOME}/.ansible/logs"
 export ANSIBLE_LOG_PATH="${ANSIBLE_LOG_DIR}/ansible-aio.log"
@@ -135,14 +136,6 @@ function allow_frontloading_vars {
   sed -i 's|! -d /etc/openstack_deploy/|-d "/etc/openstack_deploy/"|g' /opt/rpc-openstack/scripts/deploy.sh
 }
 
-function rpco_exports {
-  # NOTE(cloudnull): Used to set basic AIO Deployment variables.
-  export DEPLOY_HAPROXY="yes"
-  export DEPLOY_MAAS="no"
-  export DEPLOY_AIO="yes"
-  export DEPLOY_HARDENING="yes"
-}
-
 function get_ssh_role {
   # NOTE(cloudnull): We have a broken version of the ssh role listed in the role
   #                  requirements file. This patch gets the role from master and
@@ -221,7 +214,6 @@ pushd /opt/rpc-openstack
     pin_jinja
     kilo_caches
     allow_frontloading_vars
-    rpco_exports
     get_ssh_role
     ansible_retry
 
@@ -243,7 +235,6 @@ pushd /opt/rpc-openstack
     pin_galera "10.0"
     unset_affinity
     allow_frontloading_vars
-    rpco_exports
     get_ssh_role
     fix_galera_apt_cache
     maas_tweaks
@@ -261,7 +252,6 @@ pushd /opt/rpc-openstack
     pin_galera "10.0"
     unset_affinity
     allow_frontloading_vars
-    rpco_exports
     ansible_retry
   elif [ "${RE_JOB_SERIES}" == "newton" ]; then
     git_checkout "newton"  # Last commit of Newton
@@ -272,7 +262,6 @@ pushd /opt/rpc-openstack
     pin_galera "10.0"
     unset_affinity
     allow_frontloading_vars
-    rpco_exports
   else
     if ! git_checkout ${RE_JOB_SERIES}; then
       echo "FAIL!"
@@ -281,7 +270,7 @@ pushd /opt/rpc-openstack
     fi
   fi
 
-  # Disbale tempest on newer releases
+  # Disable tempest on newer releases
   if [[ -f "tests/roles/bootstrap-host/templates/user_variables.aio.yml.j2" ]]; then
     sed -i 's|^tempest_install.*|tempest_install: no|g' tests/roles/bootstrap-host/templates/user_variables.aio.yml.j2
     sed -i 's|^tempest_run.*|tempest_run: no|g' tests/roles/bootstrap-host/templates/user_variables.aio.yml.j2
@@ -294,7 +283,4 @@ pushd /opt/rpc-openstack
 
   # Run the upgrade job with gate specific vars
   set_gating_vars
-
-  # Setup an AIO
-  scripts/deploy.sh
 popd

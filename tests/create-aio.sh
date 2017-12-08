@@ -14,16 +14,31 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 ## Shell Opts ----------------------------------------------------------------
 
 set -evu
 
-echo "Building an MNAIO"
+echo "Building an All in One (AIO)"
 echo "+-------------------- AIO ENV VARS --------------------+"
 env
 echo "+-------------------- AIO ENV VARS --------------------+"
 
-## Vars ----------------------------------------------------------------------
-export RE_JOB_SERIES="${RE_JOB_SCENARIO:-master}"
-export RE_JOB_CONTEXT="${RE_JOB_ACTION:-undefined}"
+## Gating Vars ----------------------------------------------------------------------
+export RE_JOB_SERIES="${RE_JOB_SERIES:-master}"
+export RE_JOB_CONTEXT="${RE_JOB_CONTEXT:-undefined}"
+export RE_JOB_IMAGE_TYPE="${RE_JOB_IMAGE_TYPE:-aio}"
+
+# if rpc-o does not exist, prepare rpc-o directory
+if [ ! -d "/opt/rpc-openstack" ]; then
+  pushd /opt/rpc-upgrades
+    ./tests/prepare-rpco.sh
+  popd
+fi
+
+pushd /opt/rpc-openstack
+  export DEPLOY_HAPROXY="yes"
+  export DEPLOY_MAAS="no"
+  export DEPLOY_AIO="yes"
+  export DEPLOY_HARDENING="yes"
+  scripts/deploy.sh
+popd

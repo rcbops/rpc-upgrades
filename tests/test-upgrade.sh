@@ -14,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+set -evu
+
 if [ "${RE_JOB_UPGRADE_ACTION}" == "leap" ]; then
   tests/test-leapfrog.sh
 elif [ "${RE_JOB_UPGRADE_ACTION}" == "minor" ]; then
