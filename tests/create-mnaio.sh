@@ -51,7 +51,7 @@ export OSA_PORTS="6080 6082 443 80 8443"
 export RPC_BRANCH="${RE_JOB_CONTEXT}"
 
 # ssh command used to execute tests on infra1
-export MNAIO_SSH="ssh -oStrictHostKeyChecking=no root@infra1"
+export MNAIO_SSH="ssh -ttt -oStrictHostKeyChecking=no root@infra1"
 
 #export ADDITIONAL_COMPUTE_NODES=${env.ADDITIONAL_COMPUTE_NODES}
 #export ADDITIONAL_VOLUME_NODES=${env.ADDITIONAL_VOLUME_NODES}
@@ -103,6 +103,7 @@ set -xe
 scp -r -o StrictHostKeyChecking=no /opt/rpc-openstack infra1:/opt/
 scp -r -o StrictHostKeyChecking=no /opt/rpc-upgrades infra1:/opt/
 scp -r -o StrictHostKeyChecking=no /opt/openstack-ansible-ops infra1:/opt/
+scp -r -o StrictHostKeyChecking=no /etc/openstack_deploy/user_rpco_upgrade.yml infra1:/etc/openstack_deploy/
 ssh -T -o StrictHostKeyChecking=no infra1 << 'EOF'
 set -xe
 sudo cp /etc/openstack_deploy/user_variables.yml /etc/openstack_deploy/user_variables.yml.bak
