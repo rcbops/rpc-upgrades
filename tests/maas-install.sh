@@ -21,7 +21,7 @@ set -evu
 ## Vars ----------------------------------------------------------------------
 export RE_JOB_SERIES="${RE_JOB_SERIES:-newton}"
 export RPCO_RELEASE=`cat /etc/openstack-release | grep DISTRIB_CODENAME | cut -d '"' -f2`
-export RPC_MAAS_RELEASE=master
+export RPC_MAAS_RELEASE=23085d0b08043cf6185204302eaee1e90188b288
 
 ## Main ----------------------------------------------------------------------
 # workaround for kilos incorrect code name
