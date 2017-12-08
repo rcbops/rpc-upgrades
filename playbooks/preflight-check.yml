@@ -49,6 +49,11 @@
   gather_facts: false
   user: root
   tasks:
+    - name: Install dependencies for uri module (pre Ansible 2.1)
+      pip:
+        name: httplib2
+        state: present
+
     - name: Reaching OSA OPS git repo URL
       uri:
         url: https://github.com/openstack/openstack-ansible-ops.git
