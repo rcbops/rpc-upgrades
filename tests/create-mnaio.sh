@@ -115,7 +115,8 @@ sudo pip uninstall ansible -y
 EOF
 
 # start the rpc-o install from infra1
-${MNAIO_SSH} "source /opt/rpc-upgrades/RE_ENV; \
+${MNAIO_SSH} "export TERM=linux; \
+              source /opt/rpc-upgrades/RE_ENV; \
               source /opt/rpc-upgrades/tests/ansible-env.rc; \
               pushd /opt/rpc-openstack; \
               export DEPLOY_ELK=yes; \
@@ -139,7 +140,8 @@ ${MNAIO_SSH} "source /opt/rpc-upgrades/RE_ENV; \
 echo "Create MNAIO completed..."
 
 # execute remaining operations
-${MNAIO_SSH} "source /opt/rpc-upgrades/RE_ENV; \
+${MNAIO_SSH} "export TERM=linux; \
+              source /opt/rpc-upgrades/RE_ENV; \
               source /opt/rpc-upgrades/tests/ansible-env.rc; \
               pushd /opt/rpc-upgrades; \
               tests/maas-install.sh; \
