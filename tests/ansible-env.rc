@@ -11,15 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-export ANSIBLE_FILTER_PLUGINS="/opt/rpc-openstack/openstack-ansible/playbooks/plugins/filters"
-export ANSIBLE_LOOKUP_PLUGINS="/opt/rpc-openstack/openstack-ansible/playbooks/plugins/lookups"
-export ANSIBLE_CALLBACK_PLUGINS="/opt/rpc-openstack/openstack-ansible/playbooks/plugins/callbacks"
-export ANSIBLE_ACTION_PLUGINS="/opt/rpc-openstack/openstack-ansible/playbooks/plugins/actions"
-export ANSIBLE_GATHERING="smart"
-export ANSIBLE_CACHE_PLUGIN="jsonfile"
-export ANSIBLE_CACHE_PLUGIN_CONNECTION="/etc/openstack_deploy/ansible_facts"
-export ANSIBLE_CACHE_PLUGIN_TIMEOUT="86400"
 export ANSIBLE_HOST_KEY_CHECKING="false"
 export ANSIBLE_SSH_CONTROL_PATH=/tmp/%%h-%%r
 export ANSIBLE_SSH_ARGS="-o UserKnownHostsFile=/dev/null \
