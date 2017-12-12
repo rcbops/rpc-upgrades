@@ -103,7 +103,6 @@ echo "Multi Node AIO setup completed..."
 set -xe
 scp -r -o StrictHostKeyChecking=no /opt/rpc-openstack infra1:/opt/
 scp -r -o StrictHostKeyChecking=no /opt/rpc-upgrades infra1:/opt/
-scp -r -o StrictHostKeyChecking=no /opt/openstack-ansible-ops infra1:/opt/
 scp -r -o StrictHostKeyChecking=no /etc/openstack_deploy/user_rpco_upgrade.yml infra1:/etc/openstack_deploy/
 ssh -T -o StrictHostKeyChecking=no infra1 << 'EOF'
 set -xe
