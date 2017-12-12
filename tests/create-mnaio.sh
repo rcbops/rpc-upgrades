@@ -112,6 +112,7 @@ sudo cp /etc/openstack_deploy/user_variables.yml.bak /etc/openstack_deploy/user_
 sudo cp /opt/rpc-openstack/rpcd/etc/openstack_deploy/user_*.yml /etc/openstack_deploy
 sudo cp /opt/rpc-openstack/rpcd/etc/openstack_deploy/env.d/* /etc/openstack_deploy/env.d
 sudo pip uninstall ansible -y
+sudo rm /usr/local/bin/openstack-ansible
 EOF
 
 # split out to capture exit codes if scripts fail
