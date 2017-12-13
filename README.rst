@@ -7,11 +7,15 @@ Overview
 --------
 
 A Leapfrog upgrade is a major upgrade that skips at least one release. Currently
-RPCO supports leapfrog upgrades from:
+rpc-upgrades repo supports supports leapfrog upgrades from:
 
-* kilo to r14.2.0 (newton)
 * liberty to r14.5.0 (newton)
 
+If you are looking for the Kilo to 14.2.0 (newton) support, it exists directly in the
+`RPC-O <https://github.com/rcbops/rpc-openstack/tree/r14.2.0/scripts/leapfrog>`_ repo.  
+
+The status of supported versions can be viewed from the periodic jobs located on the
+`RPC Jenkins <https://rpc.jenkins.cit.rackspace.net/view/Upgrades>`_ server.
 
 Terms
 -----
@@ -19,7 +23,6 @@ Terms
 * `RPCO <https://github.com/rcbops/rpc-openstack>`_: Rackspace Private Cloud powered by OpenStack
 * `OSA <https://github.com/openstack/openstack-ansible>`_:  OpenStack Ansible
 * `OSA-OPS <https://github.com/openstack/openstack-ansible-ops>`_:  OpenStack Operations
-* `Kilo <https://github.com/rcbops/rpc-openstack/tree/kilo>`_: The RPCO release of OpenStack Kilo
 * `Liberty <https://github.com/rcbops/rpc-openstack/tree/liberty>`_: The RPCO release of OpenStack Liberty
 * `r14.5.0 <https://github.com/rcbops/rpc-openstack/tree/r14.5.0>`_: The fifth RPCO release of OpenStack Newton.
 
@@ -49,8 +52,9 @@ before proceeding with the upgrade
 
 These variables are required by later versions, but are not defined in Kilo or Liberty.
 
-Elasticsearch container keeps all logs and will not be rebuilt in leapfrog.
-User can override envrionment variables to force it reset and rebuilt before proceeding with the upgrade
+By default Elasticsearch data will be kept and Elasticsearch will be upgraded at the end of the leapfrog.
+If you'd like to reset the Elasticsearch data, you can override the upgrade and remove the container during
+the upgrade by setting these environment variables:
 
 .. code-block:: shell
 
@@ -58,13 +62,14 @@ User can override envrionment variables to force it reset and rebuilt before pro
     export CONTAINERS_TO_DESTROY='all_containers:!galera_all:!neutron_agent:!ceph_all:!rsyslog_all'
 
 
-The next step is to execute the leapfrog upgrade script:
+The next step is to execute the leapfrog upgrade script and follow the prompts:
 
 .. code-block:: shell
 
     cd /opt/rpc-upgrades
     scripts/ubuntu14-leapfrog.sh
 
+**Note:** *Currently the rpc-upgrades repo targets r14.5.0.*
 
 Structure of the leapfrog process
 ---------------------------------
@@ -234,8 +239,8 @@ been completed by checking for the existence of marker files.
 Testing
 -------
 
-In the event you would like to simulate a leapfrog upgrade, you can utilize the
-information in the `testing document 
+In the event you would like to simulate a leapfrog upgrade, follow the instructions
+in the `testing document 
 <https://github.com/rcbops/rpc-upgrades/blob/master/testing.rst>`_.  Using
 vagrant, it will set up an AIO deployment of the desired version which can then
 be leapfrog upgraded.  This allows you to test the scenario in the lab or
