@@ -21,7 +21,6 @@ export AUTOMATIC_VAR_MIGRATE_FLAG="--for-testing-take-new-vars-only"
 export RPC_TARGET_CHECKOUT=${RE_JOB_UPGRADE_TO:-'newton'}
 
 if [ "${RE_JOB_SERIES}" == "kilo" ]; then
-  export OA_OPS_REPO_BRANCH="50f3fd6df7579006748a00c271bb03d22b17ae89"
   export UPGRADE_ELASTICSEARCH=no
   export CONTAINERS_TO_DESTROY='all_containers:!galera_all:!neutron_agent:!ceph_all:!rsyslog_all'
 elif [ "${RE_JOB_SERIES}" == "liberty" ]; then
