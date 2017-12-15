@@ -101,6 +101,16 @@ pushd /opt/openstack-ansible-ops/multi-node-aio
 popd
 echo "Multi Node AIO setup completed..."
 
+# RLM-434 Implement ansible retries for mitaka and below
+# Copies into RE_ENV which will be sourced when deploy is ran
+case "${RE_JOB_SERIES}" in
+  kilo|liberty|mitaka)
+    echo "export ANSIBLE_SSH_RETRIES=10" >> /opt/rpc-upgrades/RE_ENV
+    echo "export ANSIBLE_GIT_RELEASE=ssh_retry" >> /opt/rpc-upgrades/RE_ENV
+    echo "export ANSIBLE_GIT_REPO=https://github.com/hughsaunders/ansible" >> /opt/rpc-upgrades/RE_ENV
+    ;;
+esac
+
 # prepare rpc-o configs
 set -xe
 scp -r -o StrictHostKeyChecking=no /opt/rpc-openstack infra1:/opt/
@@ -135,9 +145,6 @@ ${MNAIO_SSH} "source /opt/rpc-upgrades/RE_ENV; \
               export DEPLOY_SWIFT=yes; \
               export DEPLOY_RPC=yes; \
               export ANSIBLE_FORCE_COLOR=true; \
-              export ANSIBLE_SSH_RETRIES=10; \
-              export ANSIBLE_GIT_RELEASE=ssh_retry; \
-              export ANSIBLE_GIT_REPO=https://github.com/hughsaunders/ansible; \
               scripts/deploy.sh"
 
 echo "MNAIO RPC-O deploy completed..."
