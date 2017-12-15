@@ -119,8 +119,7 @@ EOF
 
 # split out to capture exit codes if scripts fail
 # start the rpc-o install from infra1
-${MNAIO_SSH} "export TERM=linux; \
-              source /opt/rpc-upgrades/RE_ENV; \
+${MNAIO_SSH} "source /opt/rpc-upgrades/RE_ENV; \
               source /opt/rpc-upgrades/tests/ansible-env.rc; \
               pushd /opt/rpc-openstack; \
               export DEPLOY_ELK=yes; \
@@ -144,32 +143,28 @@ ${MNAIO_SSH} "export TERM=linux; \
 echo "MNAIO RPC-O deploy completed..."
 
 # Install and Verify MaaS post deploy
-#${MNAIO_SSH} "export TERM=linux; \
-#              source /opt/rpc-upgrades/RE_ENV; \
+#${MNAIO_SSH} "source /opt/rpc-upgrades/RE_ENV; \
 #              source /opt/rpc-upgrades/tests/ansible-env.rc; \
 #              pushd /opt/rpc-upgrades; \
 #              tests/maas-install.sh"
 #echo "MaaS Install and Verify Post Deploy completed..."
 
 # Run Leapfrog upgrade
-${MNAIO_SSH} "export TERM=linux; \
-              source /opt/rpc-upgrades/RE_ENV; \
+${MNAIO_SSH} "source /opt/rpc-upgrades/RE_ENV; \
               source /opt/rpc-upgrades/tests/ansible-env.rc; \
               pushd /opt/rpc-upgrades; \
               tests/test-upgrade.sh"
 echo "Leapfrog completed..."
 
 # Install and Verify MaaS post leapfrog
-#${MNAIO_SSH} "export TERM=linux; \
-#              source /opt/rpc-upgrades/RE_ENV; \
+#${MNAIO_SSH} "source /opt/rpc-upgrades/RE_ENV; \
 #              source /opt/rpc-upgrades/tests/ansible-env.rc; \
 #              pushd /opt/rpc-upgrades; \
 #              tests/maas-install.sh"
 #echo "MaaS Install and Verify Post Leapfrog completed..."
 
 # Run final QC Tests
-${MNAIO_SSH} "export TERM=linux; \
-              source /opt/rpc-upgrades/RE_ENV; \
+${MNAIO_SSH} "source /opt/rpc-upgrades/RE_ENV; \
               source /opt/rpc-upgrades/tests/ansible-env.rc; \
               pushd /opt/rpc-upgrades; \
               tests/qc-test.sh"
