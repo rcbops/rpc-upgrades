@@ -102,12 +102,12 @@ popd
 echo "Multi Node AIO setup completed..."
 
 # RLM-434 Implement ansible retries for mitaka and below
-# Copies into RE_ENV which will be sourced when deploy is ran
+# Copies into ANSIBLE_RETRY which will be sourced when initial deploy is ran
 case "${RE_JOB_SERIES}" in
   kilo|liberty|mitaka)
-    echo "export ANSIBLE_SSH_RETRIES=10" >> /opt/rpc-upgrades/RE_ENV
-    echo "export ANSIBLE_GIT_RELEASE=ssh_retry" >> /opt/rpc-upgrades/RE_ENV
-    echo "export ANSIBLE_GIT_REPO=https://github.com/hughsaunders/ansible" >> /opt/rpc-upgrades/RE_ENV
+    echo "export ANSIBLE_SSH_RETRIES=10" > /opt/rpc-upgrades/ANSIBLE_RETRY
+    echo "export ANSIBLE_GIT_RELEASE=ssh_retry" >> /opt/rpc-upgrades/ANSIBLE_RETRY
+    echo "export ANSIBLE_GIT_REPO=https://github.com/hughsaunders/ansible" >> /opt/rpc-upgrades/ANSIBLE_RETRY
     ;;
 esac
 
@@ -130,6 +130,7 @@ EOF
 # split out to capture exit codes if scripts fail
 # start the rpc-o install from infra1
 ${MNAIO_SSH} "source /opt/rpc-upgrades/RE_ENV; \
+              source /opt/rpc-upgrades/ANSIBLE_RETRY; \
               source /opt/rpc-upgrades/tests/ansible-env.rc; \
               pushd /opt/rpc-openstack; \
               export DEPLOY_ELK=yes; \
