@@ -35,6 +35,15 @@ if [ ! -d "/opt/rpc-openstack" ]; then
   popd
 fi
 
+# RLM-434 Implement ansible retries for mitaka and below
+case "${RE_JOB_SERIES}" in
+  kilo|liberty|mitaka)
+    export ANSIBLE_SSH_RETRIES=10
+    export ANSIBLE_GIT_RELEASE=ssh_retry
+    export ANSIBLE_GIT_REPO=https://github.com/hughsaunders/ansible
+    ;;
+esac
+
 pushd /opt/rpc-openstack
   export DEPLOY_HAPROXY="yes"
   export DEPLOY_MAAS="no"
