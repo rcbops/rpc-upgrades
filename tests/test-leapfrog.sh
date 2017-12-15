@@ -28,5 +28,8 @@ elif [ "${RE_JOB_SERIES}" == "liberty" ]; then
   export CONTAINERS_TO_DESTROY='all_containers:!galera_all:!neutron_agent:!ceph_all:!rsyslog_all'
 fi
 
+# export the term to avoid unknown: I need something more specific error in jenkins
+export TERM=linux
+
 # execute leapfrog
 sudo --preserve-env $(readlink -e $(dirname ${0}))/../scripts/ubuntu14-leapfrog.sh
