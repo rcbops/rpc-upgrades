@@ -41,6 +41,8 @@ pushd /opt/rpc-upgrades/playbooks
    openstack-ansible /opt/rpc-maas/playbooks/site.yml -vv
   fi
 
-  # verify rpc-maas
-  openstack-ansible /opt/rpc-maas/playbooks/maas-verify.yml -vv
+  # verify rpc-maas if leap has completed
+  if [[ -f /etc/openstack_deploy/upgrade-leap/osa-leap.complete ]]; then
+    openstack-ansible /opt/rpc-maas/playbooks/maas-verify.yml -vv
+  fi
 popd
