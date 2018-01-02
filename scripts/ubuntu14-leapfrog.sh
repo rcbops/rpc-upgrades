@@ -53,6 +53,7 @@ export OA_DEFAULTS='/etc/openstack_deploy/user_osa_variables_defaults.yml'
 # Set the target checkout used when leaping forward.
 export RPC_TARGET_CHECKOUT=${RPC_TARGET_CHECKOUT:-'r14.5.0'}
 export QC_TEST=${QC_TEST:-'no'}
+export RUN_PREFLIGHT=${RUN_PREFLIGHT:-yes}
 
 ### Functions -----------------------------------------------------------------
 function log {
@@ -64,9 +65,11 @@ function log {
 
 ### Main ----------------------------------------------------------------------
 # Pre-flight check
-pushd /opt/rpc-upgrades/playbooks
+if [[ "$RUN_PREFLIGHT" == "yes" ]]; then
+  pushd /opt/rpc-upgrades/playbooks
     openstack-ansible preflight-check.yml
-popd
+  popd
+fi
 
 # Setup the base work folders
 if [[ ! -d ${LEAPFROG_DIR} ]]; then
