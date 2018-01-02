@@ -71,6 +71,8 @@ if [ "${FUNCTIONAL_TEST}" = true ]; then
     sudo -H --preserve-env ./tests/test-upgrade.sh
     sudo -H --preserve-env ./tests/maas-install.sh
     sudo -H --preserve-env ./tests/qc-test.sh
+    # RLM-292 secondary test-upgrade run to validate idempotency
+    sudo -H --preserve-env ./tests/test-upgrade.sh
     #sudo -H --preserve-env ./tests/run-tempest.sh
   fi
 else
