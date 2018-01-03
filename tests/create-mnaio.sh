@@ -152,6 +152,7 @@ echo "MNAIO RPC-O deploy completed..."
 
 # Install and Verify MaaS post deploy
 ${MNAIO_SSH} "source /opt/rpc-upgrades/RE_ENV; \
+              source /opt/rpc-upgrades/ANSIBLE_RETRY; \
               source /opt/rpc-upgrades/tests/ansible-env.rc; \
               pushd /opt/rpc-upgrades; \
               tests/maas-install.sh"
