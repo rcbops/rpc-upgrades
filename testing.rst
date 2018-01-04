@@ -26,7 +26,7 @@ you wish to test with.
 
 .. code-block:: shell
 
-    RE_JOB_ACTION=r11.1.8_to_r14.4.1_leap ./run-tests.sh
+    RE_JOB_ACTION=r12.2.8_to_r14.6.0_leap ./run-tests.sh
 
 
 When you executing the `run-tests.sh` script a full AIO will be
