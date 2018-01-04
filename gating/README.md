@@ -36,6 +36,6 @@ We use multiple variables in the action variable to determine what type of job w
 
      "release-version-deployed_to_target-release_action"
 
-so "r12.2.5_to_r14.4.1_leap" would mean, deploy r12.2.5 of rpc-openstack, and then leap to r14.4.1.  If you need to change the target release version to be tested, you would modify the second release value in the action.
+so "r12.2.8_to_r14.6.0_leap" would mean, deploy r12.2.8 of rpc-openstack, and then leap to r14.6.0.  If you need to change the target release version to be tested, you would modify the second release value in the action.
 
 Image is used to define whether the job is an AIO (All-in-One) job or a MNAIO (Multi Node AIO) job.
