@@ -22,11 +22,11 @@
       ping:
 
 - name: Openstack release check
-  hosts: localhost 
+  hosts: localhost
   gather_facts: false
   user: root
   tasks:
-    - name: Get Openstack release 
+    - name: Get Openstack release
       shell: grep 'DISTRIB_RELEASE' /etc/openstack-release | sed -e 's/.*"\(.*\)"/\1/'
       register: openstack_release_return
 
@@ -45,7 +45,7 @@
         msg: "Not Implemented: leap upgrades where ceph is deployed is not implemented at this time."
 
 - name: Check OSA OPS repo
-  hosts: localhost 
+  hosts: localhost
   gather_facts: false
   user: root
   tasks:
@@ -64,3 +64,25 @@
       fail:
         msg: "OSA OPS git repo doesn't work."
       when: 'not "{{ osa_ops_repo.status }}" == "200"'
+
+- name: Check file system usage
+  hosts: all
+  gather_facts: false
+  user: root
+  tasks:
+    - name: Gather filesystem used percentages
+      shell: |
+        df -h | tail -n +2 | sed s/%//g | awk '{if($5 > 97) print "Alert: "$5 "% full - "$0}'
+      register: fs_check
+
+    - name: Check if any filesystem is greater than 97% full
+      debug:
+        msg: >-
+          The filesystem(s) found to be (nearly) full.
+          Details: {{ item.split() | join(' ') }}
+      failed_when: true
+      when:
+        - fs_check.stdout_lines
+      with_items: "{{ fs_check.stdout_lines }}"
+  tags:
+    - leap-fs-check
