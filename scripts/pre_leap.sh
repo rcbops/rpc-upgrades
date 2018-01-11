@@ -44,3 +44,6 @@ fi
 
 # RLM-682 versions past 2.5.2 break things
 echo "python-ldap==2.5.2" >> /opt/rpc-openstack/openstack-ansible/global-requirement-pins.txt
+
+# Fix domain name with period sign problem
+source /opt/rpc-upgrades/scripts/fix_domain.sh
