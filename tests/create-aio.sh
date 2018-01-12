@@ -44,6 +44,11 @@ case "${RE_JOB_SERIES}" in
     ;;
 esac
 
+echo "+---------------- AIO RELEASE AND KERNEL ---------------+"
+lsb_release -a
+uname -a
+echo "+---------------- AIO RELEASE AND KERNEL ---------------+"
+
 pushd /opt/rpc-openstack
   export DEPLOY_HAPROXY="yes"
   export DEPLOY_MAAS="no"

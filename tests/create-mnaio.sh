@@ -113,11 +113,24 @@ esac
 
 # prepare rpc-o configs
 set -xe
+echo "+---------------- MNAIO RELEASE AND KERNEL --------------+"
+lsb_release -a
+uname -a
+echo "+---------------- MNAIO RELEASE AND KERNEL --------------+"
+
+lsb_release -a
+uname -a
 scp -r -o StrictHostKeyChecking=no /opt/rpc-openstack infra1:/opt/
 scp -r -o StrictHostKeyChecking=no /opt/rpc-upgrades infra1:/opt/
 scp -r -o StrictHostKeyChecking=no /etc/openstack_deploy/user_rpco_upgrade.yml infra1:/etc/openstack_deploy/
+
+# Put configs in place on Infra1 and gather release state
 ssh -T -o StrictHostKeyChecking=no infra1 << 'EOF'
 set -xe
+echo "+--------------- INFRA1 RELEASE AND KERNEL --------------+"
+lsb_release -a
+uname -a
+echo "+--------------- INFRA1 RELEASE AND KERNEL --------------+"
 sudo cp /etc/openstack_deploy/user_variables.yml /etc/openstack_deploy/user_variables.yml.bak
 sudo cp -R /opt/rpc-openstack/openstack-ansible/etc/openstack_deploy /etc
 sudo cp /etc/openstack_deploy/user_variables.yml.bak /etc/openstack_deploy/user_variables.yml
