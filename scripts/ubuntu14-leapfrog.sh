@@ -64,13 +64,6 @@ function log {
 }
 
 ### Main ----------------------------------------------------------------------
-# Pre-flight check
-if [[ "$RUN_PREFLIGHT" == "yes" ]]; then
-  pushd /opt/rpc-upgrades/playbooks
-    openstack-ansible preflight-check.yml
-  popd
-fi
-
 # Setup the base work folders
 if [[ ! -d ${LEAPFROG_DIR} ]]; then
     mkdir -p ${LEAPFROG_DIR}
@@ -78,6 +71,18 @@ fi
 
 if [[ ! -d "${UPGRADE_LEAP_MARKER_FOLDER}" ]]; then
     mkdir -p "${UPGRADE_LEAP_MARKER_FOLDER}"
+fi
+
+# Pre-flight check
+if [[ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/rpc-preflight-check.complete" ]]; then
+  if [[ "$RUN_PREFLIGHT" == "yes" ]]; then
+    pushd /opt/rpc-upgrades/playbooks
+      openstack-ansible preflight-check.yml
+    popd
+  fi
+  log "rpc-preflight-check" "ok"
+else
+  log "rpc-preflight-check" "skipped"
 fi
 
 # Let's go
