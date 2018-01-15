@@ -19,6 +19,11 @@
 set -e -u
 set -o pipefail
 
+# Glance cache cleanup
+pushd /opt/rpc-upgrades/playbooks/
+  openstack-ansible glance-cache-cleanup.yml
+popd
+
 # Preserve Elasticsearch data in the leap
 export UPGRADE_ELASTICSEARCH=${UPGRADE_ELASTICSEARCH:-"yes"}
 export CONTAINERS_TO_DESTROY=${CONTAINERS_TO_DESTROY:-'all_containers:!galera_all:!neutron_agent:!ceph_all:!rsyslog_all:!elasticsearch_all'}
@@ -44,8 +49,3 @@ fi
 
 # RLM-682 versions past 2.5.2 break things
 echo "python-ldap==2.5.2" >> /opt/rpc-openstack/openstack-ansible/global-requirement-pins.txt
-
-# Glance cache cleanup
-pushd /opt/rpc-upgrades/playbooks/
-  openstack-ansible glance-cache-cleanup.yml
-popd

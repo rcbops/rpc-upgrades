@@ -39,14 +39,14 @@
         state: directory
         path: "/var/lib/glance/cache/"
 
-    - name: Restore glance-api
-      service:
-        name: glance-api
-        state: started
-        patter: glance-api
-
     - name: Restore glance-registry
       service:
         name: glance-registry
         state: started
         patter: glance-registry
+
+    - name: Restore glance-api
+      service:
+        name: glance-api
+        state: started
+        patter: glance-api
