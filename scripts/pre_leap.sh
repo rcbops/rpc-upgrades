@@ -44,3 +44,8 @@ fi
 
 # RLM-682 versions past 2.5.2 break things
 echo "python-ldap==2.5.2" >> /opt/rpc-openstack/openstack-ansible/global-requirement-pins.txt
+
+# Glance cache cleanup
+pushd /opt/rpc-upgrades/playbooks/
+  openstack-ansible glance-cache-cleanup.yml
+popd
