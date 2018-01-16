@@ -80,6 +80,11 @@ if [[ ! -d "${UPGRADE_LEAP_MARKER_FOLDER}" ]]; then
     mkdir -p "${UPGRADE_LEAP_MARKER_FOLDER}"
 fi
 
+# Glance cache cleanup
+pushd /opt/rpc-upgrades/playbooks/
+    openstack-ansible glance-cache-cleanup.yml
+pop
+
 # Let's go
 pushd ${LEAPFROG_DIR}
 
