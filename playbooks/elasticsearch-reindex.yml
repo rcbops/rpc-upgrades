@@ -33,14 +33,20 @@
   hosts: localhost
   user: root
   tasks:
+    - name: Check for existing tmux session
+      shell: "tmux list-session |grep es-reindex"
+      changed_when: false
+      failed_when: false
+      register: tmux_session
     - name: Session to reindex Elasticsearch
-      command: "{{ item }}"
+      shell: "TMUX='' {{ item }}"
       args:
         chdir: /opt/rpc-openstack/rpcd/playbooks
       with_items:
         - tmux new-session -d -s es-reindex
         - tmux select-pane -t es-reindex
         - tmux send-keys "openstack-ansible -e 'logging_upgrade=true' --tags 'reindex-wrapper,elasticsearch-upgrade' elasticsearch.yml" C-m
+      when: "{{ tmux_session.rc == 1 }}"
 
 - name: Start logstash serivce
   hosts: logstash_all
