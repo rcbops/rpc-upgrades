@@ -88,7 +88,7 @@ fi
 # Glance cache cleanup
 pushd /opt/rpc-upgrades/playbooks/
     openstack-ansible glance-cache-cleanup.yml
-pop
+popd
 
 # Let's go
 pushd ${LEAPFROG_DIR}
