@@ -23,9 +23,6 @@ export RPC_TARGET_CHECKOUT=${RE_JOB_UPGRADE_TO:-'newton'}
 if [ "${RE_JOB_SERIES}" == "kilo" ]; then
   export UPGRADE_ELASTICSEARCH=no
   export CONTAINERS_TO_DESTROY='all_containers:!galera_all:!neutron_agent:!ceph_all:!rsyslog_all'
-elif [ "${RE_JOB_SERIES}" == "liberty" ]; then
-  export UPGRADE_ELASTICSEARCH=no
-  export CONTAINERS_TO_DESTROY='all_containers:!galera_all:!neutron_agent:!ceph_all:!rsyslog_all'
 fi
 
 # export the term to avoid unknown: I need something more specific error in jenkins
