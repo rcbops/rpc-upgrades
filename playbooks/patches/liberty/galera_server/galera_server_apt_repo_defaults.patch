@@ -1,5 +1,5 @@
 diff --git a/playbooks/roles/galera_server/defaults/main.yml b/playbooks/roles/galera_server/defaults/main.yml
-index 6f84c07..84835af 100644
+index 6f84c07..01e3d19 100644
 --- a/playbooks/roles/galera_server/defaults/main.yml
 +++ b/playbooks/roles/galera_server/defaults/main.yml
 @@ -75,7 +75,7 @@ galera_gpg_keys:
@@ -11,3 +11,14 @@ index 6f84c07..84835af 100644
 
  # Repositories
  galera_apt_repo_url: "https://mirror.rackspace.com/mariadb/repo/10.0/ubuntu"
+@@ -88,8 +88,8 @@ galera_apt_percona_xtrabackup_repo:
+   repo: "deb {{ galera_apt_percona_xtrabackup_url }} {{ ansible_distribution_release }} main"
+   state: "present"
+
+-galera_package_url: "https://www.percona.com/downloads/XtraBackup/Percona-XtraBackup-2.2.13/binary/debian/trusty/x86_64/percona-xtrabackup-22_2.2.13-1.trusty_amd64.deb"
+-galera_package_sha256: "2f58eedefa905583f0650f77bb2b149139c4066c7fb690202124fe5c7ac83e9e"
++galera_package_url: "https://www.percona.com/downloads/XtraBackup/Percona-XtraBackup-2.3.5/binary/debian/trusty/x86_64/percona-xtrabackup_2.3.5-1.trusty_amd64.deb"
++galera_package_sha256: "7b407be253b922f8bb772d87877486c0ce8eef8af1304abec702dba962b497dd"
+ galera_package_path: "/opt/{{ galera_package_url | basename }}"
+
+ galera_pip_packages:
