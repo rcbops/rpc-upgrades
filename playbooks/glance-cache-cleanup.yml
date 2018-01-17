@@ -43,10 +43,10 @@
       service:
         name: glance-registry
         state: started
-        patter: glance-registry
+        pattern: glance-registry
 
     - name: Restore glance-api
       service:
         name: glance-api
         state: started
-        patter: glance-api
+        pattern: glance-api
