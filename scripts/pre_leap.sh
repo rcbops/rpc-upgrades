@@ -29,6 +29,9 @@ export CONTAINERS_TO_DESTROY=${CONTAINERS_TO_DESTROY:-'all_containers:!galera_al
 if [[ -f /etc/openstack_deploy/user_rpcm_default_variables.yml ]]; then
     sed -i '/ansible_host/d' /etc/openstack_deploy/user_rpcm_default_variables.yml
 fi
+if [[ -f /etc/openstack_deploy/user_rpco_variables_overrides.yml ]]; then
+    sed -i '/ansible_host/d' /etc/openstack_deploy/user_rpco_variables_overrides.yml
+fi
 
 # Remove horizon static files variables from user_variables.yml as this is now
 # maintained in group_vars.
