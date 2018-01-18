@@ -85,6 +85,11 @@ else
   log "rpc-preflight-check" "skipped"
 fi
 
+# Glance cache cleanup
+pushd /opt/rpc-upgrades/playbooks/
+    openstack-ansible glance-cache-cleanup.yml
+popd
+
 # Let's go
 pushd ${LEAPFROG_DIR}
 
