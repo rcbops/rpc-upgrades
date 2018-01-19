@@ -86,9 +86,14 @@ else
 fi
 
 # Glance cache cleanup
-pushd /opt/rpc-upgrades/playbooks/
+if [[ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/glance-cache-cleanup.complete" ]]; then
+  pushd /opt/rpc-upgrades/playbooks/
     openstack-ansible glance-cache-cleanup.yml
-popd
+  popd
+  log "glance-cache-cleanup" "ok"
+else
+  log "glance-cache-cleanup" "skipped"
+fi
 
 # Let's go
 pushd ${LEAPFROG_DIR}
