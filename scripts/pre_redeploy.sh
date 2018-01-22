@@ -108,7 +108,7 @@ pushd ${RPCO_DEFAULT_FOLDER}/rpcd/playbooks
     openstack-ansible configure-apt-sources.yml
 popd
 # Fix hostname with fixed period mark
-if [ -f /etc/ansible/roles/openstack_hosts/templates/openstack-host-hostfile-setup.sh.j2 ]; then
+if [[ -f "/etc/ansible/roles/openstack_hosts/templates/openstack-host-hostfile-setup.sh.j2" ]]; then
     pushd /etc/ansible/roles/openstack_hosts/templates/
         if grep -F '${RFCHOSTNAME}.${DOMAINNAME}' openstack-host-hostfile-setup.sh.j2 > /dev/null; then
             sed -i 's/${RFCHOSTNAME}.${DOMAINNAME}/${RFCHOSTNAME}${DOMAINNAME}/g' openstack-host-hostfile-setup.sh.j2
