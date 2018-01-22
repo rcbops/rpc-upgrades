@@ -16,8 +16,8 @@
 # Verify services are up and checking in
 - name: Grab relevant output of openstack compute service list
   shell: |
-    . ~/openrc
-    openstack compute service list -c Binary -c Host -c State -f value
+    . {{ ansible_env.HOME }}/openrc
+    openstack {{ openrc_insecure |default(false) |bool |ternary('--insecure','') }} compute service list -c Binary -c Host -c State -f value
   register: openstack_output
   failed_when: "openstack_output.rc != 0"
 
@@ -35,8 +35,8 @@
 
 - name: Grab relevant output of neutron agent-list
   shell: |
-    . ~/openrc
-    neutron agent-list -c agent_type -c host -c alive -f value
+    . {{ ansible_env.HOME }}/openrc
+    neutron {{ openrc_insecure |default(false) |bool |ternary('--insecure','') }} agent-list -c agent_type -c host -c alive -f value
   register: neutron_output
   failed_when: "neutron_output.rc != 0"
 
@@ -52,7 +52,8 @@
 
 - name: Grab relevant output of neutron port-list
   shell: |
-    . ~/openrc && neutron port-list -c id -c binding:host_id -c device_owner -c status -f value
+    . {{ ansible_env.HOME }}/openrc
+    neutron {{ openrc_insecure |default(false) |bool |ternary('--insecure','') }} port-list -c id -c binding:host_id -c device_owner -c status -f value
   register: neutron_port_output
 
 - name: Warn if any neutron ports are in the build state
@@ -74,8 +75,8 @@
 # with '_' in their hostnames must be disregarded as part of this check.
 - name: Grab relevant output of cinder service-list
   shell: |
-    . ~/openrc
-    cinder service-list | grep -vE 'Status|\+|_' | awk '{print $2, $4, $10}'
+    . {{ ansible_env.HOME }}/openrc
+    cinder {{ openrc_insecure |default(false) |bool |ternary('--insecure','') }} service-list | grep -vE 'Status|\+|_' | awk '{print $2, $4, $10}'
   register: cinder_output
   failed_when: "cinder_output.rc != 0"
 
@@ -91,8 +92,8 @@
 
 - name: Grab relevant output of orchestration service list
   shell: |
-    . ~/openrc
-    openstack orchestration service list -c Binary -c host -c status -f value
+    . {{ ansible_env.HOME }}/openrc
+    openstack {{ openrc_insecure |default(false) |bool |ternary('--insecure','') }} orchestration service list -c Binary -c host -c status -f value
   register: orchestration_output
   failed_when: "orchestration_output.rc != 0"
 
@@ -109,13 +110,13 @@
 - name: Obtain a list of neutron routers
   shell: |
     . {{ ansible_env.HOME }}/openrc
-    neutron router-list -f value --column id
+    neutron {{ openrc_insecure |default(false) |bool |ternary('--insecure','') }} router-list -f value --column id
   register: neutron_routers
 
 - name: Check agent assigned to each neutron router
   shell: |
     . {{ ansible_env.HOME }}/openrc
-    neutron l3-agent-list-hosting-router -f value --column host {{ item }}
+    neutron {{ openrc_insecure |default(false) |bool |ternary('--insecure','') }} l3-agent-list-hosting-router -f value --column host {{ item }}
   with_items: "{{ neutron_routers.stdout_lines|default([]) }}"
   register: neutron_routers_agents
 

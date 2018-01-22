@@ -13,13 +13,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 - name: Gather openstack CLI version
-  shell: "source ~/openrc; openstack --version 2>&1"
+  shell: |
+    . {{ ansible_env.HOME }}/openrc
+    openstack --version 2>&1
   args:
     executable: /bin/bash
   register: openstack_cli_version
 
 - name: Gather neutron CLI version
-  shell: "source ~/openrc; neutron --version 2>&1"
+  shell: |
+    . {{ ansible_env.HOME }}/openrc
+    neutron --version 2>&1
   args:
     executable: /bin/bash
   register: neutron_cli_version
@@ -35,28 +39,36 @@
   delegate_to: "{{ groups['galera_all'][0] }}"
 
 - name: Gather nova service-list
-  shell: "source ~/openrc; nova --insecure service-list"
+  shell: |
+    . {{ ansible_env.HOME }}/openrc
+    nova {{ openrc_insecure |default(false) |bool |ternary('--insecure','') }} service-list
   args:
     executable: /bin/bash
   register: nova_servicelist_result
   delegate_to: "{{ groups['utility_all'][0] }}"
 
 - name: Gather cinder service-list
-  shell: "source ~/openrc; cinder --insecure service-list"
+  shell: |
+    . {{ ansible_env.HOME }}/openrc
+    cinder {{ openrc_insecure |default(false) |bool |ternary('--insecure','') }} service-list
   register: cinder_servicelist_result
   args:
     executable: /bin/bash
   delegate_to: "{{ groups['utility_all'][0] }}"
 
 - name: Gather neutron agent-list
-  shell: "source ~/openrc; neutron --insecure agent-list"
+  shell: |
+    . {{ ansible_env.HOME }}/openrc
+    neutron {{ openrc_insecure |default(false) |bool |ternary('--insecure','') }} agent-list
   args:
     executable: /bin/bash
   register: neutron_agentlist_result
   delegate_to: "{{ groups['utility_all'][0] }}"
 
 - name: Gather orchestration service list
-  shell: "source ~/openrc; openstack orchestration service list --insecure"
+  shell: |
+    . {{ ansible_env.HOME }}/openrc
+    openstack {{ openrc_insecure |default(false) |bool |ternary('--insecure','') }} orchestration service list
   args:
     executable: /bin/bash
   register: orchestration_servicelist_result
@@ -64,7 +76,9 @@
   delegate_to: "{{ groups['utility_all'][0] }}"
 
 - name: Gather heat service list
-  shell: "source ~/openrc; heat --insecure service-list"
+  shell: |
+    . {{ ansible_env.HOME }}/openrc
+    heat {{ openrc_insecure |default(false) |bool |ternary('--insecure','') }} service-list
   args:
     executable: /bin/bash
   register: orchestration_servicelist_result
@@ -72,7 +86,9 @@
   delegate_to: "{{ groups['utility_all'][0] }}"
 
 - name: Gather openstack endpoint list
-  shell: "source ~/openrc; openstack --insecure endpoint list"
+  shell: |
+    . {{ ansible_env.HOME }}/openrc
+    openstack {{ openrc_insecure |default(false) |bool |ternary('--insecure','') }} endpoint list
   args:
     executable: /bin/bash
   register: endpointlist_result
@@ -104,14 +120,14 @@
 - name: Obtain a list of neutron routers
   shell: |
     . {{ ansible_env.HOME }}/openrc
-    neutron router-list -f table --column id |awk '/([A-Fa-f0-9]+\-)+[A-Fa-f0-9]+/ {print $2}'
+    neutron {{ openrc_insecure |default(false) |bool |ternary('--insecure','') }} router-list -f table --column id |awk '/([A-Fa-f0-9]+\-)+[A-Fa-f0-9]+/ {print $2}'
   register: neutron_routers
   delegate_to: "{{ groups['utility_all'][0] }}"
 
 - name: Check agent assigned to each neutron router
   shell: |
     . {{ ansible_env.HOME }}/openrc
-    neutron l3-agent-list-hosting-router -f table --column host {{ item }} |awk '/([A-Fa-f0-9]+\-)+[A-Fa-f0-9]+/ {print $2}'
+    neutron {{ openrc_insecure |default(false) |bool |ternary('--insecure','') }} l3-agent-list-hosting-router -f table --column host {{ item }} |awk '/([A-Fa-f0-9]+\-)+[A-Fa-f0-9]+/ {print $2}'
   with_items: "{{ neutron_routers.stdout_lines }}"
   register: neutron_routers_agents
   delegate_to: "{{ groups['utility_all'][0] }}"
