@@ -17,7 +17,7 @@ date_stamp: "{{ ansible_date_time.date }}"
 time_stamp: "{{ ansible_date_time.time }}"
 datetime_stamp: "{{ date_stamp }}-{{ time_stamp }}"
 local_home: "{{ lookup('env', 'HOME') }}"
-backup_dir: "{{ local_home }}/rpc13-upgrade-{{ date_stamp }}"
+backup_dir: "{{ ansible_env.BKUPDIR |default(local_home+'/'+'rpc-upgrade-'+date_stamp) }}"
 elasticsearch_http_port: 9200
 swift_venv_tag: "{{ openstack_release }}"
 swift_venv_bin: "/openstack/venvs/swift-{{ swift_venv_tag }}/bin"

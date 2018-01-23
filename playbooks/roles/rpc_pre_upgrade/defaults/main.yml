@@ -16,7 +16,7 @@
 pre_upgrade_original_playbook_dir: "/opt/rpc-openstack/"
 
 date_stamp: "{{ ansible_date_time.date }}"
-time_stamp: "{{ ansible_date_time.time }}"
+time_stamp: "{{ ansible_date_time.time |replace(':','')}}"
 datetime_stamp: "{{ date_stamp }}-{{ time_stamp }}"
 local_home: "{{ lookup('env', 'HOME') }}"
-backup_dir: "{{ local_home }}/rpc13-upgrade-{{ date_stamp }}"
+backup_dir: "{{ ansible_env.BKUPDIR |default(local_home+'/'+'rpc-upgrade-'+date_stamp) }}"
