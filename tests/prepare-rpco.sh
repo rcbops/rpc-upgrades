@@ -163,6 +163,14 @@ function fix_galera_apt_cache {
   popd
 }
 
+function remove_xtrabackup_from_galera_client {
+  pushd /opt/rpc-openstack/openstack-ansible
+    if grep 'percona-xtrabackup' /opt/rpc-openstack/openstack-ansible/playbooks/roles/galera_client/defaults/main.yml; then
+      patch -p1 < ${WORKSPACE_PATH}/playbooks/patches/liberty/galera_client/galera_client_remove_percona_xtrabackup.patch
+    fi
+  popd
+}
+
 function maas_tweaks {
   # RLM-518 older versions of liberty did not set maas_swift_accesscheck_password
   if ! grep '^maas_swift_accesscheck_password\:' /opt/rpc-openstack/rpcd/etc/openstack_deploy/user_extras_secrets.yml; then
@@ -229,6 +237,7 @@ pushd /opt/rpc-openstack
     allow_frontloading_vars
     get_ssh_role
     fix_galera_apt_cache
+    remove_xtrabackup_from_galera_client
     maas_tweaks
     # NOTE(cloudnull): The global requirement pins for early Liberty are broken.
     #                  This pull the pins forward so that we can continue with
