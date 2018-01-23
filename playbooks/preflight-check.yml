@@ -87,6 +87,19 @@
   tags:
     - leap-fs-check
 
+- name: Ensure correct Glance auth version
+  hosts: localhost
+  gather_facts: false
+  user: root
+  tasks:
+    - name: Set glance_swift_auth_version to 2 for CloudFiles
+      script: "scripts/glance_auth_version.py"
+      failed_when: script_response.rc not in [0,3]
+      changed_when: script_response.rc == 3
+      register: script_response
+  tags:
+    - cloudfiles-check
+
 - name: Check for missing config
   hosts: localhost
   connection: local
