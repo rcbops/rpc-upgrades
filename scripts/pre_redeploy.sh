@@ -104,6 +104,10 @@ pushd ${LEAPFROG_DIR}
         log "rebootstrap-ansible-for-rpc" "ok"
     fi
 popd
-pushd ${RPCO_DEFAULT_FOLDER}/rpcd/playbooks
-    openstack-ansible configure-apt-sources.yml
-popd
+
+if [[ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/configure-apt-sources-rpc.complete" ]]; then
+   pushd ${RPCO_DEFAULT_FOLDER}/rpcd/playbooks
+       openstack-ansible configure-apt-sources.yml
+   popd
+   log "configure-apt-sources-rpc" "ok"
+fi
