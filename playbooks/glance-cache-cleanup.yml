@@ -17,36 +17,9 @@
   hosts: glance_all
   user: root
   tasks:
-    - name: Stop glance-api
-      service:
-        name: glance-api
-        state: stopped
-        pattern: glance-api
-
-    - name: Stop glance-registry
-      service:
-        name: glance-registry
-        state: stopped
-        pattern: glance-registry
-
     - name: Wipe glance cache directory
-      file:
-        state: absent
-        path: "/var/lib/glance/cache/"
-
-    - name: Generate cache directory
-      file:
-        state: directory
-        path: "/var/lib/glance/cache/"
-
-    - name: Restore glance-registry
-      service:
-        name: glance-registry
-        state: started
-        pattern: glance-registry
-
-    - name: Restore glance-api
-      service:
-        name: glance-api
-        state: started
-        pattern: glance-api
+      shell: >
+        find /var/lib/glance/cache/ -type f -exec rm {} \;
+      register: cache_clean
+      failed_when: cache_clean.rc not in [0, 1]
+      changed_when: cache_clean.rc == 0
