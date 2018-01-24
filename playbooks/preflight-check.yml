@@ -112,7 +112,7 @@
   hosts: utility_all[0]
   tasks:
     - name: Get duplicate flavor IDs
-      shell: ". ~/openrc; nova flavor-list | awk '$2 {print $2}' | uniq -D"
+      shell: ". ~/openrc; nova {{ openrc_insecure | default(false) | bool | ternary('--insecure','') }} flavor-list | awk '$2 {print $2}' | uniq -D"
       register: flavor_check
 
     - name: Duplicate flavors exist
