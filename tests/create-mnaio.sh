@@ -172,26 +172,9 @@ ${MNAIO_SSH} "source /opt/rpc-upgrades/RE_ENV; \
               tests/maas-install.sh"
 echo "MaaS Install and Verify Post Deploy completed..."
 
-if [[ "$RUN_UPGRADES" == "yes" ]]; then
-  # Run Leapfrog upgrade
-  ${MNAIO_SSH} "source /opt/rpc-upgrades/RE_ENV; \
-                source /opt/rpc-upgrades/tests/ansible-env.rc; \
-                pushd /opt/rpc-upgrades; \
-                tests/test-upgrade.sh"
-  echo "Leapfrog completed..."
-
-  # Install and Verify MaaS post leapfrog
-  ${MNAIO_SSH} "source /opt/rpc-upgrades/RE_ENV; \
-                source /opt/rpc-upgrades/tests/ansible-env.rc; \
-                pushd /opt/rpc-upgrades; \
-                tests/maas-install.sh"
-  echo "MaaS Install and Verify Post Leapfrog completed..."
-
-  # Run final QC Tests
-  ${MNAIO_SSH} "source /opt/rpc-upgrades/RE_ENV; \
-                source /opt/rpc-upgrades/tests/ansible-env.rc; \
-                pushd /opt/rpc-upgrades; \
-                tests/qc-test.sh"
-  echo "QC Tests completed..."
-fi
-
+# Run QC Tests
+${MNAIO_SSH} "source /opt/rpc-upgrades/RE_ENV; \
+              source /opt/rpc-upgrades/tests/ansible-env.rc; \
+              pushd /opt/rpc-upgrades; \
+              tests/qc-test.sh"
+echo "QC Tests completed..."
