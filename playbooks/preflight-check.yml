@@ -107,3 +107,14 @@
       register: required_user_config_keys
   tags:
     - leap-key-check
+
+- name: check duplicate nova flavor IDs
+  hosts: utility_all[0]
+  tasks:
+    - name: Get duplicate flavor IDs
+      shell: ". ~/openrc; nova {{ openrc_insecure | default(false) | bool | ternary('--insecure','') }} flavor-list | awk '$2 {print $2}' | uniq -D"
+      register: flavor_check
+
+    - name: Duplicate flavors exist
+      fail: msg="Duplicated flavor IDs are detected."
+      when: flavor_check.stdout != ""
