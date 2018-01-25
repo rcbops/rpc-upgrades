@@ -66,6 +66,9 @@ if [ "${FUNCTIONAL_TEST}" = true ]; then
   sudo -H --preserve-env ./tests/prepare-rpco.sh
   if [ "${RE_JOB_IMAGE_TYPE}" = "mnaio" ]; then
     sudo -H --preserve-env ./tests/create-mnaio.sh
+    if [[ "$RUN_UPGRADES" == "yes" ]]; then
+      sudo -H --preserve-env ./tests/upgrade-mnaio.sh
+    fi
   else
     sudo -H --preserve-env ./tests/create-aio.sh
     sudo -H --preserve-env ./tests/maas-install.sh
