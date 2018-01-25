@@ -42,6 +42,9 @@ built and then the upgrade tools executed against it. This will
 allow for the rapid testing and proto-typing within a localized
 environment.
 
+If you wish to turn the upgrade off for testing prior to upgrade
+you can set `RUN_UPGRADE` to false and then manually upgrade.
+
 ======================================
 Creating a test MNAIO (Multi Node AIO)
 ======================================
@@ -67,3 +70,7 @@ This should kick off the Multi Node AIO build, then prep the
 rpc-openstack, push the configs to infra1 and boot start the
 RPC-O deploy from there.  By default an Ubuntu 14.04 LTS
 (trusty) image is used for the VMs for all leapfrog jobs.
+
+If you wish to turn the upgrade off for testing prior to upgrade
+you can set `RUN_UPGRADE` to false and then manually upgrade.
+
