@@ -11,7 +11,6 @@ env
 echo "+-------------------- ENV VARS --------------------+"
 
 ## Vars ----------------------------------------------------------------------
-export FUNCTIONAL_TEST=${FUNCTIONAL_TEST:-true}
 
 # These vars are set by the CI environment, but are given defaults
 # here to cater for situations where someone is executing the test
@@ -60,7 +59,7 @@ fi
 # dump all RE_ vars to file so it can be sourced for MNAIO
 env | grep RE_ | sed 's/^/export /' > /opt/rpc-upgrades/RE_ENV
 
-if [ "${FUNCTIONAL_TEST}" = true ]; then
+if [ "${RE_JOB_ACTION}" != "tox-test" ]; then
   sudo -H --preserve-env ./run-bindep.sh
   sudo -H --preserve-env pip install -r test-requirements.txt
   sudo -H --preserve-env ./tests/prepare-rpco.sh
@@ -85,5 +84,5 @@ if [ "${FUNCTIONAL_TEST}" = true ]; then
     fi
   fi
 else
-  sudo -H --preserve-env tox
+  sudo -H --preserve-env tox -e ${RE_JOB_SCENARIO}
 fi
