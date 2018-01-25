@@ -26,12 +26,7 @@ export CONTAINERS_TO_DESTROY=${CONTAINERS_TO_DESTROY:-'all_containers:!galera_al
 # Branches lower than Newton may have ansible_host: ansible_ssh_host mapping
 # that will fail because ansible_ssh_host is undefined on ansible 2.1
 # Strip it.
-if [[ -f /etc/openstack_deploy/user_rpcm_default_variables.yml ]]; then
-    sed -i '/ansible_host/d' /etc/openstack_deploy/user_rpcm_default_variables.yml
-fi
-if [[ -f /etc/openstack_deploy/user_rpco_variables_overrides.yml ]]; then
-    sed -i '/ansible_host/d' /etc/openstack_deploy/user_rpco_variables_overrides.yml
-fi
+sed -i '/ansible_host/d' /etc/openstack_deploy/user*.yml
 
 # Remove horizon static files variables from user_variables.yml as this is now
 # maintained in group_vars.
