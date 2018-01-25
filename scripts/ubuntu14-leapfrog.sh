@@ -43,7 +43,6 @@ export OA_OPS_REPO_BRANCH=${OA_OPS_REPO_BRANCH:-'052bdbf672dc72a9513c9103f80f76f
 # Instead of storing the debug's log of run in /tmp, we store it in an
 # folder that will get archived for gating logs
 export REDEPLOY_OA_FOLDER="${RPCO_DEFAULT_FOLDER}/openstack-ansible"
-export BOOTSTRAP_ANSIBLE_FOLDER="${RPCO_DEFAULT_FOLDER}/openstack-ansible"
 export DEBUG_PATH="/var/log/osa-leapfrog-debug.log"
 export UPGRADE_LEAP_MARKER_FOLDER="/etc/openstack_deploy/upgrade-leap"
 export PRE_LEAP_STEPS="${LEAP_BASE_DIR}/pre_leap.sh"
