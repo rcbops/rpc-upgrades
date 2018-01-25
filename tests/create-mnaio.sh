@@ -54,6 +54,7 @@ export DEFAULT_MIRROR_DIR=/ubuntu
 
 # ssh command used to execute tests on infra1
 export MNAIO_SSH="ssh -ttt -oStrictHostKeyChecking=no root@infra1"
+export RUN_UPGRADES="${RUN_UPGRADES:-yes}"
 
 #export ADDITIONAL_COMPUTE_NODES=${env.ADDITIONAL_COMPUTE_NODES}
 #export ADDITIONAL_VOLUME_NODES=${env.ADDITIONAL_VOLUME_NODES}
@@ -171,23 +172,26 @@ ${MNAIO_SSH} "source /opt/rpc-upgrades/RE_ENV; \
               tests/maas-install.sh"
 echo "MaaS Install and Verify Post Deploy completed..."
 
-# Run Leapfrog upgrade
-${MNAIO_SSH} "source /opt/rpc-upgrades/RE_ENV; \
-              source /opt/rpc-upgrades/tests/ansible-env.rc; \
-              pushd /opt/rpc-upgrades; \
-              tests/test-upgrade.sh"
-echo "Leapfrog completed..."
+if [[ "$RUN_UPGRADES" == "yes" ]]; then
+  # Run Leapfrog upgrade
+  ${MNAIO_SSH} "source /opt/rpc-upgrades/RE_ENV; \
+                source /opt/rpc-upgrades/tests/ansible-env.rc; \
+                pushd /opt/rpc-upgrades; \
+                tests/test-upgrade.sh"
+  echo "Leapfrog completed..."
 
-# Install and Verify MaaS post leapfrog
-${MNAIO_SSH} "source /opt/rpc-upgrades/RE_ENV; \
-              source /opt/rpc-upgrades/tests/ansible-env.rc; \
-              pushd /opt/rpc-upgrades; \
-              tests/maas-install.sh"
-echo "MaaS Install and Verify Post Leapfrog completed..."
+  # Install and Verify MaaS post leapfrog
+  ${MNAIO_SSH} "source /opt/rpc-upgrades/RE_ENV; \
+                source /opt/rpc-upgrades/tests/ansible-env.rc; \
+                pushd /opt/rpc-upgrades; \
+                tests/maas-install.sh"
+  echo "MaaS Install and Verify Post Leapfrog completed..."
 
-# Run final QC Tests
-${MNAIO_SSH} "source /opt/rpc-upgrades/RE_ENV; \
-              source /opt/rpc-upgrades/tests/ansible-env.rc; \
-              pushd /opt/rpc-upgrades; \
-              tests/qc-test.sh"
-echo "QC Tests completed..."
+  # Run final QC Tests
+  ${MNAIO_SSH} "source /opt/rpc-upgrades/RE_ENV; \
+                source /opt/rpc-upgrades/tests/ansible-env.rc; \
+                pushd /opt/rpc-upgrades; \
+                tests/qc-test.sh"
+  echo "QC Tests completed..."
+fi
+

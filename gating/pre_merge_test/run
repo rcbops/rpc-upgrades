@@ -39,6 +39,7 @@ export ANSIBLE_LOG_DIR="${TESTING_HOME}/.ansible/logs"
 export ANSIBLE_LOG_PATH="${ANSIBLE_LOG_DIR}/ansible-aio.log"
 export OSA_PATH="/opt/rpc-openstack/openstack-ansible"
 export WORKSPACE_PATH=`pwd`
+export RUN_UPGRADES="${RUN_UPGRADES:-yes}"
 
 ## Main ----------------------------------------------------------------------
 
@@ -68,15 +69,17 @@ if [ "${FUNCTIONAL_TEST}" = true ]; then
   else
     sudo -H --preserve-env ./tests/create-aio.sh
     sudo -H --preserve-env ./tests/maas-install.sh
-    sudo -H --preserve-env ./tests/test-upgrade.sh
-    sudo -H --preserve-env ./tests/maas-install.sh
-    sudo -H --preserve-env ./tests/qc-test.sh
-    # RLM-292 secondary test-upgrade run to validate idempotency
-    export RUN_PREFLIGHT=no
-    sudo -H --preserve-env ./tests/test-upgrade.sh
-    # RLM-293 secondary qc run after test-upgrade attempt
-    sudo -H --preserve-env ./tests/qc-test.sh
-    #sudo -H --preserve-env ./tests/run-tempest.sh
+    if [[ "$RUN_UPGRADES" == "yes" ]]; then
+      sudo -H --preserve-env ./tests/test-upgrade.sh
+      sudo -H --preserve-env ./tests/maas-install.sh
+      sudo -H --preserve-env ./tests/qc-test.sh
+      # RLM-292 secondary test-upgrade run to validate idempotency
+      export RUN_PREFLIGHT=no
+      sudo -H --preserve-env ./tests/test-upgrade.sh
+      # RLM-293 secondary qc run after test-upgrade attempt
+      sudo -H --preserve-env ./tests/qc-test.sh
+      #sudo -H --preserve-env ./tests/run-tempest.sh
+    fi
   fi
 else
   sudo -H --preserve-env tox
