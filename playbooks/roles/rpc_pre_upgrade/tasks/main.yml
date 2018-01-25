@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# set backup_dir as a fact to ensure dir name doesn't change during run
+- set_fact:
+    backup_dir: "{{ ansible_env.BKUPDIR |default(local_home+'/'+'rpc-upgrade-'+date_stamp) }}"
+
 # Backup database/repository/vars_files
 - include: backup.yml
 
