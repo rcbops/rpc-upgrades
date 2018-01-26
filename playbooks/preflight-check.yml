@@ -91,12 +91,18 @@
   hosts: localhost
   gather_facts: false
   user: root
+  vars:
+    override_file: '/etc/openstack_delpoy/user_osa_variables_overrides.yml'
+    auth_key: 'glance_swift_store_auth_version'
+  set_fact:
+    cloudfiles_enabled: "{{ glance_swift_store_auth_address | match("*\.api\.rackspacecloud*") }}"
   tasks:
     - name: Set glance_swift_auth_version to 2 for CloudFiles
-      script: "scripts/glance_auth_version.py"
-      failed_when: script_response.rc not in [0,3]
-      changed_when: script_response.rc == 3
-      register: script_response
+      shell: >
+        grep -q {{ auth_key }} {{ override_file }} &&
+        sed -i 's/{{ auth_key }}: 3/{{ auth_key }}: 2/' {{ override_file }} ||
+        echo '{{ auth_key }}: 2' >> {{ override_file }}
+      when: cloudfiles_enabled
   tags:
     - cloudfiles-check
 
