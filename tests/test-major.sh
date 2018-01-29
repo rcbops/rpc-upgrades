@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Copyright 2017, Rackspace US, Inc.
+# Copyright 2018, Rackspace US, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,16 +14,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-set -evu
-
-if [ "${RE_JOB_UPGRADE_ACTION}" == "leap" ]; then
-  tests/test-leapfrog.sh
-elif [ "${RE_JOB_UPGRADE_ACTION}" == "major" ]; then
-  tests/test-major.sh
-elif [ "${RE_JOB_UPGRADE_ACTION}" == "minor" ]; then
-  tests/test-minor.sh
-else
-  echo "FAIL!"
-  echo "RE_JOB_UPGRADE_ACTION '${RE_JOB_UPGRADE_ACTION}' is not supported."
-  exit 99
-fi
+pushd /opt/rpc-openstack
+  git clean -df
+  git reset --hard HEAD
+  rm -rf openstack-ansible
+  git checkout ${RE_JOB_UPGRADE_TO}
+  (git submodule init && git submodule update) || true
+popd
+pushd /opt/rpc-openstack/openstack-ansible
+  export I_REALLY_KNOW_WHAT_I_AM_DOING=true
+  scripts/run_upgrade.sh
+popd
