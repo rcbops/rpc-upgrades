@@ -95,7 +95,7 @@
     override_file: '/etc/openstack_deploy/user_osa_variables_overrides.yml'
     auth_key: 'glance_swift_store_auth_version'
   set_fact:
-    cloudfiles_enabled: {{ glance_swift_store_auth_address | match("*\.api\.rackspacecloud*") }}
+    cloudfiles_enabled: "{{ glance_swift_store_auth_address | match(\"*\\.api\\.rackspacecloud*\") }}"
   tasks:
     - name: Set glance_swift_auth_version to 2 for CloudFiles
       lineinfile:
