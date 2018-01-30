@@ -61,3 +61,4 @@ if which lxc-ls &> /dev/null; then
 fi
 
 echo "#### END LOG COLLECTION ###"
+
