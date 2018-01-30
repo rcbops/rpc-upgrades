@@ -99,9 +99,9 @@
   tasks:
     - name: Set glance_swift_auth_version to 2 for CloudFiles
       lineinfile:
-        dest: {{ override_file }}
-        regexp: '{{ auth_key }}: 3'
-        line: '{{ auth_key }}: 2'
+        dest: "{{ override_file }}"
+        regexp: "{{ auth_key }}: 3"
+        line: "{{ auth_key }}: 2"
         state: present 
       when: cloudfiles_enabled
   tags:
