@@ -172,7 +172,7 @@ function remove_xtrabackup_from_galera_client {
 }
 
 function maas_tweaks {
-  # RLM-518 older versions of liberty did not set maas_swift_accesscheck_password
+  # RLM-518 older versions of liberty and kilo did not set maas_swift_accesscheck_password
   if ! grep '^maas_swift_accesscheck_password\:' /opt/rpc-openstack/rpcd/etc/openstack_deploy/user_extras_secrets.yml; then
     echo 'maas_swift_accesscheck_password:' >> /opt/rpc-openstack/rpcd/etc/openstack_deploy/user_extras_secrets.yml
   fi
@@ -216,6 +216,7 @@ pushd /opt/rpc-openstack
     kilo_caches
     allow_frontloading_vars
     get_ssh_role
+    maas_tweaks
 
     # NOTE(cloudnull): Pycrypto has to be limited.
     sed -i 's|pycrypto.*|pycrypto<=2.6.1|g' ${OSA_PATH}/requirements.txt
