@@ -13,16 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Fix duplicate hypervisor
+- name: Correct hypervisor host
   hosts: utility_all[0]
   user: root
   tasks:
-    - name: Rename node in nova intances table
+    - name: Rename node (hypervisor) in nova intances table
       shell: ". {{ ansible_env.HOME }}/openrc; mysql -BN -e \"update instances set node=concat(node, '.openstack.local') where node not like '%openstack.local'\" nova"
-      args:
-        executable: /bin/bash
-
-    - name: Delete old hypervisor
-      shell: ". {{ ansible_env.HOME }}/openrc; mysql -BN -e \"delete from compute_nodes where hypervisor_hostname not like '%openstack.local'\" nova "
       args:
         executable: /bin/bash
