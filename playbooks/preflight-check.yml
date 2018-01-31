@@ -87,6 +87,26 @@
   tags:
     - leap-fs-check
 
+- name: Ensure correct Glance auth version
+  hosts: localhost
+  gather_facts: false
+  user: root
+  vars:
+    override_file: '/etc/openstack_deploy/user_osa_variables_overrides.yml'
+    auth_key: 'glance_swift_store_auth_version'
+  set_fact:
+    cloudfiles_enabled: "{{ glance_swift_store_auth_address | match(\"*\\.api\\.rackspacecloud*\") }}"
+  tasks:
+    - name: Set glance_swift_auth_version to 2 for CloudFiles
+      lineinfile:
+        dest: "{{ override_file }}"
+        regexp: "{{ auth_key }}: 3"
+        line: "{{ auth_key }}: 2"
+        state: present 
+      when: cloudfiles_enabled
+  tags:
+    - cloudfiles-check
+
 - name: Check for missing config
   hosts: localhost
   connection: local
