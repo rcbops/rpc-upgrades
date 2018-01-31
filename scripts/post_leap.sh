@@ -58,4 +58,15 @@ if [ "$UPGRADE_ELASTICSEARCH" == "yes" ]; then
   popd
 fi
 
+pushd /opt/rpc-upgrades/playbooks
+  if openstack-ansible duplicate-hypervisor.yml | grep -q 'failed=1'; then
+    echo 'Duplicate nova hypervisor existing.'
+    if openstack-ansible fix-duplicate-hypervisor.yml; then
+      echo 'Database fix is done successful.'
+    else
+      echo 'Database fix is not successful.'
+    fi
+  fi
+popd
+
 echo "LEAPFROG COMPLETE."
