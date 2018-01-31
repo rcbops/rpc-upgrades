@@ -14,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+export RE_JOB_UPGRADE_TO=${RE_JOB_UPGRADE_TO:-'newton'}
+
 pushd /opt/rpc-openstack
   git clean -df
   git reset --hard HEAD
@@ -23,5 +25,14 @@ pushd /opt/rpc-openstack
 popd
 pushd /opt/rpc-openstack/openstack-ansible
   export I_REALLY_KNOW_WHAT_I_AM_DOING=true
-  scripts/run_upgrade.sh
+  # remove all ansible_ssh_host entries
+  sed -i '/ansible_host/d' /etc/openstack_deploy/user*.yml
+  # upgrade looks for user_variables so drop one in place for upgrade
+  if [[ ! -f /etc/openstack_deploy/user_variables.yml ]]; then
+     echo "---" > /etc/openstack_deploy/user_variables.yml
+     echo "default_bind_mount_logs: False" >> /etc/openstack_deploy/user_variables.yml
+  elif [[ -f /etc/openstack_deploy/user_variables.yml ]]; then
+     echo "default_bind_mount_logs: False" >> /etc/openstack_deploy/user_variables.yml
+  fi
+  echo "YES" | bash scripts/run-upgrade.sh
 popd
