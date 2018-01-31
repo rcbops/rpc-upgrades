@@ -84,5 +84,8 @@ if [ "${RE_JOB_ACTION}" != "tox-test" ]; then
     fi
   fi
 else
-  sudo -H --preserve-env tox -e ${RE_JOB_SCENARIO}
+  # NOTE(mattt): We set a custom workdir here otherwise we may get tox errors
+  #              due to excessively long shebang lines in tox's venv scripts.
+  tmp_tox_dir=$(mktemp -d)
+  sudo -H --preserve-env tox -e ${RE_JOB_SCENARIO} --workdir ${tmp_tox_dir}
 fi
