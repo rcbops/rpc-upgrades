@@ -58,4 +58,8 @@ if [ "$UPGRADE_ELASTICSEARCH" == "yes" ]; then
   popd
 fi
 
+pushd /opt/rpc-upgrades/playbooks
+  openstack-ansible correct-hypervisor-hostname.yml
+popd
+
 echo "LEAPFROG COMPLETE."
