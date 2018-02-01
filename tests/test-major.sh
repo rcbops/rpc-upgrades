@@ -24,6 +24,7 @@ pushd /opt/rpc-openstack
   (git submodule init && git submodule update) || true
 popd
 pushd /opt/rpc-openstack/openstack-ansible
+  export TERM=linux
   export I_REALLY_KNOW_WHAT_I_AM_DOING=true
   # remove all ansible_ssh_host entries
   sed -i '/ansible_host/d' /etc/openstack_deploy/user*.yml
