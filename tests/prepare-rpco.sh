@@ -224,7 +224,7 @@ pushd /opt/rpc-openstack
     # RLM-1338 Older versions of kilo that use older setuptools fail with install_requires
     # must be a string  or list of strings so use the latest version that will work
     if ! grep 'setuptools' ${OSA_PATH}/requirements.txt; then
-      echo -e "setuptools==21.0.0\n" | tee ${OSA_PATH}/requirements.txt
+      echo "setuptools==21.0.0" >> ${OSA_PATH}/requirements.txt
     fi
 
     # NOTE(cloudnull): Early kilo versions forced repo-clone from our mirrors.
