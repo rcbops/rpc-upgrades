@@ -85,14 +85,6 @@ pushd ${LEAPFROG_DIR}
             fi
         popd
         log "variable-migration" "ok"
-        # This message only needs to appears the first time the user variable migration was successful
-        # This way, if a user mistakenly Ctrl-C, the variable migration process will be skipped on
-        # the next run
-        if [ "${VALIDATE_UPGRADE_INPUT}" != false ]; then
-            notice "Please verify your migrated secrets in /etc/openstack_deploy"
-            warning "DO NOT CTRL-C this process to verify your secrets."
-            read -p "Press enter to continue when ready"
-        fi
     else
         log "variable-migration" "skipped"
     fi
