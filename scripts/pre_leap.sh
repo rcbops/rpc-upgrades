@@ -42,3 +42,6 @@ fi
 
 # RLM-682 versions past 2.5.2 break things
 echo "python-ldap==2.5.2" >> /opt/rpc-openstack/openstack-ansible/global-requirement-pins.txt
+
+# RLM-1375 Skip certain hardening tags during leap
+export SKIP_HARDENING_TAGS="V-38462,V-38660"
