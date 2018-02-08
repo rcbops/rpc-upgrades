@@ -16,6 +16,16 @@
 
 set -evu
 
+export RPC_TARGET_CHECKOUT=${RE_JOB_UPGRADE_TO:-'newton'}
+if [[ ${RE_JOB_UPGRADE_TO} == "r14.current" ]]; then
+  pushd /opt/rpc-openstack
+    echo "Getting latest tagged release for r14.current..."
+    git fetch --tags
+    RPC_TARGET_CHECKOUT=`git for-each-ref refs/tags --sort=-taggerdate --format='%(tag)' | grep r14. | head -1`
+    echo "Upgrading to latest release of ${RPC_TARGET_CHECKOUT} (Newton)..."
+  popd
+fi
+
 if [ "${RE_JOB_UPGRADE_ACTION}" == "leap" ]; then
   tests/test-leapfrog.sh
 elif [ "${RE_JOB_UPGRADE_ACTION}" == "major" ]; then

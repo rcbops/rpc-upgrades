@@ -18,7 +18,7 @@ set -evu
 
 export VALIDATE_UPGRADE_INPUT=false
 export AUTOMATIC_VAR_MIGRATE_FLAG="--for-testing-take-new-vars-only"
-export RPC_TARGET_CHECKOUT=${RE_JOB_UPGRADE_TO:-'newton'}
+export RPC_TARGET_CHECKOUT=${RPC_TARGET_CHECKOUT:-'newton'}
 
 if [ "${RE_JOB_SERIES}" == "kilo" ]; then
   export UPGRADE_ELASTICSEARCH=no
