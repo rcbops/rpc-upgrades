@@ -98,8 +98,14 @@ pushd ${LEAPFROG_DIR}
 popd
 
 if [[ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/configure-apt-sources-rpc.complete" ]]; then
-   pushd ${RPCO_DEFAULT_FOLDER}/rpcd/playbooks
-       openstack-ansible configure-apt-sources.yml
-   popd
-   log "configure-apt-sources-rpc" "ok"
+    pushd ${RPCO_DEFAULT_FOLDER}/rpcd/playbooks
+        openstack-ansible configure-apt-sources.yml
+    popd
+    log "configure-apt-sources-rpc" "ok"
 fi
+
+# Set openstack_domain to empty which makes fqdns hostname correct
+pushd /etc/openstack_deploy/
+    sed -i '/^openstack_domain.*/d' user_osa_variables_defaults.yml
+    echo "openstack_domain: ''" >> user_osa_variables_defaults.yml
+popd
