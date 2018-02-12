@@ -107,27 +107,6 @@
   tags:
     - cloudfiles-check
 
-- name: Check for missing config
-  hosts: localhost
-  connection: local
-  gather_facts: false
-  user: root
-  tasks:
-    - name: Create a backup openstack_user_config.yml
-      command: >
-        cp /etc/openstack_deploy/openstack_user_config.yml
-        /etc/openstack_deploy/openstack_user_config.yml.pre-leap
-      args:
-        creates: /etc/openstack_deploy/openstack_user_config.yml.pre-leap
-
-    - name: Check for required keys in the openstack_user_config.yml
-      script: "scripts/required_user_config_keys.py"
-      failed_when: required_user_config_keys.rc not in [0, 3]
-      changed_when: required_user_config_keys.rc == 3
-      register: required_user_config_keys
-  tags:
-    - leap-key-check
-
 - name: check duplicate nova flavor IDs
   hosts: utility_all[0]
   tasks:
