@@ -136,5 +136,5 @@
   copy:
     content: "{{ item.stdout|replace('_','-') }}" # we replace here since containers will get renamed during upgrade
     dest: "{{ backup_dir }}/{{ item.item }}.pre-upgrade"
-  with_items: "{{ neutron_routers_agents.results }}"
+  with_items: "{{ neutron_routers_agents.results |default([]) }}"
   delegate_to: localhost
