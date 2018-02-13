@@ -109,3 +109,9 @@ pushd /etc/openstack_deploy/
     sed -i '/^openstack_domain.*/d' user_osa_variables_defaults.yml
     echo "openstack_domain: ''" >> user_osa_variables_defaults.yml
 popd
+
+# RLM-1423 Increase apt cache timeout to cover time to run maintenance
+pushd /etc/openstack_deploy/
+    sed -i '/^cache_timeout.*/d' user_osa_variables_defaults.yml
+    echo "cache_timeout: '21600'" >> user_osa_variables_defaults.yml
+popd
