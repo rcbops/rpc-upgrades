@@ -73,28 +73,6 @@ if [[ ! -d "${UPGRADE_LEAP_MARKER_FOLDER}" ]]; then
     mkdir -p "${UPGRADE_LEAP_MARKER_FOLDER}"
 fi
 
-# Glance cache cleanup
-if [[ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/glance-cache-cleanup.complete" ]]; then
-  pushd /opt/rpc-upgrades/playbooks/
-    openstack-ansible glance-cache-cleanup.yml
-  popd
-  log "glance-cache-cleanup" "ok"
-else
-  log "glance-cache-cleanup" "skipped"
-fi
-
-# Pre-flight check
-if [[ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/rpc-preflight-check.complete" ]]; then
-  if [[ "$RUN_PREFLIGHT" == "yes" ]]; then
-    pushd /opt/rpc-upgrades/playbooks
-      openstack-ansible preflight-check.yml
-    popd
-  fi
-  log "rpc-preflight-check" "ok"
-else
-  log "rpc-preflight-check" "skipped"
-fi
-
 # Let's go
 pushd ${LEAPFROG_DIR}
 

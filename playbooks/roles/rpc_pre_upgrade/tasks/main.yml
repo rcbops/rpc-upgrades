@@ -17,6 +17,35 @@
 - set_fact:
     backup_dir: "{{ ansible_env.BKUPDIR |default(local_home+'/'+'rpc-upgrade-'+date_stamp) }}"
 
+- file:
+    path: "{{ marker_dir }}"
+    state: directory
+    owner: root
+    mode: 0644
+
+# Prepare Glance cache
+- include: glance-cache-cleanup.yml
+
+# Preflight checks - it'd be nice to move the idempotency logic
+# into the preflight-check.yml file itself, by maybe wrapping all
+# tasks in a conditional block.  But this is expected to run in
+# Ansible 1.9, which doesn't support that.
+- stat:
+    path: "{{ marker_dir }}/rpc-preflight-check.complete"
+    register: preflight_marker
+
+- include: preflight-check.yml
+  when:
+    - "{{ lookup('env', 'RUN_PREFLIGHT') | default(True) }}"
+    - preflight_marker.stat.exists == False
+
+- name: Mark preflight as completed
+  file:
+    path: "{{ marker_dir }}/rpc-preflight-check.complete"
+    state: touch
+    owner: root
+    mode: 0644
+
 # Backup database/repository/vars_files
 - include: backup.yml
 

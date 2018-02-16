@@ -19,3 +19,5 @@ date_stamp: "{{ ansible_date_time.date }}"
 time_stamp: "{{ ansible_date_time.time |replace(':','')}}"
 datetime_stamp: "{{ date_stamp }}-{{ time_stamp }}"
 local_home: "{{ lookup('env', 'HOME') }}"
+
+marker_dir: "{{ ansible_env.UPGRADE_LEAP_MARKER_FOLDER | default('/etc/openstack_deploy/upgrade-leap') }}"
