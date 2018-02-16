@@ -62,8 +62,8 @@ master_doc = 'index'
 # General information about the project.
 author = 'Rackspace'
 category = 'Miscellaneous'
-copyright = '2014-2017, Rackspace'
-description = 'Rackspace Monitoring as a Service role.'
+copyright = '2014-2018, Rackspace'
+description = 'RPC Upgrades'
 project = 'RPC-OpenStack'
 role_name = 'rpc-upgrades'
 target_name = role_name
