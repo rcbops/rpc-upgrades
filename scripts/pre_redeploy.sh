@@ -104,7 +104,7 @@ if [[ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/configure-apt-sources-rpc.complete" ]]
     log "configure-apt-sources-rpc" "ok"
 fi
 
-# Set openstack_domain to empty which makes fqdns hostname correct
+# RLM-322 Set openstack_domain to empty which makes fqdns hostname correct
 pushd /etc/openstack_deploy/
     sed -i '/^openstack_domain.*/d' user_osa_variables_defaults.yml
     echo "openstack_domain: ''" >> user_osa_variables_defaults.yml
@@ -114,4 +114,13 @@ popd
 pushd /etc/openstack_deploy/
     sed -i '/^cache_timeout.*/d' user_osa_variables_defaults.yml
     echo "cache_timeout: '21600'" >> user_osa_variables_defaults.yml
+popd
+
+# RLM-1401 Set package_state to present instead of latest to avoid repeated apt updates during leap
+# and sets haproxy_package_state to latest to allow it to read new configuration options
+pushd /etc/openstack_deploy/
+    sed -i '/^package_state.*/d' user_osa_variables_defaults.yml
+    echo "package_state: 'present'" >> user_osa_variables_defaults.yml
+    sed -i '/^haproxy_package_state.*/d' user_osa_variables_defaults.yml
+    echo "haproxy_package_state: 'latest'" >> user_osa_variables_defaults.yml
 popd
