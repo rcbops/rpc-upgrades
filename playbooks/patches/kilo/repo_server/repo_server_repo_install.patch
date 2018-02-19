@@ -1,0 +1,19 @@
+diff --git a/playbooks/roles/repo_server/tasks/repo_install.yml b/playbooks/roles/repo_server/tasks/repo_install.yml
+index 7885b6d..c371426 100644
+--- a/playbooks/roles/repo_server/tasks/repo_install.yml
++++ b/playbooks/roles/repo_server/tasks/repo_install.yml
+@@ -47,3 +47,14 @@
+   with_items: repo_pip_packages
+   tags:
+     - repo-pip-packages
++
++- name: Install pinned setuptools
++  pip:
++    name: "setuptools"
++    state: latest
++  register: install_packages
++  until: install_packages|success
++  retries: 5
++  delay: 5
++  tags:
++    - repo-pip-packages

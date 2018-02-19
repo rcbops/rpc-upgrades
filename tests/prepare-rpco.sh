@@ -221,11 +221,22 @@ pushd /opt/rpc-openstack
     # NOTE(cloudnull): Pycrypto has to be limited.
     sed -i 's|pycrypto.*|pycrypto<=2.6.1|g' ${OSA_PATH}/requirements.txt
 
+    # needed for python clients to install properly on older versions of kilo
+    sed -i 's|requests.*|requests>=2.2.0,!=2.4.0,<2.8.0|g' ${OSA_PATH}/requirements.txt
+    sed -i 's|urllib3.*|urllib3>=1.8.3,<1.11|g' ${OSA_PATH}/requirements.txt
+
+    # python-keystone, need python-testresources deb too
+    sed -i 's|testtools.*|testtools!=1.2.0,<2.0.0,>=0.9.36|g' ${OSA_PATH}/requirements.txt
+    sed -i 's|alembic.*|alembic<0.8.1,>=0.7.2|g' ${OSA_PATH}/requirements.txt
+
     # RLM-1338 Older versions of kilo that use older setuptools fail with install_requires
     # must be a string  or list of strings so use the latest version that will work
     if ! grep 'setuptools' ${OSA_PATH}/requirements.txt; then
       echo "setuptools==21.0.0" >> ${OSA_PATH}/requirements.txt
     fi
+    pushd /opt/rpc-openstack/openstack-ansible
+      patch -p1 < ${WORKSPACE_PATH}/playbooks/patches/kilo/repo_server/repo_server_repo_install.patch
+    popd
 
     # NOTE(cloudnull): Early kilo versions forced repo-clone from our mirrors.
     #                  Sadly this takes forever and is largely broken. This
