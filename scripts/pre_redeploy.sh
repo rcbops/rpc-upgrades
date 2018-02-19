@@ -104,14 +104,34 @@ if [[ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/configure-apt-sources-rpc.complete" ]]
     log "configure-apt-sources-rpc" "ok"
 fi
 
-# RLM-322 Set openstack_domain to blank to preserve short hostnames, 
-#         if not otherwise configured.
 pushd /etc/openstack_deploy/
+    # RLM-322 Set openstack_domain to blank to preserve short hostnames,
+    #         if not otherwise configured.
     grep -q 'openstack_domain:' user_*.yml 2>/dev/null || echo "openstack_domain: ''" |tee -a $OA_OVERRIDES
-popd
 
-# RLM-1423 Increase apt cache timeout to cover time to run maintenance
-pushd /etc/openstack_deploy/
+    # ensure user_leapfrog_overrides.yml is created
+    # settings in this file will exist for the leapfrog upgrade and then be removed
+    echo "---" > user_leapfrog_overrides.yml
+
+    # RLM-1423 Increase apt cache timeout to cover time to run maintenance
     sed -i '/^cache_timeout.*/d' user_*.yml
     echo "cache_timeout: '21600'" | tee -a user_leapfrog_overrides.yml
 popd
+
+# RLM-1340 Remove serialization throttle due to 100% API down time
+cat << EOF > /etc/openstack_deploy/user_leapfrog_overrides.yml
+# Remove throttle for leapfrog
+nova_compute_serial: '100%'
+nova_conductor_serial: '100%'
+nova_console_serial: '100%'
+nova_scheduler_serial: '100%'
+nova_api_serial: '100%'
+neutron_agent_serial: '100%'
+neutron_server_serial: '100%'
+neutron_other_serial: '100%'
+cinder_backend_serial: '100%'
+cinder_scheduler_serial: '100%'
+cinder_api_serial: '100%'
+glance_api_serial: '100%'
+glance_registry_rolling: '100%'
+EOF
