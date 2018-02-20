@@ -92,15 +92,17 @@
   gather_facts: false
   user: root
   vars:
-    override_file: '/etc/openstack_deploy/user_osa_variables_overrides.yml'
     auth_key: 'glance_swift_store_auth_version'
   tasks:
     - name: Set glance_swift_auth_version to 2 for CloudFiles
       lineinfile:
-        dest: "{{ override_file }}"
+        dest: "{{ item }}"
         regexp: "^{{ auth_key }}:.*"
         line: "{{ auth_key }}: 2"
         state: present 
+      with_first_found:
+        - /etc/openstack_deploy/user_osa_variables_overrides.yml
+        - /etc/openstack_deploy/user_variables.yml
       when: 
         - glance_swift_store_auth_address is defined
         - glance_swift_store_auth_address | search("api.rackspacecloud")
