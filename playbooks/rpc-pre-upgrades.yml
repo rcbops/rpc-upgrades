@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Synchronize support SSH key, openrc and pip.conf to deploy host
+- name: Synchronize openrc and pip.conf to deploy host
   hosts: "utility_all[0]"
   tasks:
     - name: Synchronize files
@@ -23,22 +23,7 @@
         mode: pull
       with_items:
         - { source: '/root/openrc', dest: '/root/openrc' }
-        - { source: '/root/.ssh/rpc_support*', dest: '/root/.ssh/' }
         - { source: '/root/.pip', dest: '/root/' }
-  ignore_errors: true
-
-- name: Copy rpc_support keys to infra hosts
-  hosts: "shared-infra_hosts"
-  tasks:
-    - name: Copy ssh keys
-      copy:
-        src: "{{ item.source }}"
-        dest: "{{ item.dest }}"
-        mode: 0600
-      with_items:
-        - { source: '/root/.ssh/rpc_support', dest: '/root/.ssh/rpc_support' }
-        - { source: '/root/.ssh/rpc_support*', dest: '/root/.ssh/' }
-  ignore_errors: true
 
 - name: Setup hosts for rpc-pre-upgrades
   hosts: localhost
