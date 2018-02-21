@@ -12,6 +12,18 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+- name: Install OpenStack python clients if not already installed
+  pip:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - python-novaclient
+    - python-openstackclient
+    - python-neutronclient
+    - python-heatclient
+    - python-cinderclient
+
 - name: Gather openstack CLI version
   shell: |
     . {{ ansible_env.HOME }}/openrc
