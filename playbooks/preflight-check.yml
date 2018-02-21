@@ -109,7 +109,7 @@
   tags:
     - cloudfiles-check
 
-- name: Check for missing config
+- name: Check deployment configuration
   hosts: localhost
   connection: local
   gather_facts: false
@@ -127,10 +127,18 @@
       failed_when: required_user_config_keys.rc not in [0, 3]
       changed_when: required_user_config_keys.rc == 3
       register: required_user_config_keys
-  tags:
-    - leap-key-check
 
-- name: check duplicate nova flavor IDs
+    - name: Remove old upgrade overrides configurations
+      file:
+        path: "{{ item }}"
+        state: absent
+      ignore_errors: true
+      with_items:
+        - /etc/openstack_deploy/user_deleteme_post_upgrade_variables.yml
+  tags:
+    - deployment-configuration-check
+
+- name: Check for duplicate Nova flavor IDs
   hosts: utility_all[0]
   tasks:
     - name: Get duplicate flavor IDs
