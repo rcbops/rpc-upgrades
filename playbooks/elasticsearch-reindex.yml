@@ -19,15 +19,18 @@
   roles:
     - role: "pip_install"
 
-- name: Stop logstash serivce
+- name: Stop logstash service
   hosts: logstash_all
   user: root
   tasks:
-    - name: Service stop
+    - name: Attempt to gracefully stop logstash
       service:
         name: logstash
         state: stopped
         pattern: logstash
+    - name: Force kill logstash
+      shell: "pkill -f -9 logstash"
+  ignore_errors: true
 
 - name: New session to reindex Elasticsearch
   hosts: localhost
