@@ -74,18 +74,45 @@
       shell: |
         df -h | tail -n +2 | sed s/%//g | awk '{if($5 > 97) print "Alert: "$5 "% full - "$0}'
       register: fs_check
+      tags:
+        - leap-fs-check
 
     - name: Check if any filesystem is greater than 97% full
       debug:
         msg: >-
           The filesystem(s) found to be (nearly) full.
-          Details: {{ item.split() | join(' ') }}
+          Details: "{{ item.split() | join(' ') }}"
       failed_when: true
       when:
         - fs_check.stdout_lines
       with_items: "{{ fs_check.stdout_lines }}"
-  tags:
-    - leap-fs-check
+      tags:
+        - leap-fs-check
+
+# RLM-1371 detect if enough space for rootfs backup
+- name: Check LXC file system usage for backup
+  hosts: "os-infra_hosts"
+  gather_facts: false
+  user: root
+  tasks:
+    - name: Gather lxc filesystem used percentages
+      shell: |
+        df -h {{ lxc_container_directory | default('/var/lib/lxc') }} | tail -n +2 | sed s/%//g | awk '{if($5 > 50) print "Alert: "$5 "% full - "$0}'
+      register: lxc_fs_check
+      when:
+        - enable_lxc_fs_check | default(true) | bool
+
+    - name: Check if lxc filesystem is greater than 50% full
+      debug:
+        msg: >-
+          The LXC filesystem(s) have been found to be greater than 50% full.
+          Details: "{{ item.split() | join(' ') }}"
+          If you have fully awareness of the potential risk having failure at rootfs backup stage, you can skip this check by passing the option 'enable_lxc_fs_check=false'.
+      failed_when: true
+      when:
+        - lxc_fs_check.stdout_lines
+        - enable_lxc_fs_check | default(true) | bool
+      with_items: "{{ lxc_fs_check.stdout_lines }}"
 
 - name: Ensure correct Glance auth version
   hosts: localhost
@@ -99,11 +126,11 @@
         dest: "{{ item }}"
         regexp: "^{{ auth_key }}:.*"
         line: "{{ auth_key }}: 2"
-        state: present 
+        state: present
       with_first_found:
         - /etc/openstack_deploy/user_osa_variables_overrides.yml
         - /etc/openstack_deploy/user_variables.yml
-      when: 
+      when:
         - glance_swift_store_auth_address is defined
         - glance_swift_store_auth_address | search("api.rackspacecloud")
   tags:
