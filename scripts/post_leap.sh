@@ -48,6 +48,9 @@ else
   log "deploy-rpc" "skipped"
 fi
 
+# remove user_leapfrog_overrides.yml as it contains values used during the leapfrog process
+rm -f /etc/openstack_deploy/user_leapfrog_overrides.yml
+
 if [ "QC_TEST" == "yes" ]; then
   . /opt/rpc-upgrades/tests/qc-test.sh
 fi
