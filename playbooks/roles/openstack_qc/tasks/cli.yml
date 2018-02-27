@@ -24,6 +24,19 @@
   debug:
     var: openstack_cli_version.stdout
 
+- name: Set openstack_cli_error (if needed)
+  set_fact:
+    cli_error: true
+    openstack_error: true
+    openstack_cli_error: true
+    cli_errors: "['openstack']"
+  when: openstack_cli_version.rc != 0
+
+- name: Display openstack_cli_error
+  debug:
+    var: openstack_cli_error
+  when: openstack_cli_error is defined
+
 - name: Gather Cinder CLI Version
   shell: "source ~/openrc; cinder --version 2>&1"
   args:
@@ -34,6 +47,19 @@
 - name: Output Cinder CLI Version
   debug:
     var: cinder_cli_version.stdout
+
+- name: Set cinder_cli_error (if needed)
+  set_fact:
+    cli_error: true
+    openstack_error: true
+    cinder_cli_error: true
+    cli_errors: "{{ cli_errors }} + ['cinder']"
+  when: cinder_cli_version.rc != 0
+
+- name: Display cinder_cli_error
+  debug:
+    var: cinder_cli_error
+  when: cinder_cli_error is defined
 
 - name: Gather Glance CLI Version
   shell: "source ~/openrc; glance --version 2>&1"
@@ -46,6 +72,19 @@
   debug:
     var: glance_cli_version.stdout
 
+- name: Set glance_cli_error (if needed)
+  set_fact:
+    cli_error: true
+    openstack_error: true
+    glance_cli_error: true
+    cli_errors: "{{ cli_errors }} + ['glance']"
+  when: glance_cli_version.rc != 0
+
+- name: Display glance_cli_error
+  debug:
+    var: glance_cli_error
+  when: glance_cli_error is defined
+
 - name: Gather Keystone CLI Version
   shell: "source ~/openrc; keystone --version 2>&1"
   args:
@@ -56,6 +95,19 @@
 - name: Output Keystone CLI Version
   debug:
     var: keystone_cli_version.stdout_lines[-1]
+
+- name: Set keystone_cli_error (if needed)
+  set_fact:
+    cli_error: true
+    openstack_error: true
+    keystone_cli_error: true
+    cli_errors: "{{ cli_errors }} + ['keystone']"
+  when: keystone_cli_version.rc != 0
+
+- name: Display keystone_cli_error
+  debug:
+    var: keystone_cli_error
+  when: keystone_cli_error is defined
 
 - name: Gather Neutron CLI Version
   shell: "source ~/openrc; neutron --version 2>&1"
@@ -68,6 +120,19 @@
   debug:
     var: neutron_cli_version.stdout
 
+- name: Set neutron_cli_error (if needed)
+  set_fact:
+    cli_error: true
+    openstack_error: true
+    neutron_cli_error: true
+    cli_errors: "{{ cli_errors }} + ['neutron']"
+  when: neutron_cli_version.rc != 0
+
+- name: Display neutron_cli_error
+  debug:
+    var: neutron_cli_error
+  when: neutron_cli_error is defined
+
 - name: Gather Nova CLI Version
   shell: "source ~/openrc; nova --version 2>&1"
   args:
@@ -78,6 +143,19 @@
 - name: Output Nova CLI Version
   debug:
     var: nova_cli_version.stdout
+
+- name: Set nova_cli_error (if needed)
+  set_fact:
+    cli_error: true
+    openstack_error: true
+    nova_cli_error: true
+    cli_errors: "{{ cli_errors }} + ['nova']"
+  when: nova_cli_version.rc != 0
+
+- name: Display nova_cli_error
+  debug:
+    var: nova_cli_error
+  when: nova_cli_error is defined
 
 # Set orchestration result depeding on available openstack client
 - name: Gather Orchestration CLI Version (openstack_cli_version >= "2.3.0")
@@ -100,6 +178,19 @@
   debug:
     var: orchestration_cli_version.stdout
 
+- name: Set orchestration_cli_error (if needed)
+  set_fact:
+    cli_error: true
+    openstack_error: true
+    orchestration_cli_error: true
+    cli_errors: "{{ cli_errors }} + ['orchestration']"
+  when: orchestration_cli_version.rc != 0
+
+- name: Display orchestration_cli_error
+  debug:
+    var: orchestration_cli_error
+  when: orchestration_cli_error is defined
+
 - name: Gather Swift CLI Version
   shell: "source ~/openrc; swift --version 2>&1"
   args:
@@ -112,5 +203,18 @@
   debug:
     var: swift_cli_version.stdout
   when: swift_cli_version is defined
+
+- name: Set swift_cli_error (if needed)
+  set_fact:
+    cli_error: true
+    openstack_error: true
+    swift_cli_error: true
+    cli_errors: "{{ cli_errors }} + ['swift']"
+  when: swift_cli_version.rc != 0
+
+- name: Display swift_cli_error
+  debug:
+    var: swift_cli_error
+  when: swift_cli_error is defined
 
 # Need to add CEPH CLI things here (jwagner)

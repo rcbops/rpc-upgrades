@@ -61,3 +61,10 @@
   template:
     src: "openstack.txt.j2"
     dest: "{{ openstack_qc_dir }}/openstack-qc-{{ datetime_stamp }}.txt"
+
+# Output Openstack Errors into log file
+- name: Output Openstack Errors into log file
+  template:
+    src: "openstack_errors.err.j2"
+    dest: "{{ openstack_qc_dir }}/openstack-errors-{{ datetime_stamp }}.txt"
+  when: openstack_error is defined

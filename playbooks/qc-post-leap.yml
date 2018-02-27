@@ -15,34 +15,38 @@
 
 - name: Post Upgrade Environment QC
   hosts: localhost
-  any_errors_fatal: true
   roles:
     - environment_qc
 
 - name: Post Upgrade Infrastructure QC
   hosts: localhost
-  any_errors_fatal: true
   roles:
     - infrastructure_qc
 
 - name: Post Upgrade Openstack QC
   hosts: localhost
-  any_errors_fatal: true
   roles:
     - openstack_qc
 
 - name: Post Upgrade Swift QC
   hosts: localhost
-  any_errors_fatal: true
   roles:
    - swift_qc
 
 - name: Post Upgrade RPC QC
   hosts: localhost
-  any_errors_fatal: true
   roles:
    - rpc_qc
 
 ## Here we need to gather all errors that were registered and alert the user
 ## on how to fix them / where to fix them
 ## jwagner
+
+- name: Error output test
+  hosts: localhost
+  tasks:
+    - name: Output Galera Errors test
+      debug:
+        msg: "Galera Cluster Size Error"
+        var: wsrep_cluster_size_error
+      when: wsrep_cluster_size_error is defined

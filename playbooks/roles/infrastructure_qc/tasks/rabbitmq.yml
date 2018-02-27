@@ -13,23 +13,35 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Check rabbitmq cluster status
 - name: Grab full output of rabbitmqctl cluster_status
   command: "rabbitmqctl cluster_status"
   register: rabbitmqctl_output
-  failed_when: "rabbitmqctl_output.rc != 0"
   delegate_to: "{{ groups['rabbitmq'][0] }}"
 
-# Output rabbitmq cluster status
 - name: Display output of rabbitmqctl cluster_status
   debug:
     var: rabbitmqctl_output.stdout_lines
 
-## Commenting this out for now. I will do all error catching at the
-## end of the play
-# Verify rabbit is not partitioned
-#- name: Fail if network partitions are detected
-#  fail:
-#    msg: "Rabbitmq network partitions have been detected."
-#  when: "'{partitions,[]}' not in rabbitmqctl_output.stdout"
-#  delegate_to: "{{ groups['rabbitmq'][0] }}"
+- name: Set rabbitmqctl_rc error (if needed)
+  set_fact:
+    rabbitmq_errors: true
+    infrastructure_errors: true
+    rabbitmqctl_rc_error: true
+  when: "rabbitmqctl_output.rc != 0"
+
+- name: Display rabbitmqctl_rc
+  debug:
+    var: rabbitmqctl_rc_error
+  when: rabbitmqctl_rc_error is defined
+
+- name: Set rabbitmq_parition error (if needed)
+  set_fact:
+    rabbitmq_errors: true
+    infrastructure_errors: true
+    rabbitmq_partition_error: true
+  when: "'{partitions,[]}' not in rabbitmqctl_output.stdout"
+
+- name: Display rabbitmq_partition_error
+  debug:
+    var: rabbitmq_partition_error
+  when: rabbitmq_partition_error is defined

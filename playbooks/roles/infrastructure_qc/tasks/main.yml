@@ -27,8 +27,15 @@
     mode: 0755
     recurse: yes
 
-# Output RabbitMQ QC into log file
-- name: Output RabbitMQ QC into log file
+# Output Infrastructure QC into log file
+- name: Output Infrastructure QC into log file
   template:
     src: "infrastructure.txt.j2"
     dest: "{{ infra_qc_dir }}/infrastructure-qc-{{ datetime_stamp }}.txt"
+
+# Output Infrastructure Errors into error log file
+- name: Output Infrastructure Errors into log file
+  template:
+    src: "infrastructure_erros.txt.j2"
+    dest: "{{ infra_qc_dir }}/infrastructure-errors-{{ datetime_stamp }}.err"
+  when: infrastructure_error is defined

@@ -1,6 +1,5 @@
 RPC QC Log at {{ ansible_date_time.date }}-{{ ansible_date_time.time }}
 
-
 ================
 ElasticSearch QC
 ================
@@ -11,4 +10,6 @@ ElasticSearch URL
 
 ElasticSearch Indicies
 ----------------------
-{{ es_indicies['content'].split('\n')[1:-1] }}
+{% for line in es_indicies_list %}
+{{ line }}
+{% endfor %}

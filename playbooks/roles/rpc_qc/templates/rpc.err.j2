@@ -1,0 +1,10 @@
+RPC Error Log at {{ ansible_date_time.date }}-{{ ansible_date_time.time }}
+
+{% if elasticsearch_error is defined %}
+====================
+ElasticSearch Errors
+====================
+{% for error in elasticsearch_errors %}
+{{ error }}
+{% endfor %}
+{% endif %}

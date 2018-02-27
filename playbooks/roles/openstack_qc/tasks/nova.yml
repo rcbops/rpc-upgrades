@@ -24,6 +24,19 @@
   debug:
     var: nova_service_list.stdout_lines
 
+- name: Set nova_service_error (if needed)
+  set_fact:
+    nova_error: true
+    openstack_error: true
+    nova_service_error: true
+    nova_errors: "['service_list']"
+  when: nova_service_list.rc != 0
+
+- name: Display nova_service_error
+  debug:
+    var: nova_service_error
+  when: nova_service_error is defined
+
 ## Check for any down status in service-list
 ## Need to set to fail/warn play if a nova service is down (jwagner)
 ## All should be enabled and up
@@ -40,6 +53,19 @@
   debug:
     var: nova_service_down
 
+- name: Set nova_service_down_error (if needed)
+  set_fact:
+    nova_error: true
+    openstack_error: true
+    nova_service_down_error: true
+    nova_errors: "{{ nova_errors }} + ['nova_service_down']"
+  when: nova_service_down.rc == 0
+
+- name: Display nova_service_down_error
+  debug:
+    var: nova_service_down_error
+  when: nova_service_down_error is defined
+
 - name: Gather running instances from mysql
   shell: "mysql -BN -e \"select uuid from instances where deleted=0 and vm_state='active' order by uuid\" nova"
   args:
@@ -51,6 +77,19 @@
   debug:
     var: running_instances.stdout_lines
 
+- name: Set running_instances_error (if needed)
+  set_fact:
+    nova_error: true
+    openstack_error: true
+    running_instances_error: true
+    nova_errors: "{{ nova_errors }} + ['running_instances_error']"
+  when: running_instances.rc != 0
+
+- name: Display running_instances_error
+  debug:
+    var: running_instances_error
+  when: running_instances_error is defined
+
 - name: Gather instance-volume mappings from mysql
   shell: "mysql -e \"select v.id,v.provider_location,va.attached_host,va.instance_uuid,va.mountpoint from volumes v join volume_attachment va on v.id = va.volume_id where v.deleted = 0 and v.attach_status='attached'\" cinder"
   args:
@@ -61,3 +100,16 @@
 - name: Output instance-volume mappings
   debug:
     var: instance_volume_mappings.stdout_lines
+
+- name: Set instance_volume_mappings_error (if needed)
+  set_fact:
+    nova_error: true
+    openstack_error: true
+    instance_volume_mappings_error: true
+    nova_errors: "{{ nova_errors }} + ['instance_volume_mappings_error']"
+  when: instance_volume_mappings.rc != 0
+
+- name: Display instance_volume_mappings_error
+  debug:
+    var: instance_volume_mappings_error
+  when: instance_volume_mappings_error is defined

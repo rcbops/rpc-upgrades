@@ -23,3 +23,16 @@
 - name: Output glance image-list
   debug:
     var: glance_image_list.stdout_lines
+
+- name: Set glance_image_list_error (if needed)
+  set_fact:
+    glance_error: true
+    openstack_error: true
+    glance_image_list_error: true
+    glance_errors: "['image_list']"
+  when: glance_image_list.rc != 0
+
+- name: Display glance_image_list_error
+  debug:
+    var: glance_image_list_error
+  when: glance_image_list_error is defined

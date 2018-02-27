@@ -31,3 +31,10 @@
   template:
     src: "environment.txt.j2"
     dest: "{{ env_qc_dir }}/environment-qc-{{ datetime_stamp }}.txt"
+
+# Output Environment Errors into text file on infra01
+- name: Output Environemnt Erros into a text file
+  template:
+    src: "environment_errors.txt.j2"
+    dest: "{{ env_qc_dir }}/environment-errors-{{ datetime_stamp }}.err"
+  when: environment_error is defined

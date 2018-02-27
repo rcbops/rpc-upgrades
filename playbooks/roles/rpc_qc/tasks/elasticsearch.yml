@@ -44,8 +44,16 @@
   debug:
     var: es_indicies_list
 
-#- name: Check ES for green health status
-#  debug:
-#    var: "{{ item }}"
-#  failed_when: "'green' not in \"{{ item }}\""
-#  with_items: "{{ es_indicies_list|default([]) }}"
+- name: Set es_indicies_error (if needed)
+  set_fact:
+    elasticsearch_error: true
+    rpc_error: true
+    es_indicies_error: true
+    elasticsearch_errors: "[{{ es_indicies_list }}]"
+  when: "'green' not in \"{{ item }}\""
+  with_items: "{{ es_indicies_list }}"
+
+- name: Display es_indicies_error
+  debug:
+    var: es_indicies_error
+  when: es_indicies_error is defined
