@@ -33,3 +33,5 @@
 
 # Perform log rotation and cleanup
 - include: log_rotation.yml
+
+- inlcude: enable_maas_holland.yml
