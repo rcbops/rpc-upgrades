@@ -13,27 +13,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Post Upgrade Environment QC
-  hosts: localhost
-  roles:
-    - environment_qc
+# Directory and Timestamp Vars
+date_stamp: "{{ ansible_date_time.date }}"
+time_stamp: "{{ ansible_date_time.time }}"
+datetime_stamp: "{{ date_stamp }}-{{ time_stamp }}"
+local_home: "{{ lookup('env', 'HOME') }}"
+qc_dir: "{{ local_home }}/qc-{{ date_stamp }}"
+openstack_qc_dir: "{{ qc_dir }}/openstack-qc-{{ date_stamp }}"
 
-- name: Post Upgrade Infrastructure QC
-  hosts: localhost
-  roles:
-    - infrastructure_qc
+# Tempest Run Vars
+run_tempest: false
+tempest_test_list: "smoke api"
 
-- name: Post Upgrade Openstack QC
-  hosts: localhost
-  roles:
-    - openstack_qc
-
-- name: Post Upgrade Swift QC
-  hosts: localhost
-  roles:
-   - swift_qc
-
-- name: Post Upgrade RPC QC
-  hosts: localhost
-  roles:
-   - rpc_qc
+# Rally Run Vars
+run_rally: false
+rally_scenario: "rpc-qc"

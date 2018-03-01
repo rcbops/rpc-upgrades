@@ -13,27 +13,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Post Upgrade Environment QC
-  hosts: localhost
-  roles:
-    - environment_qc
+- include: elasticsearch.yml
 
-- name: Post Upgrade Infrastructure QC
-  hosts: localhost
-  roles:
-    - infrastructure_qc
+- name: Create RPC QC Log Directory
+  file:
+    path: "{{ rpc_qc_dir }}"
+    state: directory
+    mode: 0755
+    recurse: yes
 
-- name: Post Upgrade Openstack QC
-  hosts: localhost
-  roles:
-    - openstack_qc
+- name: Output RPC QC into log file
+  template:
+    src: "rpc.txt.j2"
+    dest: "{{ rpc_qc_dir }}/rpc-qc-{{ datetime_stamp }}.txt"
 
-- name: Post Upgrade Swift QC
-  hosts: localhost
-  roles:
-   - swift_qc
-
-- name: Post Upgrade RPC QC
-  hosts: localhost
-  roles:
-   - rpc_qc
+- name: Output RPC Errors into log file
+  template:
+    src: "rpc.err.j2"
+    dest: "{{ rpc_qc_dir }}/rpc-errors-{{ datetime_stamp }}.txt"
+  when: rpc_error is defined

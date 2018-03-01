@@ -1,0 +1,148 @@
+Openstack QC Log at {{ ansible_date_time.date }}-{{ ansible_date_time.time }}
+
+======
+CLI QC
+======
+
+Openstack CLI Version
+---------------------
+{{ openstack_cli_version.stdout }}
+
+Cinder CLI Version
+------------------
+{{ cinder_cli_version.stdout }}
+
+Glance CLI Version
+------------------
+{{ glance_cli_version.stdout }}
+
+Keystone CLI Version
+--------------------
+{{ keystone_cli_version.stdout_lines[-1] }}
+
+Neutron CLI Version
+-------------------
+{{ neutron_cli_version.stdout }}
+
+Nova CLI Version
+----------------
+{{ nova_cli_version.stdout }}
+
+Orchestration CLI Version
+-------------------------
+{{ orchestration_cli_version.stdout }}
+
+{% if swift_cli_version.stdout is defined %}
+Swift CLI Version
+-----------------
+{{ swift_cli_version.stdout }}
+{% endif %}
+
+
+===========
+Keystone QC
+===========
+
+Keystone CLI Version
+--------------------
+{{ keystone_cli_version.stdout_lines[-1] }}
+
+Openstack Endpoint List
+-----------------------
+{% for line in endpoint_list_result.stdout_lines %}
+{{ line }}
+{% endfor %}
+
+
+=========
+Glance QC
+=========
+
+Glance CLI Version
+------------------
+{{ glance_cli_version.stdout }}
+
+Glance Image List
+=================
+{% for line in glance_image_list.stdout_lines %}
+{{ line }}
+{% endfor %}
+
+
+=======
+Nova QC
+=======
+
+Nova CLI Version
+----------------
+{{ nova_cli_version.stdout }}
+
+Nova Service List
+-----------------
+{% for line in nova_service_list.stdout_lines %}
+{{ line }}
+{% endfor %}
+
+Running Instances
+-----------------
+{% for line in running_instances.stdout_lines %}
+{{ line }}
+{% endfor %}
+
+Instance Volume Mappings
+------------------------
+{% for line in instance_volume_mappings.stdout_lines %}
+{{ line }}
+{% endfor %}
+
+
+==========
+Neutron QC
+==========
+
+Neutron CLI Version
+-------------------
+{{ neutron_cli_version.stdout }}
+
+Neutron Agent List
+------------------
+{% for line in neutron_agent_list.stdout_lines %}
+{{ line }}
+{% endfor %}
+
+
+=========
+Cinder QC
+=========
+
+Cinder Service List
+-------------------
+{% for line in cinder_service_list.stdout_lines %}
+{{ line }}
+{% endfor %}
+
+
+==========
+Horizon QC
+==========
+
+Apache2 Status
+--------------
+{{ apache2_status.stdout }}
+
+Horizon Port Status:
+--------------------
+{% for line in horizon_port_status.stdout_lines %}
+{{ line }}
+{% endfor %}
+
+
+================
+Orchestration QC
+================
+
+Orchestration Service List
+--------------------------
+{% for line in orchestration_service_list.stdout_lines %}
+{{ line }}
+{% endfor %}

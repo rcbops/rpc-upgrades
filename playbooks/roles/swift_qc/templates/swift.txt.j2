@@ -1,0 +1,15 @@
+Swift QC Log at {{ ansible_date_time.date }}-{{ ansible_date_time.time }}
+
+========
+Swift QC
+========
+
+Swift Version
+-------------
+{{ running_swift.stdout }}
+
+Swift Recon
+-----------
+{% for line in swift_recon.stdout_lines %}
+{{ line }}
+{% endfor %}
