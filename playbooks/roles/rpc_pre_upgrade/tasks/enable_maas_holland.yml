@@ -13,23 +13,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Ensure Maas is enabled
-  vars:
+- name: Set config_files fact
+  set_fact:
     config_files:
-      - /etc/openstack_deploy/user_osa_variables_overrides.yml
       - /etc/openstack_deploy/user_variables.yml
-  tasks:
-    - name: maas_holland_enabled is true
-      lineinfile:
-        dest: "{{ item }}"
-        regexp: "^maas_holland_enabled:"
-        line: "maas_holland_enabled: True"
-        state: present
-      with_first_found: "{{ config_files }}"
-    - name: maas_holland_venv_enabled is true
-      lineinfile:
-        dest: "{{ item }}"
-        regexp: "^maas_holland_venv_enabled:"
-        line: "maas_holland_venv_enabled: True"
-        state: present
-      with_first_found: "{{ config_files }}"
+      - /etc/openstack_deploy/user_osa_variables_overrides.yml
+
+- name: Set maas_holland_enabled is true
+  lineinfile:
+    dest: "{{ item }}"
+    regexp: "^maas_holland_enabled:"
+    line: "maas_holland_enabled: True"
+    state: present
+  with_first_found: "{{ config_files }}"
+
+- name: Set maas_holland_venv_enabled is true
+  lineinfile:
+    dest: "{{ item }}"
+    regexp: "^maas_holland_venv_enabled:"
+    line: "maas_holland_venv_enabled: True"
+    state: present
+  with_first_found: "{{ config_files }}"
