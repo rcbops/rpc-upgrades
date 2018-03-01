@@ -1,0 +1,24 @@
+Infrastructure QC Log at {{ ansible_date_time.date }}-{{ ansible_date_time.time }}
+
+=========
+GALERA QC
+=========
+
+wsrep cluster size
+------------------
+{{ wsrep_cluster_size.stdout }}
+
+wsrep status
+------------
+{{ wsrep_cluster_status.stdout }}
+
+
+===========
+RabbitMQ QC
+===========
+
+RabbitMQ CTL
+------------
+{% for line in rabbitmqctl_output.stdout_lines %}
+{{ line }}
+{% endfor %}

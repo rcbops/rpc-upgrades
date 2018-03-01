@@ -1,0 +1,40 @@
+---
+# Copyright 2018, Rackspace US, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Check Disk Space on all hosts and containers
+- include: disk.yml
+
+# Need to do more host checking here (jwagner)
+
+# Create the Environment QC Log Directory
+- name: Create Environment QC Log Directory
+  file:
+    path: "{{ env_qc_dir }}"
+    state: directory
+    mode: 0755
+    recurse: yes
+
+# Output Environment QC into text file on infra01
+- name: Output Environment QC into text file
+  template:
+    src: "environment.txt.j2"
+    dest: "{{ env_qc_dir }}/environment-qc-{{ datetime_stamp }}.txt"
+
+# Output Environment Errors into text file on infra01
+- name: Output Environemnt Erros into a text file
+  template:
+    src: "environment_errors.err.j2"
+    dest: "{{ env_qc_dir }}/environment-errors-{{ datetime_stamp }}.err"
+  when: environment_errors is defined

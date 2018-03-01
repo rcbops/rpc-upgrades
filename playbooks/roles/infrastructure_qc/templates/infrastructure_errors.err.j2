@@ -1,0 +1,45 @@
+Infrastructure Error Log at {{ ansible_date_time.date }}-{{ ansible_date_time.time }}
+
+=====================
+Infrastructure Errors
+=====================
+
+{% if galera_errors is defined %}
+=============
+Galera Errors
+=============
+
+{% if wsrep_cluster_size_error is defined %}
+WSREP_CLUSTER_SIZE_ERROR
+------------------------
+wsrep_cluster_size: {{ wsrep_cluster_size.stdout }}
+expected: {{ groups['galera_all']|length }}
+{% endif %}
+
+{% if wsrep_cluster_status_error is defined %}
+WSREP_CLUSTER_STATUS_ERROR
+--------------------------
+wsrep_cluster_status: {{ wsrep_cluster_status.stdout }}
+expected: Primary
+{% endif %}
+{% endif %}
+
+{% if rabbitmq_errors is defined %}
+===============
+RabbitMQ Errors
+===============
+
+{% if rabbitmqctl_rc_error is defined %}
+RABBITMQCTL_RC_ERROR
+--------------------
+rabbitmqctl_rc: {{ rabbitmqctl_output.rc }}
+expected: 0
+{% endif %}
+
+{% if rabbitmq_partition_error is defined %}
+RABBITMQ_PARTITION_ERROR
+------------------------
+RabbitMQ is partitioned
+expected: {partitions,[]}
+{% endif %}
+{% endif %}

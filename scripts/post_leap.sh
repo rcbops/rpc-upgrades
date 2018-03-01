@@ -52,7 +52,7 @@ fi
 rm -f /etc/openstack_deploy/user_leapfrog_overrides.yml
 
 if [ "QC_TEST" == "yes" ]; then
-  . /opt/rpc-upgrades/tests/qc-test.sh
+  . /opt/rpc-upgrades/tests/test-qc.sh
 fi
 
 if [ "$UPGRADE_ELASTICSEARCH" == "yes" ]; then

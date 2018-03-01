@@ -1,0 +1,77 @@
+Openstack Error Log at {{ ansible_date_time.date }}-{{ ansible_date_time.time }}
+
+================
+Openstack Errors
+================
+
+{% if cli_error is defined %}
+==========
+CLI Errors
+==========
+{% for error in cli_errors %}
+{{ error }}
+{% endfor %}
+{% endif %}
+
+{% if keystone_error is defined %}
+===============
+Keystone Errors
+===============
+{% for error in keystone_errors %}
+{{ error }}
+{% endfor %}
+{% endif %}
+
+{% if glance_error is defined %}
+===============
+Glance Errors
+===============
+{% for error in glance_errors %}
+{{ error }}
+{% endfor %}
+{% endif %}
+
+{% if nova_error is defined %}
+===============
+Nova Errors
+===============
+{% for error in nova_errors %}
+{{ error }}
+{% endfor %}
+{% endif %}
+
+{% if neutron_error is defined %}
+===============
+Neutron Errors
+===============
+{% for error in neutron_errors %}
+{{ error }}
+{% endfor %}
+{% endif %}
+
+{% if orchestration_error is defined %}
+===============
+Orchestration Errors
+===============
+{% for error in orchestration_errors %}
+{{ error }}
+{% endfor %}
+{% endif %}
+
+{% if cinder_error is defined %}
+===============
+Cinder Errors
+===============
+{% for error in cinder_errors %}
+{{ error }}
+{% endfor %}
+{% endif %}
+
+{% if horizon_error is defined %}
+===============
+Horizon Errors
+===============
+{% for error in horizon_errors %}
+{{ error }}
+{% endfor %}
+{% endif %}

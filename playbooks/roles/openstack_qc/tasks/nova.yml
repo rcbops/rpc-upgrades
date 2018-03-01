@@ -1,0 +1,118 @@
+---
+# Copyright 2018, Rackspace US, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- name: Gather nova service-list
+  shell: "source ~/openrc; nova --insecure service-list"
+  args:
+    executable: /bin/bash
+  register: nova_service_list
+  delegate_to: "{{ groups['utility'][0] }}"
+  ignore_errors: yes
+
+- name: Output nova service-list
+  debug:
+    var: nova_service_list.stdout_lines
+  when: nova_service_list.stdout_lines is defined
+
+- name: Set nova_service_error (if needed)
+  set_fact:
+    nova_error: true
+    openstack_error: true
+    nova_service_error: true
+    nova_errors: "['service_list']"
+  when: nova_service_list.rc != 0
+
+- name: Display nova_service_error
+  debug:
+    var: nova_service_error
+  when: nova_service_error is defined
+
+- name: Check for any down Nova services
+  shell: "source ~/openrc; nova --insecure service-list | egrep 'down'"
+  args:
+    executable: /bin/bash
+  register: nova_service_down
+  delegate_to: "{{ groups['utility'][0] }}"
+  ignore_errors: yes
+
+- name: Output nova service down
+  debug:
+    var: nova_service_down
+  when: nova_service_down.rc != 0
+
+- name: Set nova_service_down_error (if needed)
+  set_fact:
+    nova_error: true
+    openstack_error: true
+    nova_service_down_error: true
+    nova_errors: "{{ nova_errors | default([]) }} + ['nova_service_down']"
+  when: nova_service_down.rc == 0
+
+- name: Display nova_service_down_error
+  debug:
+    var: nova_service_down_error
+  when: nova_service_down_error is defined
+
+- name: Gather running instances from mysql
+  shell: "mysql -BN -e \"select uuid from instances where deleted=0 and vm_state='active' order by uuid\" nova"
+  args:
+    executable: /bin/bash
+  register: running_instances
+  delegate_to: "{{ groups['galera_all'][0] }}"
+  ignore_errors: yes
+
+- name: Output running instances
+  debug:
+    var: running_instances.stdout_lines
+  when: running_instances.stdout_lines is defined
+
+- name: Set running_instances_error (if needed)
+  set_fact:
+    nova_error: true
+    openstack_error: true
+    running_instances_error: true
+    nova_errors: "{{ nova_errors | default([]) }} + ['running_instances_error']"
+  when: running_instances.rc != 0
+
+- name: Display running_instances_error
+  debug:
+    var: running_instances_error
+  when: running_instances_error is defined
+
+- name: Gather instance-volume mappings from mysql
+  shell: "mysql -e \"select v.id,v.provider_location,va.attached_host,va.instance_uuid,va.mountpoint from volumes v join volume_attachment va on v.id = va.volume_id where v.deleted = 0 and v.attach_status='attached'\" cinder"
+  args:
+    executable: /bin/bash
+  register: instance_volume_mappings
+  delegate_to: "{{ groups['galera_all'][0] }}"
+  ignore_errors: yes
+
+- name: Output instance-volume mappings
+  debug:
+    var: instance_volume_mappings.stdout_lines
+  when: instance_volume_mappings.stdout_lines is defined
+
+- name: Set instance_volume_mappings_error (if needed)
+  set_fact:
+    nova_error: true
+    openstack_error: true
+    instance_volume_mappings_error: true
+    nova_errors: "{{ nova_errors | default([]) }} + ['instance_volume_mappings_error']"
+  when: instance_volume_mappings.rc != 0
+
+- name: Display instance_volume_mappings_error
+  debug:
+    var: instance_volume_mappings_error
+  when: instance_volume_mappings_error is defined

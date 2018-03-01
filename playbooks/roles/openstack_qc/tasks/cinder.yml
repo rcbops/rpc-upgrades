@@ -1,0 +1,40 @@
+---
+# Copyright 2018, Rackspace US, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- name: Gather cinder service-list
+  shell: "source ~/openrc; cinder --insecure service-list"
+  register: cinder_service_list
+  args:
+    executable: /bin/bash
+  delegate_to: "{{ groups['utility'][0] }}"
+  ignore_errors: yes
+
+- name: Output cinder service-list
+  debug:
+    var: cinder_service_list.stdout_lines
+  when: cinder_service_list.stdout_lines is defined
+
+- name: Set cinder_service_list_error (if needed)
+  set_fact:
+    cinder_error: true
+    openstack_error: true
+    cinder_service_list_error: true
+    cinder_errors: "['cinder_service_list']"
+  when: cinder_service_list.rc != 0
+
+- name: Display cinder_service_list_error
+  debug:
+    var: cinder_service_list_error
+  when: cinder_service_list_error is defined

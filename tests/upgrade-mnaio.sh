@@ -44,5 +44,5 @@ echo "MaaS Install and Verify Post Leapfrog completed..."
 ${MNAIO_SSH} "source /opt/rpc-upgrades/RE_ENV; \
               source /opt/rpc-upgrades/tests/ansible-env.rc; \
               pushd /opt/rpc-upgrades; \
-              tests/qc-test.sh"
+              tests/test-qc.sh"
 echo "QC Tests completed..."
