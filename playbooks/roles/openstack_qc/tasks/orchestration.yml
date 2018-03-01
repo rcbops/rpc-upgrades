@@ -33,3 +33,16 @@
 - name: Output orchestration_service_list
   debug:
     var: orchestration_service_list.stdout_lines
+
+- name: Set orchestration_service_list_error (if needed)
+  set_fact:
+    orchestration_error: true
+    openstack_error: true
+    orchestration_service_list_error: true
+    orchestration_errors: "['orchestration_service_list']"
+  when: orchestration_service_list.rc != 0
+
+- name: Display orchestration_service_list_error
+  debug:
+    var: orchestration_service_list_error
+  when: orchestration_service_list_error is defined

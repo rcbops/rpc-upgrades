@@ -23,3 +23,16 @@
 - name: Output cinder service-list
   debug:
     var: cinder_service_list.stdout_lines
+
+- name: Set cinder_service_list_error (if needed)
+  set_fact:
+    cinder_error: true
+    openstack_error: true
+    cinder_service_list_error: true
+    cinder_errors: "['cinder_service_list']"
+  when: cinder_service_list.rc != 0
+
+- name: Display cinder_service_list_error
+  debug:
+    var: cinder_service_list_error
+  when: cinder_service_list_error is defined

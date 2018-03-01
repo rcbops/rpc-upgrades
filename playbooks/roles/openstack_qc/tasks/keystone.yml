@@ -23,3 +23,16 @@
 - name: Output endpoint_list_result
   debug:
     var: endpoint_list_result.stdout_lines
+
+- name: Set endpoint_list_error (if needed)
+  set_fact:
+    keystone_error: true
+    openstack_error: true
+    endpoint_list_error: true
+    keystone_errors: "['endpoint_list']"
+  when: endpoint_list_result.rc != 0
+
+- name: Display endpoint_list_error
+  debug:
+    var: endpoint_list_error
+  when: endpoint_list_error is defined

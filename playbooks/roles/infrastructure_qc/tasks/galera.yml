@@ -16,20 +16,41 @@
 - name: Confirm wsrep_cluster_size is equal to the amount of galera containers
   shell: "mysql -e \"show status like 'wsrep_cluster_size'\" | grep wsrep_cluster_size | awk '{print $2}'"
   register: wsrep_cluster_size
-  failed_when: "'{{ groups['galera_all']|length }}' not in wsrep_cluster_size.stdout or wsrep_cluster_size.rc != 0"
   delegate_to: "{{ groups['galera_all'][0] }}"
 
 - name: Display wsrep_cluster_size
   debug:
     var: wsrep_cluster_size.stdout
 
-# Commented the failed_when out, as we will output all detected errors at the end of the play
+- name: Set wsrep_cluster_size error (if there is an error)
+  set_fact:
+    galera_errors: true
+    infrastructure_errors: true
+    wsrep_cluster_size_error: true
+  when: "'{{ groups['galera_all']|length }}' not in wsrep_cluster_size.stdout or wsrep_cluster_size.rc != 0"
+
+- name: Display wsrep_cluster_size_error
+  debug:
+    var: wsrep_cluster_size_error
+  when: wsrep_cluster_size_error is defined
+
 - name: Confirm wsrep_cluster_status
   shell: "mysql -e \"show status like 'wsrep_cluster_status'\" | grep wsrep_cluster_status | awk '{print $2}'"
   register: wsrep_cluster_status
-#  failed_when: "'Primary' not in wsrep_cluster_status.stdout or wsrep_cluster_status.rc != 0"
   delegate_to: "{{ groups['galera_all'][0] }}"
 
 - name: Display wsrep_cluster_status
   debug:
     var: wsrep_cluster_status.stdout
+
+- name: Set wsrep_cluster_status error (if there is an error)
+  set_fact:
+    galera_errors: true
+    infrastructure_errors: true
+    wsrep_cluster_status_error: true
+  when: "'Primary' not in wsrep_cluster_status.stdout or wsrep_cluster_status.rc != 0"
+
+- name: Display wsrep_cluster_status_error
+  debug:
+    var: wsrep_cluster_status_error
+  when: wsrep_cluster_status_error is defined

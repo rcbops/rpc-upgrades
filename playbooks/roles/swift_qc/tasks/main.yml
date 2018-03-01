@@ -22,6 +22,18 @@
   debug:
     var: running_swift.stdout
 
+- name: Set swift_version_error (if needed)
+  set_fact:
+    swift_error: true
+    swift_version_error: true
+    swift_errors: "['swift_version_error']"
+  when: running_swift.rc != 0
+
+- name: Display swift_version_error
+  debug:
+    var: swift_version_error
+  when: swift_version_error is defined
+
 - name: Gather swift recon output
   shell: "/openstack/venvs/{{ running_swift.stdout }}/bin/swift-recon -arul --md5"
   register: swift_recon
@@ -31,7 +43,18 @@
   debug:
     var: swift_recon.stdout_lines
 
-# Create the Swift QC Log Directory
+- name: Set swift_recon_error (if needed)
+  set_fact:
+    swift_error: true
+    swift_recon_error: true
+    swift_errors: "{{ swift_errors }} + ['swift_recon_error']"
+  when: swift_recon.rc != 0
+
+- name: Display swift_recon_error
+  debug:
+    var: swift_recon_error
+  when: swift_recon_error is defined
+
 - name: Create Swift QC Log Directory
   file:
     path: "{{ swift_qc_dir }}"
@@ -39,7 +62,13 @@
     mode: 0755
     recurse: yes
 
-- name: Output swift recon stats into text
+- name: Output Swift QC into log file
   template:
     src: "swift.txt.j2"
-    dest: "{{ swift_qc_dir }}/swift-{{ datetime_stamp }}.txt"
+    dest: "{{ swift_qc_dir }}/swift-qc-{{ datetime_stamp }}.txt"
+
+- name: Output swift recon stats into text
+  template:
+    src: "swift_errors.err.j2"
+    dest: "{{ swift_qc_dir }}/swift-errors-{{ datetime_stamp }}.txt"
+  when: swift_error is defined
