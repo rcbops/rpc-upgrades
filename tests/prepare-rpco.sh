@@ -223,7 +223,7 @@ pushd /opt/rpc-openstack
 
     # needed for python clients to install properly on older versions of kilo
     sed -i 's|requests.*|requests>=2.2.0,!=2.4.0,<2.8.0|g' ${OSA_PATH}/requirements.txt
-    sed -i 's|urllib3.*|urllib3>=1.8.3,<1.11|g' ${OSA_PATH}/requirements.txt
+    sed -i 's|urllib3.*|urllib3[secure]|g' ${OSA_PATH}/requirements.txt
 
     # python-keystone, need python-testresources deb too
     sed -i 's|testtools.*|testtools!=1.2.0,<2.0.0,>=0.9.36|g' ${OSA_PATH}/requirements.txt
