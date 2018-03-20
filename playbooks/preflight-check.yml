@@ -112,7 +112,7 @@
       when:
         - lxc_fs_check.stdout_lines
         - enable_lxc_fs_check | default(true) | bool
-      with_items: "{{ lxc_fs_check.stdout_lines }}"
+      with_items: "{{ lxc_fs_check.stdout_lines | default(['LXC FS check was skipped.']) }}"
 
 - name: Ensure correct Glance auth version
   hosts: localhost
