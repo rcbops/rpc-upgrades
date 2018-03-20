@@ -1,8 +1,8 @@
 diff --git a/playbooks/roles/repo_server/tasks/repo_install.yml b/playbooks/roles/repo_server/tasks/repo_install.yml
-index 7885b6d..c371426 100644
+index 7885b6d..d905c6b 100644
 --- a/playbooks/roles/repo_server/tasks/repo_install.yml
 +++ b/playbooks/roles/repo_server/tasks/repo_install.yml
-@@ -47,3 +47,14 @@
+@@ -47,3 +47,27 @@
    with_items: repo_pip_packages
    tags:
      - repo-pip-packages
@@ -21,7 +21,9 @@ index 7885b6d..c371426 100644
 +- name: Upgrade pip
 +  pip:
 +    name: pip
++    version: 9.0.3
 +    extra_args: --upgrade
++    state: present
 +  register: install_packages
 +  until: install_packages|success
 +  retries: 5
