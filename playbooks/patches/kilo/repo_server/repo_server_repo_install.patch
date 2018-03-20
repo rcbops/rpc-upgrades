@@ -17,3 +17,14 @@ index 7885b6d..c371426 100644
 +  delay: 5
 +  tags:
 +    - repo-pip-packages
++
++- name: Upgrade pip
++  pip:
++    name: pip
++    extra_args: --upgrade
++  register: install_packages
++  until: install_packages|success
++  retries: 5
++  delay: 5
++  tags:
++    - repo-pip-packages
