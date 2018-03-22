@@ -175,3 +175,25 @@
     - name: Duplicate flavors exist
       fail: msg="Duplicated flavor IDs are detected."
       when: flavor_check.stdout != ""
+
+# RLM-1372 Check NFS exsiting
+- name: Check Glance NFS backend on glance
+  hosts: glance_all
+  gather_facts: false
+  user: root
+  tasks:
+    - name: Check mount on Glance
+      command: "grep 'nfs' /proc/mounts"
+      failed_when: false
+      register: nfs_mount_found
+
+    - name: Fail when Glance has NFS mount and no user config
+      fail:
+        msg: >-
+          CHECK FAILED: Glance currently has an NFS mount but has no user
+          configuration to support it. Please review the documentation on
+          setting up glance with NFS - 
+          https://docs.openstack.org/openstack-ansible-os_glance/latest
+      when: 
+        - nfs_mount_found.rc == 0
+        - glance_nfs_client is undefined
