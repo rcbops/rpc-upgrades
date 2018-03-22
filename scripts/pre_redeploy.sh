@@ -139,6 +139,6 @@ EOF
 # RLM-1438 patch openstack_hosts fork into 14.7.0 to ensure RLM-322 works
 if [[ ${RPC_TARGET_CHECKOUT} == "r14.7.0" ]]; then
    pushd ${RPCO_DEFAULT_FOLDER}
-     patch -p1 < ${RPC_UPGRADES_DEFAULT_FOLDER}/patches/newton/rpc-o-14.7.0-ansible-role-requirements.patch
+     patch -p1 < ${RPC_UPGRADES_DEFAULT_FOLDER}/playbooks/patches/newton/rpc-o-14.7.0-ansible-role-requirements.patch
    popd
 fi
