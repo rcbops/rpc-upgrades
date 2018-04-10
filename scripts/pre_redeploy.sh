@@ -142,3 +142,10 @@ if [[ ${RPC_TARGET_CHECKOUT} == "r14.7.0" ]]; then
      patch -p1 < ${RPC_UPGRADES_DEFAULT_FOLDER}/playbooks/patches/newton/rpc-o-14.7.0-ansible-role-requirements.patch
    popd
 fi
+
+#RLM-268 Manually give true value to the logic so cinder CLI can have --insecure flag
+mkdir -p /etc/openstack_deploy/group_vars
+if [[ -f "/etc/openstack_deploy/group_vars/cinder_all.yml" ]]; then
+    sed -i '/^keystone_service_adminuri_insecure.*/d' /etc/openstack_deploy/group_vars/cinder_all.yml
+fi
+echo 'keystone_service_adminuri_insecure: true' | tee -a /etc/openstack_deploy/group_vars/cinder_all.yml
