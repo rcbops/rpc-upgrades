@@ -32,13 +32,13 @@ export OA_OVERRIDES="${OA_OVERRIDES:-/etc/openstack_deploy/user_osa_variables_ov
 warning "Please DO NOT interrupt this process."
 notice "Pre redeploy steps"
 pushd ${LEAPFROG_DIR}
-    if [[ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/variable-migration.complete" ]]; then
+    if [ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/variable-migration.complete" ]; then
         # Following docs: https://pages.github.rackspace.com/rpc-internal/docs-rpc/rpc-upgrade-internal/rpc-upgrade-v12-v13-perform.html#migrate-variables
-        if [[ ! -d variables-backup ]]; then
+        if [ ! -d variables-backup ]; then
             mkdir variables-backup
         fi
         pushd variables-backup
-            if [[ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/user_extras_variables_migration.complete" ]]; then
+            if [ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/user_extras_variables_migration.complete" ]; then
                 cp /etc/openstack_deploy/user_extras_variables.yml ./
                 pushd ${RPCO_DEFAULT_FOLDER}/scripts
                     "${RPCO_DEFAULT_FOLDER}"/scripts/migrate-yaml.py ${AUTOMATIC_VAR_MIGRATE_FLAG} \
@@ -53,7 +53,7 @@ pushd ${LEAPFROG_DIR}
                 log "user_extras_variables_migration" "skipped"
             fi
 
-            if [[ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/user_variables_migration.complete" ]]; then
+            if [ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/user_variables_migration.complete" ]; then
                 cp /etc/openstack_deploy/user_variables.yml ./
                 pushd ${RPCO_DEFAULT_FOLDER}/scripts
                     "${RPCO_DEFAULT_FOLDER}"/scripts/migrate-yaml.py ${AUTOMATIC_VAR_MIGRATE_FLAG} \
@@ -68,11 +68,11 @@ pushd ${LEAPFROG_DIR}
                 log "user_variables_migration" "skipped"
             fi
 
-            if [[ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/user_secrets_migration.complete" ]]; then
+            if [ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/user_secrets_migration.complete" ]; then
                 cp /etc/openstack_deploy/*_secrets.yml ./
                 pushd ${RPCO_DEFAULT_FOLDER}
                     scripts/update-secrets.sh
-                    if [[ -f "/etc/openstack_deploy/user_secrets.yml" ]]; then
+                    if [ -f "/etc/openstack_deploy/user_secrets.yml" ]; then
                         mv /etc/openstack_deploy/user_secrets.yml \
                            /etc/openstack_deploy/user_osa_secrets.yml
                     fi
@@ -88,7 +88,7 @@ pushd ${LEAPFROG_DIR}
     else
         log "variable-migration" "skipped"
     fi
-    if [[ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/rebootstrap-ansible-for-rpc.complete" ]]; then
+    if [ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/rebootstrap-ansible-for-rpc.complete" ]; then
         pushd ${RPCO_DEFAULT_FOLDER}
             scripts/bootstrap-ansible.sh
             source /usr/local/bin/openstack-ansible.rc
@@ -97,7 +97,7 @@ pushd ${LEAPFROG_DIR}
     fi
 popd
 
-if [[ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/configure-apt-sources-rpc.complete" ]]; then
+if [ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/configure-apt-sources-rpc.complete" ]; then
     pushd ${RPCO_DEFAULT_FOLDER}/rpcd/playbooks
         openstack-ansible configure-apt-sources.yml
     popd
@@ -137,8 +137,9 @@ glance_registry_rolling: '100%'
 EOF
 
 # RLM-1438 patch openstack_hosts fork into 14.7.0 to ensure RLM-322 works
-if [[ ${RPC_TARGET_CHECKOUT} == "r14.7.0" ]]; then
+if [ "${RPC_TARGET_CHECKOUT}" = "r14.7.0" -a ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/patch-rpc-o-14.7.0-ansible-role-requirements.complete" ]; then
    pushd ${RPCO_DEFAULT_FOLDER}
      patch -p1 < ${RPC_UPGRADES_DEFAULT_FOLDER}/playbooks/patches/newton/rpc-o-14.7.0-ansible-role-requirements.patch
+     test $? -eq 0 && touch "${UPGRADE_LEAP_MARKER_FOLDER}/patch-rpc-o-14.7.0-ansible-role-requirements.complete"
    popd
 fi
