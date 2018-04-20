@@ -32,6 +32,17 @@ be considered an exception.
 """
 
 
+class IndentFix(yaml.Dumper):
+    """This address RLM 1374, proper indentation for mapped sequence blocks
+
+    Pass this as the Dumper class when making calls to yaml.dump() to ensure
+    indentation remains consistent.
+    """
+
+    def increase_indent(self, flow=False, indentless=False):
+        return super(IndentFix, self).increase_indent(flow, False)
+
+
 def key_check_add(key, user_config_file, changed=False):
     """Add key if missing in the openstack_user_config.yml
 
@@ -71,7 +82,8 @@ def key_check_add(key, user_config_file, changed=False):
                 yaml.dump(
                     user_config,
                     default_flow_style=False,
-                    width=1000
+                    width=1000,
+                    Dumper=IndentFix
                 )
             )
 
