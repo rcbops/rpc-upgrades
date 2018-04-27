@@ -227,6 +227,18 @@ pushd /opt/rpc-openstack
       echo "setuptools==21.0.0" >> ${OSA_PATH}/requirements.txt
     fi
 
+    # pin tornado to pre 5.x due to SSL issues
+    if ! grep 'tornado' ${OSA_PATH}/requirements.txt; then
+      echo "tornado==4.5.3" >> ${OSA_PATH}/requirements.txt
+    fi
+
+    # pin libvirt-python due to issues with 4.1.0
+    # https://bugs.launchpad.net/openstack-requirements/+bug/1753539
+    apt-get -y install libvirt-dev
+    if ! grep 'libvirt-python' ${OSA_PATH}/requirements.txt; then
+      echo "libvirt-python<=4.0.0" >> ${OSA_PATH}/requirements.txt
+    fi
+
     # NOTE(cloudnull): Early kilo versions forced repo-clone from our mirrors.
     #                  Sadly this takes forever and is largely broken. This
     #                  changes the default behaviour to build.
