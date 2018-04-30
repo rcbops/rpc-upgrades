@@ -68,6 +68,12 @@ the upgrade by setting these environment variables:
 
    export RPC_TARGET_CHECKOUT=r14.7.0
 
+If you cannot locate `/etc/openstack-release` or it is outdated. Export the release version which upgrade from manually:
+
+.. code-block:: shell
+
+    export CODE_UPGRADE_FROM='KILO/LIBERTY'
+
 The next step is to execute the leapfrog upgrade script and follow the prompts:
 
 .. code-block:: shell

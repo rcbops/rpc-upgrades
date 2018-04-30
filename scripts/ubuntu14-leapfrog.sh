@@ -83,6 +83,15 @@ else
   log "glance-cache-cleanup" "skipped"
 fi
 
+# RLM-1456 Define right release to $CODE_UPGRADE_FROM by marker file
+if [[ -f ${UPGRADE_LEAP_MARKER_FOLDER}/db-migrations-mitaka.yml* ]]; then
+    export $CODE_UPGRADE_FROM='MITAKA'
+fi
+
+if [[ -f ${UPGRADE_LEAP_MARKER_FOLDER}/db-migrations-newton.yml* ]]; then
+    export $CODE_UPGRADE_FROM='NEWTON'
+fi
+
 # Pre-flight check
 if [[ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/rpc-preflight-check.complete" ]]; then
   if [[ "$RUN_PREFLIGHT" == "yes" ]]; then

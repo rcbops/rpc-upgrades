@@ -21,19 +21,26 @@
     - name: Ping check
       ping:
 
-- name: Openstack release check
+- name: Openstack release check if exists 
   hosts: localhost
   gather_facts: false
   user: root
   tasks:
-    - name: Get Openstack release
-      shell: grep 'DISTRIB_RELEASE' /etc/openstack-release | sed -e 's/.*"\(.*\)"/\1/'
-      register: openstack_release_return
+    - stat:
+        path: /etc/openstack-release
+      register: openstack_release_stat
 
-    - name: Check Openstack release
+    - stat:
+        path: /etc/rpc-release
+      register: rpc_release_stat
+
+    - name: Check release upgrade from
       fail:
-        msg: "Current Openstack release version is higher than Newton, and leapfrog isn't appliable."
-      when: "{{ openstack_release_return.stdout | version_compare('14.0.0', '>=') }}"
+        msg: "Cannot find neither openstack-release file nor rpc-release, this will cause problem during leapupgrade. Please copy it from other hosts or generate a correct one. You can skip this check by passing the option 'enable_openstack_release_check=false'."
+      when:
+        - openstack_release_stat.stat.exists == False
+        - rpc_release_stat.stat.exists == False
+        - enable_openstack_release_check | default(true) | bool
 
 - name: Ceph check
   hosts: "ceph_all:ceph_mon_container:ceph_osd_container"
