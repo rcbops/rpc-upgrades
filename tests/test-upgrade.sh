@@ -45,5 +45,5 @@ fi
 
 pushd /opt/rpc-upgrades/playbooks
   echo "Running rpc-post-upgrades playbook..."
-  openstack-ansible rpc-post-upgrades.yml
+  openstack-ansible rpc-post-upgrades.yml --skip-tags elasticsearch
 popd
