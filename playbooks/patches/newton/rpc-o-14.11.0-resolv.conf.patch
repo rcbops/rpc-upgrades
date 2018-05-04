@@ -1,0 +1,46 @@
+diff --git a/group_vars/all/lxc.yml b/group_vars/all/lxc.yml
+index d210ec1f..a170556a 100644
+--- a/group_vars/all/lxc.yml
++++ b/group_vars/all/lxc.yml
+@@ -41,6 +41,8 @@ lxc_cache_prep_pre_commands: |
+     if [ -a /etc/resolv.conf ]; then
+       mv /etc/resolv.conf /etc/resolv.conf.org
+     fi
++    # remove any existing /etc/resolv.conf and start fresh
++    rm /etc/resolv.conf || true
+     # Use the LXC host's dnsmasq service as a resolver
+     echo "nameserver {{ lxc_net_address | default('10.0.3.1') }}" > /etc/resolv.conf
+     # Add the host's repository keys, including the RPC-O keys
+@@ -70,9 +72,3 @@ lxc_cache_prep_pre_commands: |
+       # we reduce the likelihood of conflicts.
+       apt-get install -y --force-yes ${pkg_downgrade_list_versioned}
+     fi
+-    # Return the resolver to its previous state.
+-    if [ -a /etc/resolv.conf.org ]; then
+-      mv /etc/resolv.conf.org /etc/resolv.conf
+-    else
+-      rm -f /etc/resolv.conf
+-    fi
+diff --git a/scripts/artifacts-building/user_rcbops_artifacts_building.yml b/scripts/artifacts-building/user_rcbops_artifacts_building.yml
+index 2a5e2d73..4748b016 100644
+--- a/scripts/artifacts-building/user_rcbops_artifacts_building.yml
++++ b/scripts/artifacts-building/user_rcbops_artifacts_building.yml
+@@ -59,6 +59,8 @@ lxc_cache_prep_pre_commands: |
+     if [ -a /etc/resolv.conf ]; then
+       mv /etc/resolv.conf /etc/resolv.conf.org
+     fi
++    # remove any existing /etc/resolv.conf and start fresh
++    rm /etc/resolv.conf || true
+     # Use the LXC host's dnsmasq service as a resolver
+     echo "nameserver {{ lxc_net_address | default('10.0.3.1') }}" > /etc/resolv.conf
+     # Add the host's repository keys, including the RPC-O keys
+@@ -88,9 +90,3 @@ lxc_cache_prep_pre_commands: |
+       # we reduce the likelihood of conflicts.
+       apt-get install -y --force-yes ${pkg_downgrade_list_versioned}
+     fi
+-    # Return the resolver to its previous state.
+-    if [ -a /etc/resolv.conf.org ]; then
+-      mv /etc/resolv.conf.org /etc/resolv.conf
+-    else
+-      rm -f /etc/resolv.conf
+-    fi
