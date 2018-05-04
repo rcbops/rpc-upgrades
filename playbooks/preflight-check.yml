@@ -192,8 +192,36 @@
         msg: >-
           CHECK FAILED: Glance currently has an NFS mount but has no user
           configuration to support it. Please review the documentation on
-          setting up glance with NFS - 
+          setting up glance with NFS -
           https://docs.openstack.org/openstack-ansible-os_glance/latest
-      when: 
+      when:
         - nfs_mount_found.rc == 0
         - glance_nfs_client is undefined
+
+- name: Check for any advanced configuration options
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  user: root
+  tasks:
+    - name: Check for known advanced configuration options
+      shell: >-
+        grep -nwo '^[Aa-Zz].*overrides' /etc/openstack_deploy/user_*.yml
+      failed_when: false
+      register: overrides
+
+    - name: Fail if advanced configuration has been found
+      fail:
+        msg: >-
+          Advanced configuration options have been defined within the user
+          variables found on this system. Please review the following options
+          before continuing, "file_path:line_number:option" -
+          {{ overrides.stdout_lines }}. If these options have
+          been audited and known to be compatible with the targeted upgrade
+          release set the extra variable
+          "leap_upgrade_advanced_configuration_check_skip" to true in any user
+          variable file or on the command line using
+          "-e 'leap_upgrade_advanced_configuration_check_skip=true'".
+      when:
+        - (overrides.stdout_lines) | length > 0
+        - not (leap_upgrade_advanced_configuration_check_skip | default(false)) | bool
