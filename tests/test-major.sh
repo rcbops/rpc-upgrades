@@ -23,17 +23,8 @@ pushd /opt/rpc-openstack
   git checkout ${RE_JOB_UPGRADE_TO}
   (git submodule init && git submodule update) || true
 popd
-pushd /opt/rpc-openstack/openstack-ansible
+pushd /opt/rpc-upgrades
   export TERM=linux
   export I_REALLY_KNOW_WHAT_I_AM_DOING=true
-  # remove all ansible_ssh_host entries
-  sed -i '/ansible_host/d' /etc/openstack_deploy/user*.yml
-  # upgrade looks for user_variables so drop one in place for upgrade
-  if [[ ! -f /etc/openstack_deploy/user_variables.yml ]]; then
-     echo "---" > /etc/openstack_deploy/user_variables.yml
-     echo "default_bind_mount_logs: False" >> /etc/openstack_deploy/user_variables.yml
-  elif [[ -f /etc/openstack_deploy/user_variables.yml ]]; then
-     echo "default_bind_mount_logs: False" >> /etc/openstack_deploy/user_variables.yml
-  fi
-  echo "YES" | bash scripts/run-upgrade.sh
+  echo "YES" | bash scripts/ubuntu14-mitaka-to-newton.sh
 popd

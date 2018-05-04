@@ -7,10 +7,16 @@ Overview
 --------
 
 A Leapfrog upgrade is a major upgrade that skips at least one release. Currently
-rpc-upgrades repo supports supports leapfrog upgrades from:
+rpc-upgrades repo supports:
+
+Leapfrog upgrades from:
 
 * kilo to r14.12.0 (newton)
 * liberty to r14.12.0 (newton)
+
+Major upgrades from:
+
+* mitaka to r14.11.0 (newton)
 
 The status of supported versions can be viewed from the periodic jobs located on the
 `RPC Jenkins <https://rpc.jenkins.cit.rackspace.net/view/Upgrades>`_ server.
@@ -79,6 +85,40 @@ The next step is to execute the leapfrog upgrade script and follow the prompts:
 
     cd /opt/rpc-upgrades
     scripts/ubuntu14-leapfrog.sh
+
+
+Executing a major upgrade
+----------------------------
+
+The first step is to checkout the rpc-upgrades repo.
+
+.. code-block:: shell
+
+    git clone https://github.com/rcbops/rpc-upgrades.git /opt/rpc-upgrades
+
+
+By default Elasticsearch data will be kept and Elasticsearch will be upgraded at the end of the leapfrog.
+If you'd like to reset the Elasticsearch data, you can override the upgrade and remove the container during
+the upgrade by setting these environment variables:
+
+.. code-block:: shell
+
+    export UPGRADE_ELASTICSEARCH="no"
+    export CONTAINERS_TO_DESTROY='all_containers:!galera_all:!neutron_agent:!ceph_all:!rsyslog_all'
+
+
+**Note:** *Currently the rpc-upgrades repo targets r14.11.0.  If you want to deploy the previous version you can:*
+
+.. code-block:: shell
+
+   export RPC_TARGET_CHECKOUT=r14.10.0
+
+The next step is to execute the major upgrade script and follow the prompts:
+
+.. code-block:: shell
+
+    cd /opt/rpc-upgrades
+    scripts/ubuntu14-mitaka-to-newton.sh
 
 
 Structure of the leapfrog process
