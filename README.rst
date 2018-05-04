@@ -9,7 +9,7 @@ Overview
 A Leapfrog upgrade is a major upgrade that skips at least one release. Currently
 rpc-upgrades repo supports supports leapfrog upgrades from:
 
-* liberty to r14.10.0 (newton)
+* liberty to r14.11.0 (newton)
 
 If you are looking for the Kilo to 14.2.0 (newton) support, it exists directly in the
 `RPC-O <https://github.com/rcbops/rpc-openstack/tree/r14.2.0/scripts/leapfrog>`_ repo.  
@@ -24,7 +24,7 @@ Terms
 * `OSA <https://github.com/openstack/openstack-ansible>`_:  OpenStack Ansible
 * `OSA-OPS <https://github.com/openstack/openstack-ansible-ops>`_:  OpenStack Operations
 * `Liberty <https://github.com/rcbops/rpc-openstack/tree/liberty>`_: The RPCO release of OpenStack Liberty
-* `r14.10.0 <https://github.com/rcbops/rpc-openstack/tree/r14.10.0>`_: The RPCO release of OpenStack Newton.
+* `r14.11.0 <https://github.com/rcbops/rpc-openstack/tree/r14.11.0>`_: The RPCO release of OpenStack Newton.
 
 Pre Leapfrog Tasks
 ------------------
@@ -62,11 +62,11 @@ the upgrade by setting these environment variables:
     export CONTAINERS_TO_DESTROY='all_containers:!galera_all:!neutron_agent:!ceph_all:!rsyslog_all'
 
 
-**Note:** *Currently the rpc-upgrades repo targets r14.10.0.  If you want to deploy the previous version you can:*
+**Note:** *Currently the rpc-upgrades repo targets r14.11.0.  If you want to deploy the previous version you can:*
 
 .. code-block:: shell
 
-   export RPC_TARGET_CHECKOUT=r14.7.0
+   export RPC_TARGET_CHECKOUT=r14.10.0
 
 The next step is to execute the leapfrog upgrade script and follow the prompts:
 
