@@ -83,6 +83,8 @@ def key_check_add(key, user_config_file, changed=False):
                     user_config,
                     default_flow_style=False,
                     width=1000,
+                    explicit_start=True,
+                    explicit_end=False,
                     Dumper=IndentFix
                 )
             )
