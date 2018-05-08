@@ -138,6 +138,8 @@ sudo cp /etc/openstack_deploy/user_variables.yml.bak /etc/openstack_deploy/user_
 sudo cp /opt/rpc-openstack/rpcd/etc/openstack_deploy/user_*.yml /etc/openstack_deploy
 sudo cp /opt/rpc-openstack/rpcd/etc/openstack_deploy/env.d/* /etc/openstack_deploy/env.d
 sudo pip uninstall ansible -y
+# install libvirt-dev on infra1 because pinning to libvirt-python requires it
+sudo apt-get -y install libvirt-dev
 sudo rm /usr/local/bin/openstack-ansible
 EOF
 
