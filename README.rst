@@ -9,10 +9,8 @@ Overview
 A Leapfrog upgrade is a major upgrade that skips at least one release. Currently
 rpc-upgrades repo supports supports leapfrog upgrades from:
 
+* kilo to r14.12.0 (newton)
 * liberty to r14.12.0 (newton)
-
-If you are looking for the Kilo to 14.2.0 (newton) support, it exists directly in the
-`RPC-O <https://github.com/rcbops/rpc-openstack/tree/r14.2.0/scripts/leapfrog>`_ repo.  
 
 The status of supported versions can be viewed from the periodic jobs located on the
 `RPC Jenkins <https://rpc.jenkins.cit.rackspace.net/view/Upgrades>`_ server.
@@ -23,14 +21,15 @@ Terms
 * `RPCO <https://github.com/rcbops/rpc-openstack>`_: Rackspace Private Cloud powered by OpenStack
 * `OSA <https://github.com/openstack/openstack-ansible>`_:  OpenStack Ansible
 * `OSA-OPS <https://github.com/openstack/openstack-ansible-ops>`_:  OpenStack Operations
+* `Kilo <https://github.com/rcbops/rpc-openstack/tree/kilo>`_: The RPCO release of OpenStack Kilo
 * `Liberty <https://github.com/rcbops/rpc-openstack/tree/liberty>`_: The RPCO release of OpenStack Liberty
 * `r14.12.0 <https://github.com/rcbops/rpc-openstack/tree/r14.12.0>`_: The RPCO release of OpenStack Newton.
 
 Pre Leapfrog Tasks
 ------------------
 
-* Verify that the kilo or liberty deployment is healthy and at the latest version.
-* Perform Database housekeeping to prevent unnecessary migrations.
+* Verify that the deployment is healthy and at the latest version.
+* Perform database housekeeping to prevent unnecessary migrations.
 
 
 Executing a leapfrog upgrade
@@ -256,4 +255,4 @@ in the `testing document
 vagrant, it will set up an AIO deployment of the desired version which can then
 be leapfrog upgraded.  This allows you to test the scenario in the lab or
 development environment before actually running the upgrade on a production
-deploymnet.
+deployment.
