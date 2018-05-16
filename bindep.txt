@@ -33,8 +33,8 @@ libselinux-python [platform:redhat]
 libsemanage-python [platform:redhat]
 
 # For SSL SNI support
-python-pyasn1               [platform:dpkg platform:suse]
-python-openssl              [platform:dpkg platform:suse]
+python-pyasn1               [platform:dpkg platform:suse !platform:ubuntu-trusty]
+python-openssl              [platform:dpkg platform:suse !platform:ubuntu-trusty]
 python-ndg-httpsclient      [platform:ubuntu !platform:ubuntu-trusty]
 python2-pyasn1              [platform:redhat]
 python2-pyOpenSSL           [platform:redhat]
