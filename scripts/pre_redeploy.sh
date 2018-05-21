@@ -151,3 +151,10 @@ if [ "${RPC_TARGET_CHECKOUT}" = "r14.11.0" -a ! -f "${UPGRADE_LEAP_MARKER_FOLDER
      test $? -eq 0 && touch "${UPGRADE_LEAP_MARKER_FOLDER}/patch-rpc-o-14.11.0-resolv.conf.complete"
    popd
 fi
+
+#RLM-268 Manually give true value to the logic so cinder CLI can have --insecure flag
+mkdir -p /etc/openstack_deploy/group_vars
+if [[ -f "/etc/openstack_deploy/group_vars/cinder_all.yml" ]]; then
+    sed -i '/^keystone_service_adminuri_insecure.*/d' /etc/openstack_deploy/group_vars/cinder_all.yml
+fi
+echo 'keystone_service_adminuri_insecure: true' | tee -a /etc/openstack_deploy/group_vars/cinder_all.yml
