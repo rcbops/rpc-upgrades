@@ -33,7 +33,7 @@ fi
 
 # Install python2 for Ubuntu 16.04 and CentOS 7
 if which apt-get; then
-    sudo apt-get update && sudo apt-get install -y python wget
+    sudo apt-get update && sudo apt-get install -y python wget python-yaml
 fi
 
 if which yum; then
