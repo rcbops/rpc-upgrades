@@ -56,6 +56,10 @@ export DEFAULT_MIRROR_DIR=/ubuntu
 export MNAIO_SSH="ssh -ttt -oStrictHostKeyChecking=no root@infra1"
 export RUN_UPGRADES="${RUN_UPGRADES:-yes}"
 
+# place variable in file to be sourced by parent calling script 'run'
+export MNAIO_VAR_FILE="${MNAIO_VAR_FILE:-/tmp/mnaio_vars}"
+echo "export MNAIO_SSH=\"${MNAIO_SSH}\"" > "${MNAIO_VAR_FILE}"
+
 #export ADDITIONAL_COMPUTE_NODES=${env.ADDITIONAL_COMPUTE_NODES}
 #export ADDITIONAL_VOLUME_NODES=${env.ADDITIONAL_VOLUME_NODES}
 
