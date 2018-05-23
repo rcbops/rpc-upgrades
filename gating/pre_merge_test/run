@@ -28,6 +28,7 @@ export RE_HOOK_RESULT_DIR="${RE_HOOK_RESULT_DIR:-/tmp/results}"
 export RE_JOB_CONTEXT=`echo ${RE_JOB_ACTION} | awk -F'_' {'print $1'}`
 export RE_JOB_UPGRADE_TO=`echo ${RE_JOB_ACTION} | awk -F'_' {'print $3'}`
 export RE_JOB_UPGRADE_ACTION=`echo ${RE_JOB_ACTION} | awk -F'_' {'print $4'}`
+export RE_JOB_TESTING_ACTION=`echo ${RE_JOB_ACTION} | awk -F'_' {'print $5'}`
 
 # translates RE_JOB_IMAGE
 export RE_JOB_IMAGE_OS=`echo ${RE_JOB_IMAGE} | awk -F'_' {'print $1'}`
@@ -40,7 +41,10 @@ export OSA_PATH="/opt/rpc-openstack/openstack-ansible"
 export WORKSPACE_PATH=`pwd`
 export RUN_UPGRADES="${RUN_UPGRADES:-yes}"
 
+export MNAIO_VAR_FILE="${MNAIO_VAR_FILE:-/tmp/mnaio_vars}"
 ## Main ----------------------------------------------------------------------
+
+echo "rpc-upgrades at SHA $(git rev-parse HEAD)"
 
 ### Determine series from RE_JOB_CONTEXT
 
@@ -65,6 +69,7 @@ if [ "${RE_JOB_ACTION}" != "tox-test" ]; then
   sudo -H --preserve-env ./tests/prepare-rpco.sh
   if [ "${RE_JOB_IMAGE_TYPE}" = "mnaio" ]; then
     sudo -H --preserve-env ./tests/create-mnaio.sh
+    source "${MNAIO_VAR_FILE}"
     if [[ "$RUN_UPGRADES" == "yes" ]]; then
       sudo -H --preserve-env ./tests/upgrade-mnaio.sh
     fi
@@ -82,6 +87,9 @@ if [ "${RE_JOB_ACTION}" != "tox-test" ]; then
       sudo -H --preserve-env ./tests/qc-test.sh
       #sudo -H --preserve-env ./tests/run-tempest.sh
     fi
+  fi
+  if [[ "$RE_JOB_TESTING_ACTION" == "system" ]]; then
+    sudo -H --preserve-env ./tests/run_system_tests.sh
   fi
 else
   # NOTE(mattt): We set a custom workdir here otherwise we may get tox errors
