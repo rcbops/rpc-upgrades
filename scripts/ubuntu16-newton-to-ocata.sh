@@ -16,7 +16,7 @@
 
 set -evu
 
-export RPC_TARGET_CHECKOUT=${RPC_TARGET_CHECKOUT:-'ocata'}
+export RPC_BRANCH=${RPC_BRANCH:-'ocata'}
 export OSA_SHA="c68da48c15bec69b4b58530055941332c5395676"
 
 pushd /opt/rpc-openstack
@@ -24,7 +24,7 @@ pushd /opt/rpc-openstack
   git reset --hard HEAD
   rm -rf openstack-ansible
   rm -rf scripts/artifacts-building/
-  git checkout ${RPC_TARGET_CHECKOUT}
+  git checkout ${RPC_BRANCH}
 # checkout openstack-ansible-ops
 popd
 
