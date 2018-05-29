@@ -42,7 +42,8 @@ import os
 extensions = [
     'sphinx.ext.autodoc',
     'oslosphinx',
-    'sphinxmark'
+    'sphinxmark',
+    'reno.sphinxext',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -64,7 +65,7 @@ author = 'Rackspace'
 category = 'Miscellaneous'
 copyright = '2014-2017, Rackspace'
 description = 'Rackspace Monitoring as a Service role.'
-project = 'RPC-OpenStack'
+project = 'RPC-Upgrades'
 role_name = 'rpc-upgrades'
 target_name = role_name
 title = 'RPC-Upgrades Documentation: ' + role_name + 'role'
