@@ -36,7 +36,8 @@ else
   popd
 fi
 
-#####
+##### rpc-o newton to ocata openstack-ansible transition mods
+
 touch /etc/openstack_deploy/user_secrets.yml
 rm /etc/openstack_deploy/user_secrets.yml
 ln -s /etc/openstack_deploy/user_osa_secrets.yml /etc/openstack_deploy/user_secrets.yml
@@ -56,12 +57,17 @@ sed -i '/^# Use rcbops version of neutron-lbaas.*/d' /etc/openstack_deploy/user_
 touch /etc/openstack_deploy/user_rpco_galera.yml
 rm /etc/openstack_deploy/user_rpco_galera.yml
 
-# remove artifacts repo
-rm /etc/apt/sources.list.d/rpco.list
+# remove artifacts repo, NOTE: will need to run on all hosts on MNAIO
+if [ -f "/etc/apt/sources.list.d/rpco.list" ]; then
+  rm -f /etc/apt/sources.list.d/rpco.list
+fi
 
-#####
+##### end rpc-o to openstack-ansible transition mods
+
 pushd /opt/openstack-ansible
   git checkout ${OSA_SHA}
+  scripts/bootstrap-ansible.sh
+  source /usr/local/bin/openstack-ansible.rc
   export TERM=linux
   export I_REALLY_KNOW_WHAT_I_AM_DOING=true
   echo "YES" | bash scripts/run-upgrade.sh

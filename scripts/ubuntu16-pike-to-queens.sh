@@ -38,6 +38,8 @@ fi
 
 pushd /opt/openstack-ansible
   git checkout ${OSA_SHA}
+  scripts/bootstrap-ansible.sh
+  source /usr/local/bin/openstack-ansible.rc
   export TERM=linux
   export I_REALLY_KNOW_WHAT_I_AM_DOING=true
   echo "YES" | bash scripts/run-upgrade.sh
