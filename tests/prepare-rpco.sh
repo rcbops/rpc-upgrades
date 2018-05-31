@@ -239,6 +239,11 @@ pushd /opt/rpc-openstack
       echo "libvirt-python<=4.0.0" >> ${OSA_PATH}/requirements.txt
     fi
 
+    # cmd2 0.9.0 and newer requires python3, pin at the point before to prevent breakage
+    if ! grep 'cmd2' ${OSA_PATH}/requirements.txt; then
+      echo "cmd2<0.9.0" >> ${OSA_PATH}/requirements.txt
+    fi
+
     # NOTE(cloudnull): Early kilo versions forced repo-clone from our mirrors.
     #                  Sadly this takes forever and is largely broken. This
     #                  changes the default behaviour to build.
