@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-export RPC_TARGET_CHECKOUT=${RPC_TARGET_CHECKOUT:-'r14.12.0'}
+export RPC_TARGET_CHECKOUT=${RPC_TARGET_CHECKOUT:-'r14.13.0'}
 
 pushd /opt/rpc-openstack
   git clean -df
