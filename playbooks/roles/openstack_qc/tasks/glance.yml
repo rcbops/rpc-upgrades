@@ -1,0 +1,40 @@
+---
+# Copyright 2018, Rackspace US, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- name: Gather Glance images
+  shell: "source ~/openrc; glance --insecure image-list"
+  args:
+    executable: /bin/bash
+  register: glance_image_list
+  delegate_to: "{{ groups['utility'][0] }}"
+  ignore_errors: yes
+
+- name: Output glance image-list
+  debug:
+    var: glance_image_list.stdout_lines
+  when: glance_image_list.stdout_lines is defined
+
+- name: Set glance_image_list_error (if needed)
+  set_fact:
+    glance_error: true
+    openstack_error: true
+    glance_image_list_error: true
+    glance_errors: "['image_list']"
+  when: glance_image_list.rc != 0
+
+- name: Display glance_image_list_error
+  debug:
+    var: glance_image_list_error
+  when: glance_image_list_error is defined

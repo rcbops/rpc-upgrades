@@ -13,27 +13,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Post Upgrade Environment QC
-  hosts: localhost
-  roles:
-    - environment_qc
-
-- name: Post Upgrade Infrastructure QC
-  hosts: localhost
-  roles:
-    - infrastructure_qc
-
-- name: Post Upgrade Openstack QC
-  hosts: localhost
-  roles:
-    - openstack_qc
-
-- name: Post Upgrade Swift QC
-  hosts: localhost
-  roles:
-   - swift_qc
-
-- name: Post Upgrade RPC QC
-  hosts: localhost
-  roles:
-   - rpc_qc
+# Here will will run rally with the set scenario (dev, qe, release, support)

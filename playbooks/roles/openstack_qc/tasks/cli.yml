@@ -1,0 +1,234 @@
+---
+# Copyright 2018, Rackspace US, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- name: Gather Openstack CLI Version
+  shell: "source ~/openrc; openstack --version 2>&1"
+  args:
+    executable: /bin/bash
+  register: openstack_cli_version
+  delegate_to: "{{ groups['utility'][0] }}"
+  ignore_errors: yes
+
+- name: Output Openstack CLI Version
+  debug:
+    var: openstack_cli_version.stdout
+  when: openstack_cli_version.stdout is defined
+
+- name: Set openstack_cli_error (if needed)
+  set_fact:
+    cli_error: true
+    openstack_error: true
+    openstack_cli_error: true
+    cli_errors: "['openstack']"
+  when: openstack_cli_version.rc != 0
+
+- name: Display openstack_cli_error
+  debug:
+    var: openstack_cli_error
+  when: openstack_cli_error is defined
+
+- name: Gather Cinder CLI Version
+  shell: "source ~/openrc; cinder --version 2>&1"
+  args:
+    executable: /bin/bash
+  register: cinder_cli_version
+  delegate_to: "{{ groups['utility'][0] }}"
+  ignore_errors: yes
+
+- name: Output Cinder CLI Version
+  debug:
+    var: cinder_cli_version.stdout
+  when: cinder_cli_version.stdout is defined
+
+- name: Set cinder_cli_error (if needed)
+  set_fact:
+    cli_error: true
+    openstack_error: true
+    cinder_cli_error: true
+    cli_errors: "{{ cli_errors | default([]) }} + ['cinder']"
+  when: cinder_cli_version.rc != 0
+
+- name: Display cinder_cli_error
+  debug:
+    var: cinder_cli_error
+  when: cinder_cli_error is defined
+
+- name: Gather Glance CLI Version
+  shell: "source ~/openrc; glance --version 2>&1"
+  args:
+    executable: /bin/bash
+  register: glance_cli_version
+  delegate_to: "{{ groups['utility'][0] }}"
+  ignore_errors: yes
+
+- name: Output Glance CLI Version
+  debug:
+    var: glance_cli_version.stdout
+  when: glance_cli_version.stdout is defined
+
+- name: Set glance_cli_error (if needed)
+  set_fact:
+    cli_error: true
+    openstack_error: true
+    glance_cli_error: true
+    cli_errors: "{{ cli_errors | default([]) }} + ['glance']"
+  when: glance_cli_version.rc != 0
+
+- name: Display glance_cli_error
+  debug:
+    var: glance_cli_error
+  when: glance_cli_error is defined
+
+- name: Gather Keystone CLI Version
+  shell: "source ~/openrc; keystone --version 2>&1"
+  args:
+    executable: /bin/bash
+  register: keystone_cli_version
+  delegate_to: "{{ groups['utility'][0] }}"
+  ignore_errors: yes
+
+- name: Output Keystone CLI Version
+  debug:
+    var: keystone_cli_version.stdout_lines[-1]
+  when: keystone_cli_version.stdout_lines is defined
+
+- name: Set keystone_cli_error (if needed)
+  set_fact:
+    cli_error: true
+    openstack_error: true
+    keystone_cli_error: true
+    cli_errors: "{{ cli_errors | default([]) }} + ['keystone']"
+  when: keystone_cli_version.rc != 0
+
+- name: Display keystone_cli_error
+  debug:
+    var: keystone_cli_error
+  when: keystone_cli_error is defined
+
+- name: Gather Neutron CLI Version
+  shell: "source ~/openrc; neutron --version 2>&1"
+  args:
+    executable: /bin/bash
+  register: neutron_cli_version
+  delegate_to: "{{ groups['utility'][0] }}"
+  ignore_errors: yes
+
+- name: Output Neutron CLI Version
+  debug:
+    var: neutron_cli_version.stdout
+  when: neutron_cli_version.stdout is defined
+
+- name: Set neutron_cli_error (if needed)
+  set_fact:
+    cli_error: true
+    openstack_error: true
+    neutron_cli_error: true
+    cli_errors: "{{ cli_errors | default([]) }} + ['neutron']"
+  when: neutron_cli_version.rc != 0
+
+- name: Display neutron_cli_error
+  debug:
+    var: neutron_cli_error
+  when: neutron_cli_error is defined
+
+- name: Gather Nova CLI Version
+  shell: "source ~/openrc; nova --version 2>&1"
+  args:
+    executable: /bin/bash
+  register: nova_cli_version
+  delegate_to: "{{ groups['utility'][0] }}"
+  ignore_errors: yes
+
+- name: Output Nova CLI Version
+  debug:
+    var: nova_cli_version.stdout
+  when: nova_cli_version.stdout is defined
+
+- name: Set nova_cli_error (if needed)
+  set_fact:
+    cli_error: true
+    openstack_error: true
+    nova_cli_error: true
+    cli_errors: "{{ cli_errors | default([]) }} + ['nova']"
+  when: nova_cli_version.rc != 0
+
+- name: Display nova_cli_error
+  debug:
+    var: nova_cli_error
+  when: nova_cli_error is defined
+
+# Set orchestration result depeding on available openstack client
+- name: Gather Orchestration CLI Version (openstack_cli_version >= "2.3.0")
+  shell: "source ~/openrc; openstack orchestration --version 2>&1"
+  args:
+    executable: /bin/bash
+  register: orchestration_cli_version
+  when: openstack_cli_version.stdout.split('openstack')[1] >= "2.3.0"
+  delegate_to: "{{ groups['utility'][0] }}"
+  ignore_errors: yes
+
+- name: Gather Heat service list (openstack_cli_version < "2.3.0")
+  shell: "source ~/openrc; heat --version 2>&1"
+  args:
+    executable: /bin/bash
+  register: orchestration_cli_version
+  when: openstack_cli_version.stdout.split('openstack')[1] < "2.3.0"
+  delegate_to: "{{ groups['utility'][0] }}"
+  ignore_errors: yes
+
+- name: Output Orchestration CLI Version
+  debug:
+    var: orchestration_cli_version.stdout
+  when: orchestration_cli_version.stdout is defined
+
+- name: Set orchestration_cli_error (if needed)
+  set_fact:
+    cli_error: true
+    openstack_error: true
+    orchestration_cli_error: true
+    cli_errors: "{{ cli_errors | default([]) }} + ['orchestration']"
+  when: orchestration_cli_version.stdout is not defined
+
+- name: Display orchestration_cli_error
+  debug:
+    var: orchestration_cli_error
+  when: orchestration_cli_error is defined
+
+- name: Gather Swift CLI Version
+  shell: "source ~/openrc; swift --version 2>&1"
+  args:
+    executable: /bin/bash
+  register: swift_cli_version
+  ignore_errors: yes
+  delegate_to: "{{ groups['utility'][0] }}"
+  ignore_errors: yes
+
+- name: Output Swift CLI Version
+  debug:
+    var: swift_cli_version.stdout
+  when: swift_cli_version.stdout is defined
+
+- name: Set swift_cli_error (if needed)
+  set_fact:
+    cli_error: true
+    openstack_error: true
+    swift_cli_error: true
+    cli_errors: "{{ cli_errors | default([]) }} + ['swift']"
+  when: swift_cli_version.rc != 0
+
+- name: Display swift_cli_error
+  debug:
+    var: swift_cli_error
+  when: swift_cli_error is defined

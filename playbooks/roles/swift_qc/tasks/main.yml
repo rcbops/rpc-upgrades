@@ -1,0 +1,78 @@
+---
+# Copyright 2018, Rackspace US, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- name: Determine running version of swift
+  shell: "pgrep -fao swift | sed -r 's_.*(swift-[0-9.]+).*_\\1_'"
+  register: running_swift
+  delegate_to: "{{ groups['swift_proxy'][0] }}"
+  ignore_errors: yes
+
+- name: Swift Version Output
+  debug:
+    var: running_swift.stdout
+  when: running_swift.stdout is defined
+
+- name: Set swift_version_error (if needed)
+  set_fact:
+    swift_error: true
+    swift_version_error: true
+    swift_errors: "['swift_version_error']"
+  when: running_swift.rc != 0
+
+- name: Display swift_version_error
+  debug:
+    var: swift_version_error
+  when: swift_version_error is defined
+
+- name: Gather swift recon output
+  shell: "/openstack/venvs/{{ running_swift.stdout }}/bin/swift-recon -arul --md5"
+  register: swift_recon
+  delegate_to: "{{ groups['swift_proxy'][0] }}"
+  ignore_errors: yes
+
+- name: Swift Recon Output
+  debug:
+    var: swift_recon.stdout_lines
+  when: swift_recon.stdout_lines is defined
+
+- name: Set swift_recon_error (if needed)
+  set_fact:
+    swift_error: true
+    swift_recon_error: true
+    swift_errors: "{{ swift_errors | default([]) }} + ['swift_recon_error']"
+  when: swift_recon.rc != 0
+
+- name: Display swift_recon_error
+  debug:
+    var: swift_recon_error
+  when: swift_recon_error is defined
+
+- name: Create Swift QC Log Directory
+  file:
+    path: "{{ swift_qc_dir }}"
+    state: directory
+    mode: 0755
+    recurse: yes
+
+- name: Output Swift QC into log file
+  template:
+    src: "swift.txt.j2"
+    dest: "{{ swift_qc_dir }}/swift-qc-{{ datetime_stamp }}.txt"
+
+- name: Output swift recon stats into text
+  template:
+    src: "swift_errors.err.j2"
+    dest: "{{ swift_qc_dir }}/swift-errors-{{ datetime_stamp }}.txt"
+  when: swift_error is defined

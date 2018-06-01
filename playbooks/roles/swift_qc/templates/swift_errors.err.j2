@@ -1,0 +1,7 @@
+Swift Error Log at {{ ansible_date_time.date }}-{{ ansible_date_time.time }}
+
+Swift Errors
+-----------
+{% for error in swift_errors %}
+{{ error }}
+{% endfor %}

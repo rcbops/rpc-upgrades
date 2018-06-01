@@ -1,0 +1,70 @@
+---
+# Copyright 2018, Rackspace US, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# CLI QC
+- include: cli.yml
+
+# Keystone QC
+- include: keystone.yml
+
+# Glance QC
+- include: glance.yml
+
+# Nova QC
+- include: nova.yml
+
+# Neutron QC
+- include: neutron.yml
+
+# Orchestration QC
+- include: orchestration.yml
+
+# Cinder QC
+- include: cinder.yml
+
+# Scenario QC
+- include: scenario.yml
+
+# Horizon QC
+- include: horizon.yml
+
+# Tempest QC
+- include: tempest.yml
+  when: run_tempest
+
+# Rally QC
+- include: rally.yml
+  when: run_rally
+
+# Create the Openstack QC Log Directory
+- name: Create Openstack QC Log Directory
+  file:
+    path: "{{ openstack_qc_dir }}"
+    state: directory
+    mode: 0755
+    recurse: yes
+
+# Output Openstack QC into log file
+- name: Output Openstack QC into log file
+  template:
+    src: "openstack.txt.j2"
+    dest: "{{ openstack_qc_dir }}/openstack-qc-{{ datetime_stamp }}.txt"
+
+# Output Openstack Errors into log file
+- name: Output Openstack Errors into log file
+  template:
+    src: "openstack_errors.err.j2"
+    dest: "{{ openstack_qc_dir }}/openstack-errors-{{ datetime_stamp }}.txt"
+  when: openstack_error is defined

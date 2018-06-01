@@ -1,0 +1,72 @@
+---
+# Copyright 2018, Rackspace US, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- name: Ensure Apache2 is up and running
+  shell: "service apache2 status"
+  args:
+    executable: /bin/bash
+  register: apache2_status
+  delegate_to: "{{ groups['horizon'][0] }}"
+  ignore_errors: yes
+
+- name: Output Apache2 status
+  debug:
+    var: apache2_status.stdout
+  when: apache2_status.stdout is defined
+
+- name: Set apache2_status_error (if needed)
+  set_fact:
+    horizon_error: true
+    openstack_error: true
+    apache2_status_error: true
+    horizon_errors: "[{{ apache2_status.stdout }}]"
+  when: "' * apache2 is running' not in apache2_status.stdout or apache2_status.rc != 0"
+
+- name: Display apache2_status_error
+  debug:
+    var: apache2_status_error
+  when: apache2_status_error is defined
+
+- name: Check Horizon ports are open and listening
+  shell: "netstat -ntlp | egrep ':80|:443' | egrep 'LISTEN'"
+  args:
+    executable: /bin/bash
+  register: horizon_port_status
+  delegate_to: "{{ groups['horizon'][0] }}"
+  ignore_errors: yes
+
+- name: Output Horizon port status
+  debug:
+    var: horizon_port_status.stdout_lines
+  when: horizon_port_status.stdout_lines is defined
+
+- name: Debug horizon_port_status
+  debug: var={{ item }}
+  with_items: "{{ horizon_port_status.stdout_lines }}"
+  when: horizon_port_status.rc != 0
+
+- name: Set horizon_port_status_error (if needed)
+  set_fact:
+    horizon_error: true
+    openstack_error: true
+    horizon_port_status_error: true
+    horizon_errors: "{{ horizon_errors | default([]) }} + ['{{ item }}']"
+  when: "'LISTEN' not in '{{ item }}'"
+  with_items: "{{ horizon_port_status.stdout_lines }}"
+
+- name: Display horizon_port_status_error
+  debug:
+    var: horizon_port_status_error
+  when: horizon_port_status_error is defined

@@ -1,0 +1,15 @@
+RPC QC Log at {{ ansible_date_time.date }}-{{ ansible_date_time.time }}
+
+================
+ElasticSearch QC
+================
+
+ElasticSearch URL
+-----------------
+{{ esurl }}
+
+ElasticSearch Indicies
+----------------------
+{% for line in es_indicies_list %}
+{{ line }}
+{% endfor %}
