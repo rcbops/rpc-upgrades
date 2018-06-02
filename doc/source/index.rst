@@ -5,10 +5,7 @@ RPC-Upgrades
 .. toctree::
    :maxdepth: 2
 
-   config-ref.rst
-   usage.rst
-   static-inventory.rst
-
+   releasenotes/index
 
 :tags: openstack, rpc-o, cloud, ansible, leap
 :category: \*nix
