@@ -17,7 +17,7 @@
 set -evu
 
 export RPC_BRANCH=${RPC_BRANCH:-'r16.1.0'}
-export OSA_SHA="ed4e2198a94b94cdcf0a304d14ac8affb9579e06"
+export OSA_SHA="stable/pike"
 
 pushd /opt/rpc-openstack
   git clean -df

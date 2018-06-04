@@ -17,7 +17,7 @@
 set -evu
 
 export RPC_BRANCH=${RPC_BRANCH:-'ocata'}
-export OSA_SHA="c68da48c15bec69b4b58530055941332c5395676"
+export OSA_SHA="stable/ocata"
 
 pushd /opt/rpc-openstack
   git clean -df
@@ -61,6 +61,9 @@ rm /etc/openstack_deploy/user_rpco_galera.yml
 if [ -f "/etc/apt/sources.list.d/rpco.list" ]; then
   rm -f /etc/apt/sources.list.d/rpco.list
 fi
+
+# ensure we have the latest Xenial packages before we start any upgrades
+apt-get -qq update; DEBIAN_FRONTEND=noninteractive apt-get -y dist-upgrade
 
 ##### end rpc-o to openstack-ansible transition mods
 
