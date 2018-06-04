@@ -73,6 +73,16 @@ if [[ ! -d "${UPGRADE_LEAP_MARKER_FOLDER}" ]]; then
     mkdir -p "${UPGRADE_LEAP_MARKER_FOLDER}"
 fi
 
+# Workaround when deployment host is separatate from the actual infra hosts
+# as the upgrade script is relying on this file to determine which version
+# currently is installed.
+# Additionally this step has to be executed upon restart as the upgrade from
+# version may have changed. I.e. already at re-deploy stage.
+pushd /opt/rpc-upgrades/playbooks/
+  ansible -m synchronize shared-infra_hosts[0]:infra_hosts[0] -a 'mode=pull src=/etc/openstack-release dest=/etc/openstack-release'
+popd
+
+
 # Glance cache cleanup
 if [[ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/glance-cache-cleanup.complete" ]]; then
   pushd /opt/rpc-upgrades/playbooks/
