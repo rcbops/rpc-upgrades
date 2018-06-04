@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Add scripts for testing incremental upgrades from Ubuntu 16.04 starting at
+    Newton all the way to Queens. (Experimental)  Testing currently deploys a
+    Newton AIO on Xenial, and then incrementally upgrades to Ocata, to Pike, to
+    Queens.  Gating job in place to periodically test this path.
