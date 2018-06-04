@@ -26,14 +26,21 @@ echo "+-------------------- MNAIO ENV VARS --------------------+"
 # ssh command used to execute tests on infra1
 export MNAIO_SSH="ssh -ttt -oStrictHostKeyChecking=no root@infra1"
 
-# Run Leapfrog upgrade
+# upgrade mnaio vms from trusty to xenial if testing incremental
+if [[ "${RE_JOB_UPGRADE_ACTION}" == "incremental" && ${RE_JOB_IMAGE_OS} == "trusty" && ${RE_JOB_IMAGE_TYPE} == "mnaio" ]] ; then
+  push /opt/rpc-upgrades/playbooks
+    openstack-ansible mnaio-trusty-to-xenial.yml
+  popd
+fi
+
+# Run upgrades
 ${MNAIO_SSH} "source /opt/rpc-upgrades/RE_ENV; \
               source /opt/rpc-upgrades/tests/ansible-env.rc; \
               pushd /opt/rpc-upgrades; \
               tests/test-upgrade.sh"
 echo "Leapfrog completed..."
 
-# Install and Verify MaaS post leapfrog
+# Install and Verify MaaS post upgrade
 ${MNAIO_SSH} "source /opt/rpc-upgrades/RE_ENV; \
               source /opt/rpc-upgrades/tests/ansible-env.rc; \
               pushd /opt/rpc-upgrades; \

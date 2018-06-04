@@ -32,6 +32,8 @@ elif [ "${RE_JOB_UPGRADE_ACTION}" == "major" ]; then
   tests/test-major.sh
 elif [ "${RE_JOB_UPGRADE_ACTION}" == "minor" ]; then
   tests/test-minor.sh
+elif [ "${RE_JOB_UPGRADE_ACTION}" == "incremental" ] ; then
+  tests/test-incremental.sh
 else
   echo "FAIL!"
   echo "RE_JOB_UPGRADE_ACTION '${RE_JOB_UPGRADE_ACTION}' is not supported."

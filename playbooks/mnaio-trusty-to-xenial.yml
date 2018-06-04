@@ -1,0 +1,87 @@
+---
+# Copyright 2018, Rackspace US, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in witing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- name: Gather facts
+  hosts: pxe_servers
+  gather_facts: yes
+  pre_tasks:
+    - name: Gather variables for each operating system
+      include_vars: "{{ item }}"
+      with_first_found:
+        - "{{ playbook_dir }}/vars/{{ ansible_distribution | lower }}-{{ ansible_distribution_version | lower }}.yml"
+        - "{{ playbook_dir }}/vars/{{ ansible_distribution | lower }}-{{ ansible_distribution_major_version | lower }}.yml"
+        - "{{ playbook_dir }}/vars/{{ ansible_os_family | lower }}-{{ ansible_distribution_major_version | lower }}.yml"
+        - "{{ playbook_dir }}/vars/{{ ansible_distribution | lower }}.yml"
+        - "{{ playbook_dir }}/vars/{{ ansible_os_family | lower }}.yml"
+      tags:
+        - always
+
+    - name: Upgrade all host packages on current distro
+      apt:
+        upgrade: dist
+        update_cache: yes
+
+    - name: Ensure update-manager-core is installed
+      apt:
+        name: update-manager-core
+        state: latest
+
+    - name: Install apt file to force config old
+      copy:
+        src: upgrade/etc-apt-apt-conf.d-local
+        dest: /etc/apt/apt.conf.d/local
+
+  tasks:
+    - name: Run upgrades to Xenial
+      shell: do-release-upgrade -f DistUpgradeViewNonInteractive
+      when: ansible_distribution == 'Ubuntu' and ansible_distribution_release == 'trusty'
+
+    - name: Remove apt file
+      file:
+        path: /etc/apt/apt.conf.d/local
+        state: absent
+
+    - name: Remove dependencies that are no longer required
+      apt:
+        autoremove: yes
+
+    - name: Reboot the server
+      shell: sleep 2 &amp;&amp; shutdown -r now "Ansible package updates triggered"
+      async: 1
+      poll: 0
+      ignore_errors: true
+      when: ansible_distribution == 'Ubuntu' and ansible_distribution_release == 'trusty'
+
+    - name: Wait for server to shutdown
+      local_action: shell ssh -o BatchMode=yes -o ConnectTimeout=2 -o StrictHostKeyChecking=no "root@{{ ansible_host }}" true
+      register: result
+      until: result.rc != 0
+      failed_when: result.rc == -1
+      retries: 50
+      delay: 1
+
+    - name: Wait for server to be ready
+      local_action: shell ssh -o BatchMode=yes -o ConnectTimeout=2 -o StrictHostKeyChecking=no "root@{{ ansible_host }}" true
+      register: result
+      until: result.rc == 0
+      retries: 200
+      delay: 3
+
+  post_tasks:
+    - name: Refresh all facts after OS upgrade
+      setup:
+
+  tags:
+    - upgrade-os
