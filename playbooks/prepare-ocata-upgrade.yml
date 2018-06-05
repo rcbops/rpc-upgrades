@@ -52,6 +52,7 @@
       file:
         path: /etc/apt/sources.list.d/rpco.list
         state: absent
+      ignore_errors: true
 
 - name: Fix up config files before Ocata jump
   hosts: localhost
