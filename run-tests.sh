@@ -17,5 +17,5 @@ set -xeuo pipefail
 
 export RE_JOB_ACTION="${RE_JOB_ACTION:-liberty_to_newton_leap}"
 
-sudo -H --preserve-env ./gating/pre_merge_test/pre
-sudo -H --preserve-env ./gating/pre_merge_test/run
+sudo -H --preserve-env ./gating/check/pre
+sudo -H --preserve-env ./gating/check/run

@@ -16,7 +16,7 @@
 set -xeuo pipefail
 
 echo "Gate job started"
-echo "Running pre_merge_test/pre hook"
+echo "Running check/pre hook"
 echo "+-------------------- START ENV VARS --------------------+"
 env
 echo "+-------------------- START ENV VARS --------------------+"
