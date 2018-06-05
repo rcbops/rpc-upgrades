@@ -1,0 +1,96 @@
+---
+# Copyright 2018, Rackspace US, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- name: Set Repos and Update to latest Xenial Packages
+  hosts: hosts
+  user: root
+  tasks:
+    - name: Backup the original sources file
+      copy:
+        src: /etc/apt/sources.list
+        dest: /etc/apt/sources.list.original
+        remote_src: yes
+        force: no
+
+    - name: Replace the apt sources file with new apt sources
+      template:
+        src: prepare-ocata-upgrade.j2
+        dest: "/etc/apt/sources.list"
+        backup: yes
+
+    - name: Remove existing artifact repos
+      file:
+        path: /etc/apt/sources.list.d/rpco.list
+        state: absent
+
+    - name: Update apt-cache
+      apt:
+        update_cache: yes
+
+    - name: Update all packages to the latest version
+      apt:
+        upgrade: dist
+
+- name: Ensure artifact repos removed from containers
+  hosts: "hosts:all_containers"
+  user: root
+  gather_facts: false
+  tasks:
+    - name: Remove existing artifact repos
+      file:
+        path: /etc/apt/sources.list.d/rpco.list
+        state: absent
+
+- name: Fix up config files before Ocata jump
+  hosts: localhost
+  user: root
+  tasks:
+    - name: Ensure user_secrets.yml is not present
+      file:
+        path: /etc/openstack_deploy/user_secrets.yml
+        state: absent
+
+    - name: Create symlink of user_osa_secrets.yml to user_secrets.yml
+      file:
+        src: /etc/openstack_deploy/user_osa_secrets.yml
+        dest: /etc/openstack_deploy/user_secrets.yml
+        state: link
+
+    - name: Remove configs that will cause issues jumping to ocata
+      lineinfile:
+        dest: /etc/openstack_deploy/user_osa_variables_defaults.yml
+        state: absent
+        regexp: "{{ item }}"
+      with_items:
+        - "^openstack_release.*"
+        - "^neutron_lbaas_git_repo.*"
+        - "^neutron_lbaas_git_install_branch.*"
+        - "^# Use rcbops version of neutron-lbaas.*"
+
+    - name: Remove user_rpco_galera file as we need newer versions that aren't on our mirrors
+      file:
+        path: /etc/openstack_deploy/user_rpco_galera.yml
+        state: absent
+
+    - name: Check if ironic_galera_password is set
+      shell: grep ironic_galera_password /etc/openstack_deploy/user_osa_secrets.yml
+      ignore_errors: yes
+      register: test_ironic_galera_password
+
+    - name: Generate ironic_galera_password and add to secrets file
+      lineinfile:
+        dest: /etc/openstack_deploy/user_osa_secrets.yml
+        line: "ironic_galera_password: {{ 'password' | password_hash('sha512') }}"
+      when: test_ironic_galera_password.rc == 1
