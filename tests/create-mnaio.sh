@@ -52,6 +52,11 @@ export RPC_BRANCH="${RE_JOB_CONTEXT}"
 export DEFAULT_MIRROR_HOSTNAME=mirror.rackspace.com
 export DEFAULT_MIRROR_DIR=/ubuntu
 
+# If series is newton, use rcbops fork of OSA
+if [ "${RE_JOB_SERIES}" == "newton" ]; then
+  export OSA_REPO="https://github.com/rcbops/openstack-ansible.git"
+fi
+
 # ssh command used to execute tests on infra1
 export MNAIO_SSH="ssh -ttt -oStrictHostKeyChecking=no root@infra1"
 export RUN_UPGRADES="${RUN_UPGRADES:-yes}"
