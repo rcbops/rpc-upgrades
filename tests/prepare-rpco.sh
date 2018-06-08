@@ -178,6 +178,21 @@ function maas_tweaks {
   fi
 }
 
+function spice_repo_fix {
+  cat > /etc/openstack_deploy/user_osa_variables_spice.yml <<EOF
+---
+nova_spicehtml5_git_repo: https://gitlab.freedesktop.org/spice/spice-html5
+EOF
+}
+
+function spice_repo_fix_kilo {
+  pushd /opt/rpc-openstack/openstack-ansible
+    if grep 'github.com/SPICE' /opt/rpc-openstack/openstack-ansible/playbooks/defaults/repo_packages/openstack_other.yml; then
+      patch -p1 < ${WORKSPACE_PATH}/playbooks/patches/kilo/spice-html5-repo-fix.patch
+    fi
+  popd
+}
+
 ## Main ----------------------------------------------------------------------
 echo "Gate test starting
 with:
@@ -217,6 +232,7 @@ pushd /opt/rpc-openstack
     allow_frontloading_vars
     get_ssh_role
     maas_tweaks
+    spice_repo_fix_kilo
 
     # NOTE(cloudnull): Pycrypto has to be limited.
     sed -i 's|pycrypto.*|pycrypto<=2.6.1|g' ${OSA_PATH}/requirements.txt
@@ -263,6 +279,7 @@ pushd /opt/rpc-openstack
     fix_galera_apt_cache
     remove_xtrabackup_from_galera_client
     maas_tweaks
+    spice_repo_fix
     # NOTE(cloudnull): The global requirement pins for early Liberty are broken.
     #                  This pull the pins forward so that we can continue with
     #                  the AIO deployment for liberty
@@ -276,6 +293,7 @@ pushd /opt/rpc-openstack
     pin_galera "10.0"
     unset_affinity
     allow_frontloading_vars
+    spice_repo_fix
   elif [ "${RE_JOB_SERIES}" == "newton" ]; then
     git_checkout "newton"  # Last commit of Newton
     (git submodule init && git submodule update) || true
