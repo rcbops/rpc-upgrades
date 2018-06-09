@@ -4,8 +4,8 @@
 
 Currently rpc-upgrades runs two types of gating tests located in the gating directory:
 
-* Pre Merge Tests - Tests are fired off on Pull Requests to validate that the change does not break any jobs.
-* Post Merge Tests - Tests are fired off periodically on the various versions of upgrades that are supported to validate that the upgrades are still valid and that nothing has broken over time.
+* Check Tests - Tests are fired off on Pull Requests to validate that the change does not break any jobs.
+* Periodic Tests - Tests are fired off periodically on the various versions of upgrades that are supported to validate that the upgrades are still valid and that nothing has broken over time.
 
 These gating jobs follow the guidelines set forth by the Release Engineering team [here](https://rpc-openstack.atlassian.net/wiki/spaces/RE/pages/19005457/RE+for+Projects).
 
@@ -21,9 +21,9 @@ Jobs in Jenkins are configured [here](https://github.com/rcbops/rpc-gating/blob/
 
 ## Repo hooks
 
-* gating/pre_merge_test/pre: Used for initial setup of environment, installs packages, etc.
-* gating/pre_merge_test/run: Used for the actual deploy, upgrade and test of the upgrade job
-* gating/pre_merge_test/post: Used for gathering artifacts, logs, and post job activities
+* gating/check/pre: Used for initial setup of environment, installs packages, etc.
+* gating/check/run: Used for the actual deploy, upgrade and test of the upgrade job
+* gating/check/post: Used for gathering artifacts, logs, and post job activities
 
 ## Job Name Formats
 
