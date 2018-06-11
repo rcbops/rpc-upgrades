@@ -1,0 +1,12 @@
+diff --git a/playbooks/defaults/repo_packages/openstack_other.yml b/playbooks/defaults/repo_packages/openstack_other.yml
+index ef62d1ab..2418f586 100644
+--- a/playbooks/defaults/repo_packages/openstack_other.yml
++++ b/playbooks/defaults/repo_packages/openstack_other.yml
+@@ -38,6 +38,6 @@ novncproxy_git_dest: "/opt/novnc_{{ novncproxy_git_install_branch | replace('/',
+
+
+ ## spice-html5 from source
+-spicehtml5_git_repo: https://github.com/SPICE/spice-html5
++spicehtml5_git_repo: https://gitlab.freedesktop.org/spice/spice-html5
+ spicehtml5_git_install_branch: 54cc41299bea8cd681ed0262735e0fd821cd774a # HEAD of "master" as of 02.06.2016
+ spicehtml5_git_dest: "/opt/spicehtml5_{{ spicehtml5_git_install_branch | replace('/', '_') }}"

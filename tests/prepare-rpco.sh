@@ -185,10 +185,10 @@ nova_spicehtml5_git_repo: https://gitlab.freedesktop.org/spice/spice-html5
 EOF
 }
 
-function spice_repo_fix_kilo {
+function spice_repo_fix_patch {
   pushd /opt/rpc-openstack/openstack-ansible
     if grep 'github.com/SPICE' /opt/rpc-openstack/openstack-ansible/playbooks/defaults/repo_packages/openstack_other.yml; then
-      patch -p1 < ${WORKSPACE_PATH}/playbooks/patches/kilo/spice-html5-repo-fix.patch
+      patch -p1 < ${WORKSPACE_PATH}/playbooks/patches/${RE_JOB_SERIES}/spice-html5-repo-fix.patch
     fi
   popd
 }
@@ -232,8 +232,8 @@ pushd /opt/rpc-openstack
     allow_frontloading_vars
     get_ssh_role
     maas_tweaks
-    spice_repo_fix_kilo
-
+    spice_repo_fix
+    spice_repo_fix_patch
     # NOTE(cloudnull): Pycrypto has to be limited.
     sed -i 's|pycrypto.*|pycrypto<=2.6.1|g' ${OSA_PATH}/requirements.txt
 
@@ -280,6 +280,7 @@ pushd /opt/rpc-openstack
     remove_xtrabackup_from_galera_client
     maas_tweaks
     spice_repo_fix
+    spice_repo_fix_patch
     # NOTE(cloudnull): The global requirement pins for early Liberty are broken.
     #                  This pull the pins forward so that we can continue with
     #                  the AIO deployment for liberty
