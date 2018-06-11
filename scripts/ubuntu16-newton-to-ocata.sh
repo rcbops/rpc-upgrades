@@ -19,6 +19,11 @@ set -evu
 export RPC_BRANCH=${RPC_BRANCH:-'ocata'}
 export OSA_SHA="stable/ocata"
 
+# configure apt sources and update all Xenial Packages before jump to Ocata
+pushd /opt/rpc-upgrades/playbooks
+  openstack-ansible prepare-ocata-upgrade.yml
+popd
+
 pushd /opt/rpc-openstack
   git clean -df
   git reset --hard HEAD
@@ -39,11 +44,6 @@ fi
 pushd /opt/openstack-ansible
   git checkout ${OSA_SHA}
   scripts/bootstrap-ansible.sh
-popd
-
-# configure apt sources and update all Xenial Packages before jump to Ocata
-pushd /opt/rpc-upgrades/playbooks
-  openstack-ansible prepare-ocata-upgrade.yml
 popd
 
 pushd /opt/openstack-ansible
