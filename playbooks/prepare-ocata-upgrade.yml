@@ -14,7 +14,7 @@
 # limitations under the License.
 
 - name: Set Repos and Update to latest Xenial Packages
-  hosts: hosts
+  hosts: hosts:all_containers
   user: root
   tasks:
     - name: Backup the original sources file
