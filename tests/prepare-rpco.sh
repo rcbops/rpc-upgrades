@@ -193,6 +193,20 @@ function spice_repo_fix_patch {
   popd
 }
 
+function restore_default_apt_sources {
+  if [[ -f "/etc/apt/sources.list.original" ]]; then
+    mv /etc/apt/sources.list.original /etc/apt/sources.list
+  else
+    source /etc/lsb-release
+    cat > /etc/apt/sources.list <<EOF
+deb http://mirror.rackspace.com/ubuntu ${DISTRIB_CODENAME} main universe
+deb http://mirror.rackspace.com/ubuntu ${DISTRIB_CODENAME}-updates main universe
+deb http://mirror.rackspace.com/ubuntu ${DISTRIB_CODENAME}-backports main universe
+deb http://mirror.rackspace.com/ubuntu ${DISTRIB_CODENAME}-security main universe
+EOF
+  fi
+}
+
 ## Main ----------------------------------------------------------------------
 echo "Gate test starting
 with:
@@ -234,6 +248,7 @@ pushd /opt/rpc-openstack
     maas_tweaks
     spice_repo_fix
     spice_repo_fix_patch
+    restore_default_apt_sources
     # NOTE(cloudnull): Pycrypto has to be limited.
     sed -i 's|pycrypto.*|pycrypto<=2.6.1|g' ${OSA_PATH}/requirements.txt
 
@@ -281,6 +296,7 @@ pushd /opt/rpc-openstack
     maas_tweaks
     spice_repo_fix
     spice_repo_fix_patch
+    restore_default_apt_sources
     # NOTE(cloudnull): The global requirement pins for early Liberty are broken.
     #                  This pull the pins forward so that we can continue with
     #                  the AIO deployment for liberty
@@ -295,6 +311,7 @@ pushd /opt/rpc-openstack
     unset_affinity
     allow_frontloading_vars
     spice_repo_fix
+    restore_default_apt_sources
   elif [ "${RE_JOB_SERIES}" == "newton" ]; then
     git_checkout "newton"  # Last commit of Newton
     (git submodule init && git submodule update) || true
