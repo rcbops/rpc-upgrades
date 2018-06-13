@@ -40,11 +40,15 @@ if which yum; then
     sudo yum install -y python wget
 fi
 
-# Install pip.
-if ! which pip; then
-  curl --silent --show-error --retry 5 \
-    https://bootstrap.pypa.io/get-pip.py | sudo python2.7
-fi
+# Download the get-pip script using the primary or secondary URL
+GETPIP_CMD="curl --silent --show-error --retry 5"
+GETPIP_FILE="/tmp/get-pip.py"
+GETPIP_PYTHON_EXEC_PATH="$(which python2.7)"
+${GETPIP_CMD} https://bootstrap.pypa.io/get-pip.py > ${GETPIP_FILE}\
+    || ${GETPIP_CMD} https://raw.githubusercontent.com/pypa/get-pip/master/get-pip.py > ${GETPIP_FILE}
+
+# Install specific verison of pip/setuptools/wheel.
+sudo ${GETPIP_PYTHON_EXEC_PATH} ${GETPIP_FILE} 'pip==9.0.3' 'setuptools==39.0.1' 'wheel==0.30.0'
 
 # Install bindep and tox with pip.
 sudo pip install bindep tox
