@@ -225,6 +225,15 @@ EOF
   fi
 }
 
+function correct_haproxy_logdir_symlink_patch {
+  apt-get install -y rsyslog
+  pushd /opt/rpc-openstack/openstack-ansible
+    if grep 'Test for log directory or link' /opt/rpc-openstack/openstack-ansible/playbooks/roles/haproxy_server/tasks/haproxy_pre_install.yml; then
+      patch -p1 < ${WORKSPACE_PATH}/playbooks/patches/liberty/haproxy-symlink-fix.patch
+    fi
+  popd
+}
+
 ## Main ----------------------------------------------------------------------
 echo "Gate test starting
 with:
@@ -317,6 +326,7 @@ pushd /opt/rpc-openstack
     maas_tweaks
     spice_repo_fix
     spice_repo_fix_patch
+    correct_haproxy_logdir_symlink_patch
     restore_default_apt_sources
     # NOTE(cloudnull): The global requirement pins for early Liberty are broken.
     #                  This pull the pins forward so that we can continue with

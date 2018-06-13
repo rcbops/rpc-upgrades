@@ -1,0 +1,38 @@
+diff --git a/playbooks/roles/haproxy_server/tasks/haproxy_pre_install.yml b/playbooks/roles/haproxy_server/tasks/haproxy_pre_install.yml
+index adea9278..4f4b50eb 100644
+--- a/playbooks/roles/haproxy_server/tasks/haproxy_pre_install.yml
++++ b/playbooks/roles/haproxy_server/tasks/haproxy_pre_install.yml
+@@ -13,29 +13,13 @@
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+ 
+-- name: Test for log directory or link
+-  shell: |
+-    if [ -h "/var/log/haproxy"  ]; then
+-      chown -h syslog:adm "/var/log/haproxy"
+-      chown -R syslog:adm "$(readlink /var/log/haproxy)"
+-    else
+-      exit 1
+-    fi
+-  register: log_dir
+-  failed_when: false
+-  changed_when: log_dir.rc != 0
+-  tags:
+-    - haproxy-dirs
+-    - haproxy-logs
+-
+ - name: Create haproxy log dir
+   file:
+-    path: "{{ item.path }}"
++    path: "{{ '/var/log/haproxy' | realpath }}"
+     state: directory
+-    mode: "{{ item.mode|default('0755') }}"
+-  with_items:
+-    - { path: "/var/log/haproxy" }
+-  when: log_dir.rc != 0
++    owner: syslog
++    group: adm
++    mode: "0755"
+   tags:
+     - haproxy-dirs
+     - haproxy-logs
