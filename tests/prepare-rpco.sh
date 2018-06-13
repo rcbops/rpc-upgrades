@@ -250,7 +250,7 @@ pushd /opt/rpc-openstack
 
     # pin libvirt-python due to issues with 4.1.0
     # https://bugs.launchpad.net/openstack-requirements/+bug/1753539
-    apt-get -y install libvirt-dev
+    apt-get -y install libvirt-dev pkg-config
     if ! grep 'libvirt-python' ${OSA_PATH}/requirements.txt; then
       echo "libvirt-python<=4.0.0" >> ${OSA_PATH}/requirements.txt
     fi
