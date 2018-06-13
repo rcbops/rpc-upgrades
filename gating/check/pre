@@ -31,13 +31,27 @@ if [[ "$(basename ${PWD})" == "rpc-upgrades" ]]; then
   fi
 fi
 
-# Install python2 for Ubuntu 16.04 and CentOS 7
+# Install required packages for Ubuntu 16.04
+#   curl        - for getting get-pip.py
+#   iptables    - OSA gate-check-commit script expects it on the host
+#   python      - for installing pip using get-pip.py
+#   python-yaml - for ansible and reading yaml files (like the rpc release info)
+#   util-linux  - for the 'lsblk' tool used by OSA gate-check-commit script
+#   wget        - TODO: provide reason for wget's inclusion here
+
 if which apt-get; then
-    sudo apt-get update && sudo apt-get install -y python wget python-yaml
+    sudo apt-get update
+    sudo apt-get install -y curl iptables python python-yaml util-linux wget
 fi
 
+# Install required packages for CentOS 7
+#   curl            - for getting get-pip.py
+#   epel-release    - required to install python-ndg_httpsclient/python2-pyasn1
+#   python          - for installing pip using get-pip.py
+#   redhat-lsb-core - for bindep profile support
+#   wget            - TODO: provide reason for wget's inclusion here
 if which yum; then
-    sudo yum install -y python wget
+    sudo yum install -y curl epel-release python redhat-lsb-core wget
 fi
 
 # Download the get-pip script using the primary or secondary URL
@@ -52,10 +66,3 @@ sudo ${GETPIP_PYTHON_EXEC_PATH} ${GETPIP_FILE} 'pip==9.0.3' 'setuptools==39.0.1'
 
 # Install bindep and tox with pip.
 sudo pip install bindep tox
-
-# CentOS 7 requires two additional packages:
-#   redhat-lsb-core - for bindep profile support
-#   epel-release    - required to install python-ndg_httpsclient/python2-pyasn1
-if which yum; then
-    sudo yum -y install redhat-lsb-core epel-release
-fi
