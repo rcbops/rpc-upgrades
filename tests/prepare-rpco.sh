@@ -207,6 +207,24 @@ EOF
   fi
 }
 
+function set_aio_hostname {
+  if [[ "$(hostname)" != "aio" ]]; then
+    echo aio1 > /etc/hostname
+    cat > /etc/hosts <<EOF
+127.0.0.1 localhost aio1
+127.0.1.1 aio1.openstack.local aio1
+# The following lines are desirable for IPv6 capable hosts
+::1 ip6-localhost ip6-loopback
+fe00::0 ip6-localnet
+ff00::0 ip6-mcastprefix
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+ff02::3 ip6-allhosts
+EOF
+    hostname aio1
+  fi
+}
+
 ## Main ----------------------------------------------------------------------
 echo "Gate test starting
 with:
@@ -236,6 +254,9 @@ fi
 
 # Enter the RPC-O workspace
 pushd /opt/rpc-openstack
+  if [ "${RE_JOB_IMAGE_TYPE}" == "aio" ]; then
+    set_aio_hostname
+  fi
   if [ "${RE_JOB_SERIES}" == "kilo" ]; then
     git_checkout "kilo"  # Last commit of Kilo
     (git submodule init && git submodule update) || true
