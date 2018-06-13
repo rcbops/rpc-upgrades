@@ -78,8 +78,8 @@
   user: root
   tasks:
     - name: Gather filesystem used percentages
-      shell: |
-        df -h | tail -n +2 | sed s/%//g | awk '{if($5 > 97) print "Alert: "$5 "% full - "$0}'
+      shell: >-
+        df -hT --exclude-type=iso9660 --exclude-type=tmpfs --exclude-type=devtmpfs | tail -n +2 | sed s/%//g | awk '{if($5 > 97) print "Alert: "$5 "% full - "$0}'
       register: fs_check
       tags:
         - leap-fs-check
