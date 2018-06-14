@@ -193,6 +193,47 @@ function spice_repo_fix_patch {
   popd
 }
 
+function restore_default_apt_sources {
+  if [[ -f "/etc/apt/sources.list.original" ]]; then
+    mv /etc/apt/sources.list.original /etc/apt/sources.list
+  else
+    source /etc/lsb-release
+    cat > /etc/apt/sources.list <<EOF
+deb http://mirror.rackspace.com/ubuntu ${DISTRIB_CODENAME} main universe
+deb http://mirror.rackspace.com/ubuntu ${DISTRIB_CODENAME}-updates main universe
+deb http://mirror.rackspace.com/ubuntu ${DISTRIB_CODENAME}-backports main universe
+deb http://mirror.rackspace.com/ubuntu ${DISTRIB_CODENAME}-security main universe
+EOF
+  fi
+}
+
+function set_aio_hostname {
+  if [[ "$(hostname)" != "aio" ]]; then
+    echo aio1 > /etc/hostname
+    cat > /etc/hosts <<EOF
+127.0.0.1 localhost aio1
+127.0.1.1 aio1.openstack.local aio1
+# The following lines are desirable for IPv6 capable hosts
+::1 ip6-localhost ip6-loopback
+fe00::0 ip6-localnet
+ff00::0 ip6-mcastprefix
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+ff02::3 ip6-allhosts
+EOF
+    hostname aio1
+  fi
+}
+
+function correct_haproxy_logdir_symlink_patch {
+  apt-get install -y rsyslog
+  pushd /opt/rpc-openstack/openstack-ansible
+    if grep 'Test for log directory or link' /opt/rpc-openstack/openstack-ansible/playbooks/roles/haproxy_server/tasks/haproxy_pre_install.yml; then
+      patch -p1 < ${WORKSPACE_PATH}/playbooks/patches/liberty/haproxy-symlink-fix.patch
+    fi
+  popd
+}
+
 ## Main ----------------------------------------------------------------------
 echo "Gate test starting
 with:
@@ -222,6 +263,9 @@ fi
 
 # Enter the RPC-O workspace
 pushd /opt/rpc-openstack
+  if [ "${RE_JOB_IMAGE_TYPE}" == "aio" ]; then
+    set_aio_hostname
+  fi
   if [ "${RE_JOB_SERIES}" == "kilo" ]; then
     git_checkout "kilo"  # Last commit of Kilo
     (git submodule init && git submodule update) || true
@@ -234,6 +278,7 @@ pushd /opt/rpc-openstack
     maas_tweaks
     spice_repo_fix
     spice_repo_fix_patch
+    restore_default_apt_sources
     # NOTE(cloudnull): Pycrypto has to be limited.
     sed -i 's|pycrypto.*|pycrypto<=2.6.1|g' ${OSA_PATH}/requirements.txt
 
@@ -250,7 +295,7 @@ pushd /opt/rpc-openstack
 
     # pin libvirt-python due to issues with 4.1.0
     # https://bugs.launchpad.net/openstack-requirements/+bug/1753539
-    apt-get -y install libvirt-dev
+    apt-get -y install libvirt-dev pkg-config
     if ! grep 'libvirt-python' ${OSA_PATH}/requirements.txt; then
       echo "libvirt-python<=4.0.0" >> ${OSA_PATH}/requirements.txt
     fi
@@ -281,6 +326,8 @@ pushd /opt/rpc-openstack
     maas_tweaks
     spice_repo_fix
     spice_repo_fix_patch
+    correct_haproxy_logdir_symlink_patch
+    restore_default_apt_sources
     # NOTE(cloudnull): The global requirement pins for early Liberty are broken.
     #                  This pull the pins forward so that we can continue with
     #                  the AIO deployment for liberty
@@ -295,6 +342,7 @@ pushd /opt/rpc-openstack
     unset_affinity
     allow_frontloading_vars
     spice_repo_fix
+    restore_default_apt_sources
   elif [ "${RE_JOB_SERIES}" == "newton" ]; then
     git_checkout "newton"  # Last commit of Newton
     (git submodule init && git submodule update) || true
