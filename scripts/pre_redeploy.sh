@@ -31,6 +31,32 @@ export OA_OVERRIDES="${OA_OVERRIDES:-/etc/openstack_deploy/user_osa_variables_ov
 
 warning "Please DO NOT interrupt this process."
 notice "Pre redeploy steps"
+
+# if this is a MITAKA v13 to v14 upgrade, prep the upgrade
+if [ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/fixup-mitaka-leap.complete" ]; then
+    if [ ${CODE_UPGRADE_FROM} == "MITAKA" ]; then
+        # skip the variable migration for MITAKA
+        touch /etc/openstack_deploy/upgrade-leap/variable-migration.complete
+        # remove user_osa_variables_defaults as existing settings will not work in newton
+        if [ -f "/etc/openstack_deploy/user_osa_variables_defaults.yml" ]; then
+            rm /etc/openstack_deploy/user_osa_variables_defaults.yml
+            # add needed variables back to user_osa_variables_defaults.yml
+            echo -e '---\n\nosa_secrets_file_name: "user_osa_secrets.yml"' > /etc/openstack_deploy/user_osa_variables_defaults.yml
+            echo 'openstack_release: "{{ rpc_release }}"' >> /etc/openstack_deploy/user_osa_variables_defaults.yml
+        fi
+        # disable ceilometer on AIOS, swift breaks because it depends on ceilometer running
+        if [ -f /etc/openstack_deploy/user_osa_aio_variables.yml ]; then
+            if grep -i "_ceilometer_enabled" /etc/openstack_deploy/user_osa_aio_variables.yml; then
+                sed -i '/_ceilometer_enabled/d' /etc/openstack_deploy/user_osa_aio_variables.yml
+            fi
+        fi
+    fi
+    log "fixup-mitaka-leap" "ok"
+else
+    log "fixup-mitaka-leap" "skipped"
+fi
+
+# for everything pre v13
 pushd ${LEAPFROG_DIR}
     if [ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/variable-migration.complete" ]; then
         # Following docs: https://pages.github.rackspace.com/rpc-internal/docs-rpc/rpc-upgrade-internal/rpc-upgrade-v12-v13-perform.html#migrate-variables
