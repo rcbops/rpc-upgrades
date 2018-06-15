@@ -229,7 +229,7 @@ function correct_haproxy_logdir_symlink_patch {
   apt-get install -y rsyslog
   pushd /opt/rpc-openstack/openstack-ansible
     if grep 'Test for log directory or link' /opt/rpc-openstack/openstack-ansible/playbooks/roles/haproxy_server/tasks/haproxy_pre_install.yml; then
-      patch -p1 < ${WORKSPACE_PATH}/playbooks/patches/liberty/haproxy-symlink-fix.patch
+      patch -p1 < ${WORKSPACE_PATH}/playbooks/patches/${RE_JOB_SERIES}/haproxy-symlink-fix.patch
     fi
   popd
 }
@@ -342,6 +342,7 @@ pushd /opt/rpc-openstack
     unset_affinity
     allow_frontloading_vars
     spice_repo_fix
+    correct_haproxy_logdir_symlink_patch
     restore_default_apt_sources
   elif [ "${RE_JOB_SERIES}" == "newton" ]; then
     git_checkout "newton"  # Last commit of Newton
