@@ -179,18 +179,10 @@ function maas_tweaks {
 }
 
 function spice_repo_fix {
-  cat > /etc/openstack_deploy/user_osa_variables_spice.yml <<EOF
----
-nova_spicehtml5_git_repo: https://gitlab.freedesktop.org/spice/spice-html5
-EOF
-}
-
-function spice_repo_fix_patch {
-  pushd /opt/rpc-openstack/openstack-ansible
-    if grep 'github.com/SPICE' /opt/rpc-openstack/openstack-ansible/playbooks/defaults/repo_packages/openstack_other.yml; then
-      patch -p1 < ${WORKSPACE_PATH}/playbooks/patches/${RE_JOB_SERIES}/spice-html5-repo-fix.patch
-    fi
-  popd
+  echo -e "---\nnova_spicehtml5_git_repo: https://gitlab.freedesktop.org/spice/spice-html5" > /etc/openstack_deploy/user_osa_variables_spice.yml
+  if grep 'spicehtml5_git_repo' ${OSA_PATH}/playbooks/defaults/repo_packages/openstack_other.yml; then
+    sed -i 's|^spicehtml5_git_repo.*|spicehtml5_git_repo: https://gitlab.freedesktop.org/spice/spice-html5|g' ${OSA_PATH}/playbooks/defaults/repo_packages/openstack_other.yml
+  fi
 }
 
 function restore_default_apt_sources {
@@ -277,7 +269,6 @@ pushd /opt/rpc-openstack
     get_ssh_role
     maas_tweaks
     spice_repo_fix
-    spice_repo_fix_patch
     restore_default_apt_sources
     # NOTE(cloudnull): Pycrypto has to be limited.
     sed -i 's|pycrypto.*|pycrypto<=2.6.1|g' ${OSA_PATH}/requirements.txt
@@ -325,7 +316,6 @@ pushd /opt/rpc-openstack
     remove_xtrabackup_from_galera_client
     maas_tweaks
     spice_repo_fix
-    spice_repo_fix_patch
     correct_haproxy_logdir_symlink_patch
     restore_default_apt_sources
     # NOTE(cloudnull): The global requirement pins for early Liberty are broken.
