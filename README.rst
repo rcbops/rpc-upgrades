@@ -13,9 +13,6 @@ Leapfrog upgrades from:
 
 * kilo to r14.14.0 (newton)
 * liberty to r14.14.0 (newton)
-
-Major upgrades from:
-
 * mitaka to r14.14.0 (newton)
 
 The status of supported versions can be viewed from the periodic jobs located on the
