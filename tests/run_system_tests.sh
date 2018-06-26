@@ -9,6 +9,16 @@ set -o pipefail
 
 ## Variables -----------------------------------------------------------------
 
+# Release metadata required for qTest export
+if [[ -f /opt/rpc-openstack/scripts/artifacts-building/derive-artifact-version.sh ]]; then
+    export RPC_RELEASE="$(/opt/rpc-openstack/scripts/artifacts-building/derive-artifact-version.sh)"
+elif [[ -f /opt/rpc-openstack/scripts/get-rpc_release.py ]]; then
+    export RPC_RELEASE="$(/opt/rpc-openstack/scripts/get-rpc_release.py -f /opt/rpc-openstack/playbooks/vars/rpc-release.yml)"
+else
+    export RPC_RELEASE=''
+fi
+export RPC_PRODUCT_RELEASE="${RE_JOB_UPGRADE_TO:-newton}"
+
 RE_HOOK_ARTIFACT_DIR="${RE_HOOK_ARTIFACT_DIR:-/tmp/artifacts}"
 export RE_HOOK_RESULT_DIR="${RE_HOOK_RESULT_DIR:-/tmp/results}"
 SYS_WORKING_DIR=$(mktemp  -d -t system_test_workingdir.XXXXXXXX)
