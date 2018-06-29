@@ -31,6 +31,7 @@ export RE_JOB_IMAGE_TYPE="${RE_JOB_IMAGE_TYPE:-aio}"
 export TESTING_HOME="${TESTING_HOME:-$HOME}"
 export ANSIBLE_LOG_DIR="${TESTING_HOME}/.ansible/logs"
 export ANSIBLE_LOG_PATH="${ANSIBLE_LOG_DIR}/ansible-aio.log"
+export RPCO_PATH="/opt/rpc-openstack"
 export OSA_PATH="/opt/rpc-openstack/openstack-ansible"
 export WORKSPACE_PATH=`pwd`
 
@@ -126,6 +127,13 @@ function unset_affinity {
   #                 for this test.
   # Change Affinity - only create 1 galera/rabbit/keystone/horizon and repo server
   sed -i 's/\(_container\: \).*/\11/' ${OSA_PATH}/etc/openstack_deploy/openstack_user_config.yml.aio
+  # deploy.sh resets things to 3, so if those lines exist, delete them so we end up with 1
+  if grep "galera_container: 3" ${RPCO_PATH}/scripts/deploy.sh; then
+    sed -i '/.*galera_container: 3.*/d' ${RPCO_PATH}/scripts/deploy.sh
+  fi
+  if grep "rabbit_mq_container: 3" ${RPCO_PATH}/scripts/deploy.sh; then
+    sed -i '/.*rabbit_mq_container: 3.*/d' ${RPCO_PATH}/scripts/deploy.sh
+  fi
 }
 
 function allow_frontloading_vars {
@@ -226,6 +234,24 @@ function correct_haproxy_logdir_symlink_patch {
       fi
     popd
   fi
+}
+
+function fix_horizon_extensions {
+  # FLEEK-84 Set to branch that exists
+  if grep 'horizon_extensions_git_install_branch' ${RPCO_PATH}/rpcd/playbooks/roles/horizon_extensions/defaults/main.yml; then
+      sed -i 's|^horizon_extensions_git_install_branch.*|horizon_extensions_git_install_branch: r13.1.0|g' ${RPCO_PATH}/rpcd/playbooks/roles/horizon_extensions/defaults/main.yml
+  fi
+}
+
+function get_latest_mitaka_roles {
+  # the mitaka-eol tag has been moved several time for critcal bug fixes, this uses the tag instead of a SHA
+  sed -i '/- name: galera_server/,+3d' ${OSA_PATH}/ansible-role-requirements.yml
+  cat <<EOF >> ${OSA_PATH}/ansible-role-requirements.yml
+- name: galera_server
+  scm: git
+  src: https://git.openstack.org/openstack/openstack-ansible-galera_server
+  version: mitaka-eol
+EOF
 }
 
 ## Main ----------------------------------------------------------------------
@@ -336,6 +362,8 @@ pushd /opt/rpc-openstack
     spice_repo_fix
     correct_haproxy_logdir_symlink_patch
     restore_default_apt_sources
+    fix_horizon_extensions
+    get_latest_mitaka_roles
   elif [ "${RE_JOB_SERIES}" == "newton" ]; then
     git_checkout "newton"  # Last commit of Newton
     (git submodule init && git submodule update) || true
