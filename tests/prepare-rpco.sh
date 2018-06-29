@@ -359,6 +359,7 @@ pushd /opt/rpc-openstack
     pin_galera "10.0"
     unset_affinity
     allow_frontloading_vars
+    maas_tweaks
     spice_repo_fix
     correct_haproxy_logdir_symlink_patch
     restore_default_apt_sources
