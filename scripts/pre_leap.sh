@@ -45,7 +45,7 @@ echo "python-ldap==2.5.2" >> /opt/rpc-openstack/openstack-ansible/global-require
 
 # FLEEK-125 six module exceptions on 34.1.0 so if we find this in pins, use the one set in mitaka-eol
 if grep '^setuptools==34.1.0' /opt/rpc-openstack/openstack-ansible/global-requirement-pins.txt; then
-  sed -i 's|^setuptools.*|setuptools==33.1.1/g' /opt/rpc-openstack/openstack-ansible/global-requirement-pins.txt
+  sed -i 's|^setuptools.*|setuptools==33.1.1|g' /opt/rpc-openstack/openstack-ansible/global-requirement-pins.txt
 fi
 
 # RLM-1375 Skip certain hardening tags during leap
