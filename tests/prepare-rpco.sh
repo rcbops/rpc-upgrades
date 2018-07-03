@@ -297,7 +297,6 @@ pushd /opt/rpc-openstack
     get_ssh_role
     maas_tweaks
     spice_repo_fix
-    restore_default_apt_sources
     # NOTE(cloudnull): Pycrypto has to be limited.
     sed -i 's|pycrypto.*|pycrypto<=2.6.1|g' ${OSA_PATH}/requirements.txt
 
@@ -330,6 +329,7 @@ pushd /opt/rpc-openstack
     echo -e "---\n- include: repo-server.yml\n- include: repo-build.yml" | tee ${OSA_PATH}/playbooks/repo-install.yml
     # don't attempt an elasticsearch upgrade on kilo
     export UPGRADE_ELASTICSEARCH="no"
+    restore_default_apt_sources
   elif [ "${RE_JOB_SERIES}" == "liberty" ]; then
     git_checkout "liberty"  # Last commit of Liberty
     (git submodule init && git submodule update) || true
