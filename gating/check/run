@@ -61,7 +61,11 @@ else
 fi
 
 # dump all RE_ vars to file so it can be sourced for MNAIO
-env | grep RE_ | sed 's/^/export /' > /opt/rpc-upgrades/RE_ENV
+> /opt/rpc-upgrades/RE_ENV
+env | grep RE_ | while read -r match; do
+  varName=$(echo ${match} | cut -d= -f1)
+  echo "export ${varName}='${!varName}'" >> /opt/rpc-upgrades/RE_ENV
+done
 
 if [ "${RE_JOB_ACTION}" != "tox-test" ]; then
   sudo -H --preserve-env ./run-bindep.sh
