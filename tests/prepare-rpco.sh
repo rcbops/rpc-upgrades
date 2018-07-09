@@ -205,6 +205,9 @@ deb http://mirror.rackspace.com/ubuntu ${DISTRIB_CODENAME}-backports main univer
 deb http://mirror.rackspace.com/ubuntu ${DISTRIB_CODENAME}-security main universe
 EOF
   fi
+  # refresh apt cache
+  apt-get clean all
+  apt-get update
 }
 
 function set_aio_hostname {
