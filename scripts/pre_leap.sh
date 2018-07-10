@@ -43,10 +43,10 @@ fi
 # RLM-682 versions past 2.5.2 break things
 echo "python-ldap==2.5.2" >> /opt/rpc-openstack/openstack-ansible/global-requirement-pins.txt
 
-# FLEEK-125 six module exceptions on 34.1.0 so if we find this in pins, use the one set in mitaka-eol
-if grep '^setuptools==34.1.0' /opt/rpc-openstack/openstack-ansible/global-requirement-pins.txt; then
-  sed -i 's|^setuptools.*|setuptools==33.1.1|g' /opt/rpc-openstack/openstack-ansible/global-requirement-pins.txt
-fi
+# remove setuptools and reinstall to avoid hitting a bug in setuptools 34.1.0
+# this will be reinstalled fresh during the redeploy of ansible
+pip uninstall -y setuptools
+pip install setuptools==33.1.1 --isolated
 
 # RLM-1375 Skip certain hardening tags during leap
 export SKIP_HARDENING_TAGS="V-38462,V-38660"
