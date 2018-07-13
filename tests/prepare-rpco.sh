@@ -252,7 +252,7 @@ function get_latest_mitaka_roles {
   cat <<EOF >> ${OSA_PATH}/ansible-role-requirements.yml
 - name: galera_server
   scm: git
-  src: https://git.openstack.org/openstack/openstack-ansible-galera_server
+  src: https://github.com/rcbops/openstack-ansible-galera_server
   version: mitaka-eol
 EOF
 }
