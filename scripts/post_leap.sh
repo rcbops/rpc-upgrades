@@ -19,6 +19,12 @@
 set -e -u -x
 set -o pipefail
 
+# set encrypted vault files
+export OS_DEPLOY_DIR="/etc/openstack_deploy"
+export VAULT_ENCRYPTED_FILES="user_secrets.yml
+                              user_osa_secrets.yml
+                              user_rpco_secrets.yml"
+
 function get_latest_maas_release {
   if [ ! -d "/opt/rpc-maas" ]; then
     git clone https://github.com/rcbops/rpc-maas /opt/rpc-maas
@@ -59,6 +65,29 @@ if [ "$UPGRADE_ELASTICSEARCH" == "yes" ]; then
   pushd /opt/rpc-upgrades/playbooks
     openstack-ansible elasticsearch-reindex.yml
   popd
+fi
+
+# re-encrypt password files now that leap is complete
+if [ -v ANSIBLE_VAULT_PASSWORD_FILE ]; then
+  for FILENAME in ${VAULT_ENCRYPTED_FILES}; do
+    echo "Checking to see if ${FILENAME} needs to be encrypted..."
+    if [ -a "${OS_DEPLOY_DIR}/${FILENAME}" ]; then
+      head -1 ${OS_DEPLOY_DIR}/${FILENAME} | grep -v -q \$ANSIBLE_VAULT \
+      && ansible-vault encrypt ${OS_DEPLOY_DIR}/${FILENAME} --vault-password-file ${ANSIBLE_VAULT_PASSWORD_FILE}
+    fi
+  done
+  echo "Secrets files have been re-encrypted."
+  echo "Please ensure Ansible Vault Password file is removed from:"
+  echo "${ANSIBLE_VAULT_PASSWORD_FILE}"
+else
+  for FILENAME in ${VAULT_ENCRYPTED_FILES}; do
+    # test to see if files are encrypted
+    if [ -a "${OS_DEPLOY_DIR}/${FILENAME}" ]; then
+      head -1 ${OS_DEPLOY_DIR}/${FILENAME} | grep -v -q \$ANSIBLE_VAULT \
+      && echo "Password files are decrypted, unable to re-encrypt because \
+      ANSIBLE_VAULT_PASSWORD_FILE=location_of_file is not set" && exit 1
+    fi
+  done
 fi
 
 echo "LEAPFROG COMPLETE."
