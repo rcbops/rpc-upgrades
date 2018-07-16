@@ -18,9 +18,8 @@
 
 set -evu
 
-pushd /opt/rpc-openstack/scripts
-  # install tempest
-  openstack-ansible run_tempest.yml --skip-tags tempest_execute_tests -vv
-  # run tests
-  openstack-ansible run_tempest.yml -t tempest_execute_tests -vv
+pushd /opt/openstack-ansible/playbooks
+  # TODO: establish any overrides
+  # install and run tempest
+  openstack-ansible os-tempest-install.yml --skip-tags=rsyslog -vv
 popd

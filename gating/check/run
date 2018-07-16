@@ -89,7 +89,9 @@ if [ "${RE_JOB_ACTION}" != "tox-test" ]; then
       sudo -H --preserve-env ./tests/test-upgrade.sh
       # RLM-293 secondary qc run after test-upgrade attempt
       sudo -H --preserve-env ./tests/qc-test.sh
-      #sudo -H --preserve-env ./tests/run-tempest.sh
+      if [[ "$RE_JOB_UPGRADE_TO" == "queens" ]]; then
+        sudo -H --preserve-env ./tests/run-tempest.sh
+      fi
     fi
   fi
   if [[ "$RE_JOB_TESTING_ACTION" == "system" ]]; then
