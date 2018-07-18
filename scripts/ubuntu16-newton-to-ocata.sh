@@ -50,5 +50,5 @@ pushd /opt/openstack-ansible
   source /usr/local/bin/openstack-ansible.rc
   export TERM=linux
   export I_REALLY_KNOW_WHAT_I_AM_DOING=true
-  echo "YES" | bash scripts/run-upgrade.sh
+  echo "YES" | bash /opt/rpc-upgrades/scripts/upstream/ocata/run-upgrade.sh
 popd
