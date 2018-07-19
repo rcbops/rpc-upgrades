@@ -50,5 +50,8 @@ pushd /opt/openstack-ansible
   source /usr/local/bin/openstack-ansible.rc
   export TERM=linux
   export I_REALLY_KNOW_WHAT_I_AM_DOING=true
-  echo "YES" | bash /opt/rpc-upgrades/scripts/upstream/ocata/run-upgrade.sh
+  # skip setup-openstack on the ocata upgrade
+  sed -i '/setup-openstack.yml/d' scripts/run-upgrade.sh
+  echo "YES" | bash scripts/run-upgrade.sh
+  echo "The setup-openstack.yml playbook is skipped in this script as it will be caught up during pike"
 popd
