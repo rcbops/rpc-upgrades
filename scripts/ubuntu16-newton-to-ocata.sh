@@ -37,6 +37,7 @@ if [ ! -d "/opt/openstack-ansible" ]; then
   git clone --recursive https://github.com/openstack/openstack-ansible /opt/openstack-ansible
 else
   pushd /opt/openstack-ansible
+    git reset --hard HEAD
     git fetch --all
   popd
 fi
