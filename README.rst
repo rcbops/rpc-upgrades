@@ -11,9 +11,9 @@ rpc-upgrades repo supports:
 
 Leapfrog upgrades from:
 
-* kilo to r14.15.0 (newton)
-* liberty to r14.15.0 (newton)
-* mitaka to r14.15.0 (newton)
+* kilo to r14.16.0 (newton)
+* liberty to r14.16.0 (newton)
+* mitaka to r14.16.0 (newton)
 
 The status of supported versions can be viewed from the periodic jobs located on the
 `RPC Jenkins <https://rpc.jenkins.cit.rackspace.net/view/Upgrades>`_ server.
@@ -26,7 +26,7 @@ Terms
 * `OSA-OPS <https://github.com/openstack/openstack-ansible-ops>`_:  OpenStack Operations
 * `Kilo <https://github.com/rcbops/rpc-openstack/tree/kilo>`_: The RPCO release of OpenStack Kilo
 * `Liberty <https://github.com/rcbops/rpc-openstack/tree/liberty>`_: The RPCO release of OpenStack Liberty
-* `r14.15.0 <https://github.com/rcbops/rpc-openstack/tree/r14.15.0>`_: The RPCO release of OpenStack Newton.
+* `r14.16.0 <https://github.com/rcbops/rpc-openstack/tree/r14.16.0>`_: The RPCO release of OpenStack Newton.
 
 Pre Leapfrog Tasks
 ------------------
@@ -64,11 +64,11 @@ the upgrade by setting these environment variables:
     export CONTAINERS_TO_DESTROY='all_containers:!galera_all:!neutron_agent:!ceph_all:!rsyslog_all'
 
 
-**Note:** *Currently the rpc-upgrades repo targets r14.15.0.  If you want to deploy the previous version you can:*
+**Note:** *Currently the rpc-upgrades repo targets r14.16.0.  If you want to deploy the previous version you can:*
 
 .. code-block:: shell
 
-   export RPC_TARGET_CHECKOUT=r14.14.0
+   export RPC_TARGET_CHECKOUT=r14.15.0
 
 If you cannot locate `/etc/openstack-release` or it is outdated. Export the release version which upgrade from manually:
 
