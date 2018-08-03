@@ -106,8 +106,6 @@
       shell: |
         df -h {{ lxc_container_directory | default('/var/lib/lxc') }} | tail -n +2 | sed s/%//g | awk '{if($5 > 50) print "Alert: "$5 "% full - "$0}'
       register: lxc_fs_check
-      when:
-        - enable_lxc_fs_check | default(true) | bool
 
     - name: Check if lxc filesystem is greater than 50% full
       debug:
@@ -204,3 +202,18 @@
       when: 
         - nfs_mount_found.rc == 0
         - glance_nfs_client is undefined
+
+- name: Mark preflight check as having run
+  hosts: localhost
+  gather_facts: false
+  user: root
+  tasks:
+    - name: Ensure upgrade-leap directory exists
+      file:
+        path: /etc/openstack_deploy/upgrade-leap
+        state: directory
+
+    - name: Mark preflight check as having completed
+      file:
+        state: touch
+        path: /etc/openstack_deploy/upgrade-leap/rpc-preflight-check.complete
