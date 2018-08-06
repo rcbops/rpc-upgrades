@@ -18,6 +18,15 @@ set -evu
 
 export RPC_BRANCH=${RPC_BRANCH:-'r16.1.0'}
 export OSA_SHA="stable/pike"
+export STRIP_INSTALL_STEPS=${STRIP_INSTALL_STEPS:-'yes'}
+
+function strip_install_steps {
+  pushd /opt/openstack-ansible/scripts
+    sed -i '/RUN_TASKS+=("[a-z]/d' run-upgrade.sh
+    sed -i "/memcached-flush.yml/d" run-upgrade.sh
+    sed -i "/galera-cluster-rolling-restart/d" run-upgrade.sh
+  popd
+}
 
 pushd /opt/rpc-openstack
   git clean -df
@@ -41,6 +50,11 @@ pushd /opt/openstack-ansible
   git checkout ${OSA_SHA}
   scripts/bootstrap-ansible.sh
   source /usr/local/bin/openstack-ansible.rc
+
+  if [[ "$STRIP_INSTALL_STEPS" == "yes" ]]; then
+    strip_install_steps
+  fi
+
   export TERM=linux
   export I_REALLY_KNOW_WHAT_I_AM_DOING=true
   echo "YES" | bash scripts/run-upgrade.sh

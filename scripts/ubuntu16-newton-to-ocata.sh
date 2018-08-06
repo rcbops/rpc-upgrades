@@ -18,11 +18,16 @@ set -evu
 
 export RPC_BRANCH=${RPC_BRANCH:-'ocata'}
 export OSA_SHA="stable/ocata"
+export SKIP_INSTALL=${SKIP_INSTALL:-"yes"}
 
 # configure apt sources and update all Xenial Packages before jump to Ocata
 pushd /opt/rpc-upgrades/playbooks
   openstack-ansible prepare-ocata-upgrade.yml
 popd
+
+if [[ "$SKIP_INSTALL" == "yes" ]]; then
+  exit 0
+fi
 
 pushd /opt/rpc-openstack
   git clean -df
