@@ -48,9 +48,6 @@ echo "python-ldap==2.5.2" >> /opt/rpc-openstack/openstack-ansible/global-require
 pip uninstall -y setuptools
 pip install setuptools==33.1.1 --isolated
 
-# RLM-1375 Skip certain hardening tags during leap
-export SKIP_HARDENING_TAGS="V-38462,V-38660"
-
 # FLEEK-124 Older versions don't set the osa_secrets_file_name, if the osa_user_secrets.yml exists,
 # then ensure that config option is set
 if [ -f "/etc/openstack_deploy/user_osa_secrets.yml" ]; then
