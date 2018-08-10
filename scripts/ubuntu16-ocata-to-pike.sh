@@ -18,7 +18,7 @@ set -evu
 
 export RPC_BRANCH=${RPC_BRANCH:-'r16.1.0'}
 export OSA_SHA="stable/pike"
-export STRIP_INSTALL_STEPS=${STRIP_INSTALL_STEPS:-'yes'}
+export SKIP_INSTALL=${SKIP_INSTALL:-'yes'}
 
 function strip_install_steps {
   pushd /opt/openstack-ansible/scripts
@@ -51,7 +51,7 @@ pushd /opt/openstack-ansible
   scripts/bootstrap-ansible.sh
   source /usr/local/bin/openstack-ansible.rc
 
-  if [[ "$STRIP_INSTALL_STEPS" == "yes" ]]; then
+  if [[ "$SKIP_INSTALL" == "yes" ]]; then
     strip_install_steps
   fi
 

@@ -1,0 +1,7 @@
+---
+feature:
+  -|
+   Incremental N2Q upgrades now default to skipping the actual software installing
+   steps during the Ocata and Pike stages.  This is an attempt to increase upgrade
+   speed.  If however, you would like to run full Ocata and Pike upgrades, be sure
+   to set `export SKIP_INSTALL='no'" before running the upgrade.
