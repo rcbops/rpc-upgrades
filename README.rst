@@ -18,6 +18,11 @@ Leapfrog upgrades from:
 The status of supported versions can be viewed from the periodic jobs located on the
 `RPC Jenkins <https://rpc.jenkins.cit.rackspace.net/view/Upgrades>`_ server.
 
+An incremental approach is used for Newton to Queens upgrades.  What this means is upgrade
+code from Ocata and Pike, as well as Queens, is leveraged in order to manage the upgrade.
+By default, only configuration changes from Ocata and Pike are applied before running Queens
+upgrade code.
+
 Terms
 -----
 
@@ -293,3 +298,16 @@ vagrant, it will set up an AIO deployment of the desired version which can then
 be leapfrog upgraded.  This allows you to test the scenario in the lab or
 development environment before actually running the upgrade on a production
 deployment.
+
+Incremental Upgrades
+--------------------
+
+Make sure a user_variables.yml exists in /etc/openstack_deploy/, cd into
+/opt/rpc-upgrades/, and run `./script/ubuntu16-newton-to-ocata.sh` followed
+by `./script/ubuntu16-ocata-to-pike.sh`, and finally
+`./script/ubuntu16-pike-to-queens.sh`.  Consider capturing the output of these
+scripts somewhere convenient for debugging.
+
+Also note that you can run full, functioning upgrades to ocata and/or pike by
+making sure `SKIP_INSTALL` is set to `no` in the environment, like so
+`export SKIP_INSTALL='no'`.
