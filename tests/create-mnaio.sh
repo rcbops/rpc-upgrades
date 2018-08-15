@@ -159,7 +159,7 @@ ${MNAIO_SSH} "source /opt/rpc-upgrades/RE_ENV; \
               source /opt/rpc-upgrades/tests/ansible-env.rc; \
               pushd /opt/rpc-openstack; \
               export DEPLOY_ELK=yes; \
-              export DEPLOY_MAAS=no; \
+              export DEPLOY_MAAS=false; \
               export DEPLOY_TELEGRAF=no; \
               export DEPLOY_INFLUX=no; \
               export DEPLOY_AIO=no; \

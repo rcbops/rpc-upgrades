@@ -51,7 +51,7 @@ echo "+---------------- AIO RELEASE AND KERNEL ---------------+"
 
 pushd /opt/rpc-openstack
   export DEPLOY_HAPROXY="yes"
-  export DEPLOY_MAAS="no"
+  export DEPLOY_MAAS="false"
   export DEPLOY_AIO="yes"
   export DEPLOY_HARDENING="yes"
   scripts/deploy.sh
