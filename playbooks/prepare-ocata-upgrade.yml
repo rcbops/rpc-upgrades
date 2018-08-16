@@ -32,8 +32,11 @@
 
     - name: Remove existing artifact repos
       file:
-        path: /etc/apt/sources.list.d/rpco.list
+        path: "{{ item }}"
         state: absent
+      with_items:
+        - /etc/apt/sources.list.d/rpco.list
+        - /etc/apt/sources.list.d/rax-maas.list
 
     - name: Update apt-cache
       apt:

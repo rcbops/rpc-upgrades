@@ -18,7 +18,7 @@ set -evu
 
 export RPC_BRANCH=${RPC_BRANCH:-'r16.1.0'}
 export OSA_SHA="stable/pike"
-export SKIP_INSTALL=${SKIP_INSTALL:-'yes'}
+export SKIP_INSTALL=${SKIP_INSTALL:-'no'}
 
 function strip_install_steps {
   pushd /opt/openstack-ansible/scripts

@@ -29,6 +29,13 @@ export RE_JOB_CONTEXT="${RE_JOB_CONTEXT:-master}"
 export RE_JOB_IMAGE_OS="${RE_JOB_IMAGE_OS:-trusty}"
 export RE_JOB_IMAGE_TYPE="${RE_JOB_IMAGE_TYPE:-mnaio}"
 
+# set guest OS based on RE_JOB_IMAGE_OS
+if [ ${RE_JOB_IMAGE_OS} == "trusty" ]; then
+  DEFAULT_IMAGE="ubuntu-14.04-amd64"
+elif [ ${RE_JOB_IMAGE_OS} == "xenial" ]; then
+  DEFAULT_IMAGE="ubuntu-16.04-amd64"
+fi
+
 ## OSA MNAIO Vars
 export PARTITION_HOST="true"
 export NETWORK_BASE="172.29"
@@ -36,7 +43,7 @@ export DNS_NAMESERVER="8.8.8.8"
 export OVERRIDE_SOURCES="true"
 export DEVICE_NAME="vda"
 export DEFAULT_NETWORK="eth0"
-export DEFAULT_IMAGE="ubuntu-14.04-amd64"
+export DEFAULT_IMAGE="${DEFAULT_IMAGE}"
 export DEFAULT_KERNEL="linux-image-generic"
 export SETUP_HOST="true"
 export SETUP_VIRSH_NET="true"
@@ -51,6 +58,7 @@ export OSA_PORTS="6080 6082 443 80 8443"
 export RPC_BRANCH="${RE_JOB_CONTEXT}"
 export DEFAULT_MIRROR_HOSTNAME=mirror.rackspace.com
 export DEFAULT_MIRROR_DIR=/ubuntu
+export INFRA_VM_SERVER_RAM=16384
 
 # If series is newton, use rcbops fork of OSA
 if [ "${RE_JOB_SERIES}" == "newton" ]; then
@@ -83,12 +91,6 @@ if [ ! -d "/opt/rpc-openstack" ]; then
     ./tests/prepare-rpco.sh
   popd
 fi
-
-# set OSA branch
-pushd /opt/rpc-openstack
-  OSA_COMMIT=`git submodule status openstack-ansible | egrep --only-matching '[a-f0-9]{40}'`
-  export OSA_BRANCH=${OSA_COMMIT}
-popd
 
 # apply various modifications for mnaio
 pushd /opt/openstack-ansible-ops/multi-node-aio
@@ -133,7 +135,9 @@ uname -a
 scp -r -o StrictHostKeyChecking=no /opt/rpc-openstack infra1:/opt/
 scp -r -o StrictHostKeyChecking=no /opt/rpc-upgrades infra1:/opt/
 scp -r -o StrictHostKeyChecking=no /etc/openstack_deploy/user_rpco_upgrade.yml infra1:/etc/openstack_deploy/
-scp -r -o StrictHostKeyChecking=no /etc/openstack_deploy/user_osa_variables_spice.yml infra1:/etc/openstack_deploy/
+if [ -f /etc/openstack_deploy/user_osa_variables_spice.yml ]; then
+  scp -r -o StrictHostKeyChecking=no /etc/openstack_deploy/user_osa_variables_spice.yml infra1:/etc/openstack_deploy/
+fi
 # Put configs in place on Infra1 and gather release state
 ssh -T -o StrictHostKeyChecking=no infra1 << 'EOF'
 set -xe
@@ -141,15 +145,33 @@ echo "+--------------- INFRA1 RELEASE AND KERNEL --------------+"
 lsb_release -a
 uname -a
 echo "+--------------- INFRA1 RELEASE AND KERNEL --------------+"
+# backup mnaio variables
 sudo cp /etc/openstack_deploy/user_variables.yml /etc/openstack_deploy/user_variables.yml.bak
-sudo cp -R /opt/rpc-openstack/openstack-ansible/etc/openstack_deploy /etc
+
+# install release openstack-ansible deploy files from known locations
+if [ -d "/opt/rpc-openstack/openstack-ansible" ]; then
+  sudo cp -R /opt/rpc-openstack/openstack-ansible/etc/openstack_deploy /etc
+elif [ -d "/opt/openstack-ansible" ]; then
+  sudo cp -R /opt/openstack-ansible/etc/openstack_deploy /etc
+fi
+
+# install rpc-o specific config files from known locations
+if [ -d "/opt/rpc-openstack/rpcd/etc/openstack_deploy" ]; then
+  sudo cp -R /opt/rpc-openstack/rpcd/etc/openstack_deploy/* /etc/openstack_deploy
+elif [ -d "/opt/rpc-openstack/etc/openstack_deploy" ]; then
+  sudo cp -R /opt/rpc-openstack/etc/openstack_deploy/* /etc/openstack_deploy
+fi
+
+# restore mnaio variables
 sudo cp /etc/openstack_deploy/user_variables.yml.bak /etc/openstack_deploy/user_variables.yml
-sudo cp /opt/rpc-openstack/rpcd/etc/openstack_deploy/user_*.yml /etc/openstack_deploy
-sudo cp /opt/rpc-openstack/rpcd/etc/openstack_deploy/env.d/* /etc/openstack_deploy/env.d
-sudo pip uninstall ansible -y
+
 # install libvirt-dev on infra1 because pinning to libvirt-python requires it
 sudo apt-get -y install libvirt-dev
+
+# Clean up OSA from MNAIO build, we're deploying our own fresh
 sudo rm /usr/local/bin/openstack-ansible
+sudo rm -rf /etc/ansible/roles/*
+sudo rm -rf /opt/openstack-ansible
 EOF
 
 # split out to capture exit codes if scripts fail
