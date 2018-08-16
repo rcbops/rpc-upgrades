@@ -53,6 +53,6 @@ pushd /opt/rpc-openstack
   export DEPLOY_HAPROXY="yes"
   export DEPLOY_MAAS="false"
   export DEPLOY_AIO="yes"
-  export DEPLOY_HARDENING="yes"
+  export DEPLOY_HARDENING="no"
   scripts/deploy.sh
 popd
