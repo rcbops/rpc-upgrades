@@ -68,6 +68,20 @@ the upgrade by setting these environment variables:
     export UPGRADE_ELASTICSEARCH="no"
     export CONTAINERS_TO_DESTROY='all_containers:!galera_all:!neutron_agent:!ceph_all:!rsyslog_all'
 
+Swift is upgraded by default during the upgrade process.  If you desire to skip the Swift upgrade, set
+the SKIP_SWIFT_UPGRADE variable and set CONTAINERS_TO_DESTROY to exclude deletion of Swift containers:
+
+.. code-block:: shell
+
+    export SKIP_SWIFT_UPGRADE=yes
+    export CONTAINERS_TO_DESTROY='all_containers:!galera_all:!neutron_agent:!ceph_all:!rsyslog_all:!swift_all'
+
+**Note:** *If you are Skipping Swift and desire to upgrade ElasticSearch, you'll need to exclude both types of
+containers on CONTAINERS_TO_DESTROY as this will override the default that includes the elasticsearch_all group.*
+
+.. code-block:: shell
+
+    export CONTAINERS_TO_DESTROY='all_containers:!galera_all:!neutron_agent:!ceph_all:!rsyslog_all:!elasticsearch_all:!swift_all'
 
 **Note:** *Currently the rpc-upgrades repo targets r14.16.0.  If you want to deploy the previous version you can:*
 
