@@ -19,9 +19,35 @@
 set -e -u
 set -o pipefail
 
+# set encrypted vault files
+export OS_DEPLOY_DIR="/etc/openstack_deploy"
+export VAULT_ENCRYPTED_FILES="user_secrets.yml
+                              user_osa_secrets.yml
+                              user_rpco_secrets.yml"
+
 # Preserve Elasticsearch data in the leap
 export UPGRADE_ELASTICSEARCH=${UPGRADE_ELASTICSEARCH:-"yes"}
 export CONTAINERS_TO_DESTROY=${CONTAINERS_TO_DESTROY:-'all_containers:!galera_all:!neutron_agent:!ceph_all:!rsyslog_all:!elasticsearch_all'}
+
+# FLEEK-144 If password files have been encrypted by Ansible Vault, decrypt them during pre_leap
+if [ -v ANSIBLE_VAULT_PASSWORD_FILE ]; then
+  for FILENAME in ${VAULT_ENCRYPTED_FILES}; do
+    echo "Checking to see if ${FILENAME} needs to be decrypted..."
+    if [ -a "${OS_DEPLOY_DIR}/${FILENAME}" ]; then
+      head -1 ${OS_DEPLOY_DIR}/${FILENAME} | grep -q \$ANSIBLE_VAULT \
+      && ansible-vault decrypt ${OS_DEPLOY_DIR}/${FILENAME} --vault-password-file ${ANSIBLE_VAULT_PASSWORD_FILE}
+    fi
+  done
+else
+  for FILENAME in ${VAULT_ENCRYPTED_FILES}; do
+    # test to see if files are encrypted
+    if [ -a "${OS_DEPLOY_DIR}/${FILENAME}" ]; then
+      head -1 ${OS_DEPLOY_DIR}/${FILENAME} | grep -q \$ANSIBLE_VAULT \
+      && echo "Password files are encrypted, please set location of Ansible \
+      Vault File using export ANSIBLE_VAULT_PASSWORD_FILE=location_of_file" && exit 1
+    fi
+  done
+fi
 
 # Branches lower than Newton may have ansible_host: ansible_ssh_host mapping
 # that will fail because ansible_ssh_host is undefined on ansible 2.1

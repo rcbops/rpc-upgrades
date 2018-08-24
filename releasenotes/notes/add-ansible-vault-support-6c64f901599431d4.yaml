@@ -1,0 +1,10 @@
+---
+features:
+  - |
+    Adds Ansible Vault support for decryption and encryption of
+    OpenStack secrets files during a leapfrog upgrade.  To enable
+    `export ANSIBLE_VAULT_PASSWORD_FILE=path_to_vault_pass_file`
+    before running a leapfrog.  The password files user_secrets.yml
+    user_osa_secrets.yml, and user_rpco_secrets.yml will all be
+    decrypted during the process if present and re-encrypted at the
+    end of the leapfrog.
