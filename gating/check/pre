@@ -13,6 +13,38 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+function update_apt_sources {
+  # Save a backup of the original file
+  sudo mv /etc/apt/sources.list /etc/apt/sources.list.original
+
+  # Set the environment variables
+  DISTRO_MIRROR="http://mirror.rackspace.com/ubuntu"
+  DISTRO_COMPONENTS="main,universe"
+
+  # Get the distribution name
+  if [[ -e /etc/lsb-release ]]; then
+    source /etc/lsb-release
+    DISTRO_RELEASE=${DISTRIB_CODENAME}
+  elif [[ -e /etc/os-release ]]; then
+    source /etc/os-release
+    DISTRO_RELEASE=${UBUNTU_CODENAME}
+  else
+    echo "Unable to determine distribution due to missing lsb/os-release files."
+    exit 1
+  fi
+
+  # Rewrite the apt sources file
+  sudo tee /etc/apt/sources.list <<EOF
+deb ${DISTRO_MIRROR} ${DISTRO_RELEASE} ${DISTRO_COMPONENTS//,/ }
+deb ${DISTRO_MIRROR} ${DISTRO_RELEASE}-updates ${DISTRO_COMPONENTS//,/ }
+deb ${DISTRO_MIRROR} ${DISTRO_RELEASE}-backports ${DISTRO_COMPONENTS//,/ }
+deb ${DISTRO_MIRROR} ${DISTRO_RELEASE}-security ${DISTRO_COMPONENTS//,/ }
+EOF
+
+  # Add apt debug configuration
+  echo 'Debug::Acquire::http "true";' > sudo tee /etc/apt/apt.conf.d/99debug
+}
+
 set -xeuo pipefail
 
 echo "Gate job started"
@@ -40,6 +72,12 @@ fi
 #   wget        - TODO: provide reason for wget's inclusion here
 
 if which apt-get; then
+    # If there is a backup of the original file, then we're
+    # not on an OnMetal instance but instead are using an
+    # image prepared by nodepool, so leave it alone.
+    if [[ ! -e /etc/apt/sources.list.original ]]; then
+      update_apt_sources
+    fi
     sudo apt-get update
     sudo apt-get install -y curl iptables python python-yaml util-linux wget
 fi
