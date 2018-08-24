@@ -1,0 +1,11 @@
+---
+features:
+  - Removes security hardening from leap upgrade process.  Can
+    be ran by operator after leap upgrade process if desired. (FLEEK-152)
+  - Adds ability to skip swift upgrades (FLEEK-154)
+  - Ensures apt is in a healthy state during preflight (FLEEK 155)
+  - Allows for preflight to be ran ahead of upgrade and upgrade script
+    will identify it's been completed. (FLEEK-151)
+  - Leaps to Newton r14.16.0 (FLEEK-150)
+fixes:
+  - Corrects issues with enable_lxc_fs_check flag (FLEEK-151)
