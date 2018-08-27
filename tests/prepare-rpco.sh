@@ -19,7 +19,7 @@
 
 set -evu
 
-echo "Building an AIO"
+echo "Prepare RPC-O AIO/MNAIO deploy"
 echo "+-------------------- AIO ENV VARS --------------------+"
 env
 echo "+-------------------- AIO ENV VARS --------------------+"
@@ -377,6 +377,15 @@ pushd /opt/rpc-openstack
     pin_galera "10.0"
     unset_affinity
     allow_frontloading_vars
+  elif [ "${RE_JOB_SERIES}" == "ocata" ]; then
+    git_checkout "ocata"  # Last commit of Ocata
+    (git submodule init && git submodule update) || true
+  elif [ "${RE_JOB_SERIES}" == "pike" ]; then
+    git_checkout "pike"  # Last commit of Pike
+    (git submodule init && git submodule update) || true
+  elif [ "${RE_JOB_SERIES}" == "queens" ]; then
+    git_checkout "queens"  # Last commit of Queens
+    (git submodule init && git submodule update) || true
   else
     if ! git_checkout ${RE_JOB_SERIES}; then
       echo "FAIL!"

@@ -21,7 +21,8 @@ set -evu
 ## Vars ----------------------------------------------------------------------
 export RE_JOB_SERIES="${RE_JOB_SERIES:-newton}"
 export RPCO_RELEASE=`cat /etc/openstack-release | grep DISTRIB_CODENAME | cut -d '"' -f2`
-export RPC_MAAS_RELEASE=23085d0b08043cf6185204302eaee1e90188b288
+export RPC_MAAS_RELEASE=1.7.4
+export SKIP_MAAS_PREFLIGHT="-e maas_pre_flight_metadata_check_enabled=false"
 
 ## Main ----------------------------------------------------------------------
 # workaround for kilos incorrect code name
@@ -36,9 +37,9 @@ pushd /opt/rpc-upgrades/playbooks
   # install rpc-maas
   # if kilo and hasn't leaped, use a different swift_recon_path since kilo doesn't use venvs
   if [[ ${RE_JOB_SERIES} == "kilo" && ! -f /etc/openstack_deploy/upgrade-leap/osa-leap.complete ]]; then
-    openstack-ansible /opt/rpc-maas/playbooks/site.yml -e swift_recon_path="/usr/local/bin/" -vv
+    openstack-ansible /opt/rpc-maas/playbooks/site.yml -vv -e swift_recon_path="/usr/local/bin/" ${SKIP_MAAS_PREFLIGHT}
   else
-   openstack-ansible /opt/rpc-maas/playbooks/site.yml -vv
+   openstack-ansible /opt/rpc-maas/playbooks/site.yml -vv ${SKIP_MAAS_PREFLIGHT}
   fi
 
   # verify rpc-maas if leap has completed

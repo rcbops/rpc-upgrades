@@ -19,7 +19,7 @@ job_actions = [
   "kilo_to_newton_leap",
   "kilo_to_r14.16.0_leap",
   "liberty_to_newton_leap",
-  "mitaka_to_newton_major",
+  "mitaka_to_newton_leap",
   "r12.1.2_to_r14.16.0_leap",
   "r12.2.2_to_r14.16.0_leap",
   "r12.2.5_to_r14.16.0_leap",
