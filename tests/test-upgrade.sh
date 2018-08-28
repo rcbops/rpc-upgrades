@@ -16,11 +16,6 @@
 
 set -evu
 
-export OS_DEPLOY_DIR="/etc/openstack_deploy"
-export VAULT_ENCRYPTED_FILES="user_secrets.yml
-                              user_osa_secrets.yml
-                              user_rpco_secrets.yml"
-
 export RPC_TARGET_CHECKOUT=${RE_JOB_UPGRADE_TO:-'newton'}
 if [[ ${RE_JOB_UPGRADE_TO} == "r14.current" ]]; then
   pushd /opt/rpc-openstack
@@ -30,20 +25,6 @@ if [[ ${RE_JOB_UPGRADE_TO} == "r14.current" ]]; then
     echo "Upgrading to latest release of ${RPC_TARGET_CHECKOUT} (Newton)..."
   popd
 fi
-
-
-# FLEEK-144 Simulate ansible vault encrypted password files
-export ANSIBLE_VAULT_PASSWORD_FILE=/root/.vault_pass.txt
-if [ ! -f /root/.vault_pass.txt ]; then
-  openssl rand -base64 64 > /root/.vault_pass.txt
-fi
-
-# encrypt before testing upgrades
-for FILENAME in ${VAULT_ENCRYPTED_FILES}; do
-  if [ -f ${OS_DEPLOY_DIR}/${FILENAME} ]; then
-    ansible-vault encrypt ${OS_DEPLOY_DIR}/${FILENAME} --vault-password-file ${ANSIBLE_VAULT_PASSWORD_FILE}
-  fi
-done
 
 if [ "${RE_JOB_UPGRADE_ACTION}" == "leap" ]; then
   tests/test-leapfrog.sh
@@ -58,10 +39,3 @@ else
   echo "RE_JOB_UPGRADE_ACTION '${RE_JOB_UPGRADE_ACTION}' is not supported."
   exit 99
 fi
-
-# FLEEK-144 Decrypt after upgrade testing to allow other gate jobs to function
-for FILENAME in ${VAULT_ENCRYPTED_FILES}; do
-  if [ -f ${OS_DEPLOY_DIR}/${FILENAME} ]; then
-    ansible-vault decrypt ${OS_DEPLOY_DIR}/${FILENAME} --vault-password-file ${ANSIBLE_VAULT_PASSWORD_FILE}
-  fi
-done
