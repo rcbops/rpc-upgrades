@@ -56,6 +56,14 @@ elif [[ "${RE_JOB_CONTEXT}" == "r13."* ]]; then
   export RE_JOB_SERIES="mitaka"
 elif [[ "${RE_JOB_CONTEXT}" == "r14."* ]]; then
   export RE_JOB_SERIES="newton"
+elif [[ "${RE_JOB_CONTEXT}" == "r15."* ]]; then
+  export RE_JOB_SERIES="ocata"
+elif [[ "${RE_JOB_CONTEXT}" == "r16."* ]]; then
+  export RE_JOB_SERIES="pike"
+elif [[ "${RE_JOB_CONTEXT}" == "r17."* ]]; then
+  export RE_JOB_SERIES="queens"
+elif [[ "${RE_JOB_CONTEXT}" == "r18."* ]]; then
+  export RE_JOB_SERIES="rocky"
 else
   export RE_JOB_SERIES=${RE_JOB_CONTEXT}
 fi
