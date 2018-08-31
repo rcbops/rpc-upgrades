@@ -28,7 +28,10 @@
         state: directory
     - name: Copy over base maas vars
       copy:
-        src: "/opt/rpc-maas/tests/user_{{ rpco_release | lower }}_vars.yml"
+        src: "{{ item }}"
         dest: "/etc/openstack_deploy/user_rpcm_default_variables.yml"
+      with_first_found:
+        - "/opt/rpc-maas/tests/user_{{ rpco_release | lower }}_vars.yml"
+        - "/opt/rpc-maas/tests/user_master_vars.yml"
   tags:
     - maas
