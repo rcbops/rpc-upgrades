@@ -21,7 +21,7 @@ set -evu
 ## Vars ----------------------------------------------------------------------
 export RE_JOB_SERIES="${RE_JOB_SERIES:-newton}"
 export RPCO_RELEASE=`cat /etc/openstack-release | grep DISTRIB_CODENAME | cut -d '"' -f2`
-export RPC_MAAS_RELEASE=1.7.4
+export RPC_MAAS_RELEASE=1.7.5
 export SKIP_MAAS_PREFLIGHT="-e maas_pre_flight_metadata_check_enabled=false"
 
 ## Main ----------------------------------------------------------------------
