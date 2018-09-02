@@ -72,6 +72,11 @@
         dest: /etc/openstack_deploy/user_secrets.yml
         state: link
 
+    - name: Remove user_rpco_variables_defaults.yml for newton
+      file:
+        path: /etc/openstack_deploy/user_rpco_variables_defaults.yml
+        state: absent
+
     - name: Remove configs that will cause issues jumping to ocata
       lineinfile:
         dest: /etc/openstack_deploy/user_osa_variables_defaults.yml
