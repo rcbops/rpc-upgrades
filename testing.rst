@@ -33,7 +33,7 @@ you wish to test with.
 
 .. code-block:: shell
 
-    export RE_JOB_ACTION=r12.2.8_to_r14.16.0_leap
+    export RE_JOB_ACTION=r12.2.8_to_r14.17.0_leap
     ./run-tests.sh
 
 
@@ -52,13 +52,13 @@ Leapfrog MNAIO Test Process
 Build an OnMetal server using the flavor onmetal-io1 and running
 Ubuntu 16.04 LTS.
 
-You'll need to set the RE_JOB_IMAGE to xenial_mnaio in order to
+You'll need to set the RE_JOB_IMAGE to trusty_mnaio in order to
 trigger the mnaio code path.  Then set the action to set the
 leap you want to test.
 
 .. code-block:: shell
 
-    export RE_JOB_IMAGE=xenial_mnaio
+    export RE_JOB_IMAGE=trusty_mnaio
     export RE_JOB_ACTION=kilo_to_newton_leap
     ./run-tests.sh
 

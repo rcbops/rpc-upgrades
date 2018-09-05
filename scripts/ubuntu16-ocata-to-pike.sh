@@ -16,7 +16,7 @@
 
 set -evu
 
-export RPC_BRANCH=${RPC_BRANCH:-'r16.1.0'}
+export RPC_BRANCH=${RPC_BRANCH:-'r16.2.4'}
 export OSA_SHA="stable/pike"
 export SKIP_INSTALL=${SKIP_INSTALL:-'no'}
 
