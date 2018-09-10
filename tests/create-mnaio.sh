@@ -168,11 +168,6 @@ sudo cp /etc/openstack_deploy/user_variables.yml.bak /etc/openstack_deploy/user_
 
 # install libvirt-dev on infra1 because pinning to libvirt-python requires it
 sudo apt-get -y install libvirt-dev
-
-# Clean up OSA from MNAIO build, we're deploying our own fresh
-sudo rm /usr/local/bin/openstack-ansible
-sudo rm -rf /etc/ansible/roles/*
-sudo rm -rf /opt/openstack-ansible
 EOF
 
 # split out to capture exit codes if scripts fail
