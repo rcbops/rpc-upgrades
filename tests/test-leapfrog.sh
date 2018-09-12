@@ -37,13 +37,16 @@ for FILENAME in ${VAULT_ENCRYPTED_FILES}; do
   fi
 done
 
-if [ "${RE_JOB_SERIES}" == "kilo" ]; then
-  export UPGRADE_ELASTICSEARCH=no
-  export CONTAINERS_TO_DESTROY='all_containers:!galera_all:!neutron_agent:!ceph_all:!rsyslog_all'
-fi
+
+# disable elasticsearch upgrade by default for gating
+export UPGRADE_ELASTICSEARCH=no
+export CONTAINERS_TO_DESTROY='all_containers:!galera_all:!neutron_agent:!ceph_all:!rsyslog_all'
 
 # export the term to avoid unknown: I need something more specific error in jenkins
 export TERM=linux
+
+# disable ELK deploy
+export DEPLOY_ELK="no"
 
 # execute leapfrog
 sudo --preserve-env $(readlink -e $(dirname ${0}))/../scripts/ubuntu14-leapfrog.sh
