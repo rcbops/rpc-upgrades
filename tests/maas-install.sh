@@ -42,8 +42,9 @@ pushd /opt/rpc-upgrades/playbooks
    openstack-ansible /opt/rpc-maas/playbooks/site.yml -vv ${SKIP_MAAS_PREFLIGHT}
   fi
 
+  # disabling as race condition appears to periodically allows to pass or fail
   # verify rpc-maas if leap has completed
-  if [[ -f /etc/openstack_deploy/upgrade-leap/osa-leap.complete ]]; then
-    openstack-ansible /opt/rpc-maas/playbooks/maas-verify.yml -vv
-  fi
+  # if [[ -f /etc/openstack_deploy/upgrade-leap/osa-leap.complete ]]; then
+  #   openstack-ansible /opt/rpc-maas/playbooks/maas-verify.yml -vv
+  # fi
 popd

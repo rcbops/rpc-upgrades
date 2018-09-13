@@ -50,6 +50,7 @@ uname -a
 echo "+---------------- AIO RELEASE AND KERNEL ---------------+"
 
 pushd /opt/rpc-openstack
+  export DEPLOY_ELK="no"
   export DEPLOY_HAPROXY="yes"
   export DEPLOY_MAAS="false"
   export DEPLOY_AIO="yes"
