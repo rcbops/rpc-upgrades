@@ -13,6 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+- name: Ensure backup directory exists or create it if date has changed from pre playbook run
+  file:
+    path: "{{ backup_dir }}"
+    state: directory
+
 # Verify services are up and checking in
 - name: Grab relevant output of openstack compute service list
   shell: |

@@ -13,6 +13,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+- name: Synchronize openrc and pip.conf to deploy host
+  hosts: "utility_all[0]"
+  tasks:
+    - name: Synchronize files
+      synchronize:
+        src: "{{ item.source }}"
+        dest: "{{ item.dest }}"
+        mode: pull
+      with_items:
+        - { source: '/root/openrc', dest: '/root/openrc' }
+        - { source: '/root/.pip', dest: '/root/' }
+
 - name: Setup hosts for rpc-pre-upgrades
   hosts: localhost
   roles:

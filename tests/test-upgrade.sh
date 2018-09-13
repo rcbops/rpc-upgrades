@@ -26,6 +26,11 @@ if [[ ${RE_JOB_UPGRADE_TO} == "r14.current" ]]; then
   popd
 fi
 
+pushd /opt/rpc-upgrades/playbooks
+  echo "Running rpc-pre-upgrades playbook..."
+  openstack-ansible rpc-pre-upgrades.yml
+popd
+
 if [ "${RE_JOB_UPGRADE_ACTION}" == "leap" ]; then
   tests/test-leapfrog.sh
 elif [ "${RE_JOB_UPGRADE_ACTION}" == "major" ]; then
@@ -39,3 +44,8 @@ else
   echo "RE_JOB_UPGRADE_ACTION '${RE_JOB_UPGRADE_ACTION}' is not supported."
   exit 99
 fi
+
+pushd /opt/rpc-upgrades/playbooks
+  echo "Running rpc-post-upgrades playbook..."
+  openstack-ansible rpc-post-upgrades.yml --skip-tags elasticsearch
+popd
