@@ -48,3 +48,6 @@ pushd /opt/openstack-ansible
   cp /opt/rpc-upgrades/scripts/run-upgrade/queens/run-upgrade.sh scripts/run-upgrade.sh
   echo "YES" | bash scripts/run-upgrade.sh
 popd
+
+# remove ansible_facts cache to reflect cleanup of containers at end of upgrade
+rm -rf /etc/openstack_deploy/ansible_facts/*
