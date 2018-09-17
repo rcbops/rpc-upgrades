@@ -49,5 +49,7 @@ pushd /opt/openstack-ansible
   echo "YES" | bash scripts/run-upgrade.sh
 popd
 
-# remove ansible_facts cache to reflect cleanup of containers at end of upgrade
-rm -rf /etc/openstack_deploy/ansible_facts/*
+# ensure inventory is cleaned up from old containers and reset ansible_facts cache
+pushd /opt/rpc-upgrades/playbooks
+  openstack-ansible cleanup-queens-inventory.yml
+popd

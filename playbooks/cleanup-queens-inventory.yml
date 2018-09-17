@@ -1,0 +1,38 @@
+# Copyright 2018, Rackspace US, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- hosts: localhost
+  connection: local
+  become: yes
+  gather_facts: no
+  tasks:
+    - name: Remove the inventory entries for the deleted containers
+      command: >-
+        /opt/openstack-ansible/scripts/inventory-manage.py -r {{ item }}
+      with_items: "{{ groups['nova_api_metadata_container'] +
+                      groups['nova_api_os_compute_container'] +
+                      groups['nova_api_placement_container'] +
+                      groups['nova_conductor_container'] +
+                      groups['nova_console_container'] +
+                      groups['nova_scheduler_container'] +
+                      groups['cinder_scheduler_container'] +
+                      groups['heat_apis_container'] +
+                      groups['heat_engine_container'] +
+                      groups['ironic_conductor_container'] +
+                      groups['trove_conductor_container'] +
+                      groups['trove_taskmanager_container'] }}"
+    - name: Remove ansible_facts to clear cache
+      file:
+        state: absent
+        path: "/etc/openstack_deploy/ansible_facts/"
