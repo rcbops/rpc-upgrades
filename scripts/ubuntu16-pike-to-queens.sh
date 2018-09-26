@@ -37,6 +37,16 @@ else
   popd
 fi
 
+if [ -f "/etc/openstack_deploy/user_secrets.yml" ]; then
+  if ! grep "^osa_secrets_file_name" /etc/openstack_deploy/user_rpco_upgrade.yml; then
+    echo 'osa_secrets_file_name: "user_secrets.yml"' >> /etc/openstack_deploy/user_rpco_upgrade.yml
+  fi
+elif [ -f "/etc/openstack_deploy/user_osa_secrets.yml" ]; then
+  if ! grep "^osa_secrets_file_name" /etc/openstack_deploy/user_rpco_upgrade.yml; then
+    echo 'osa_secrets_file_name: "user_osa_secrets.yml"' >> /etc/openstack_deploy/user_rpco_upgrade.yml
+  fi
+fi
+
 pushd /opt/openstack-ansible
   git checkout ${OSA_SHA}
   scripts/bootstrap-ansible.sh
