@@ -18,6 +18,31 @@
 
 set -evu
 
+# remove tempest settings from openstack_deploy variable files
+if [ -f /etc/openstack_deploy/user_variables.yml ]; then
+  sed -i '/^tempest/d' /etc/openstack_deploy/user_variables.yml
+fi
+if [ -f /etc/openstack_deploy/user_rpco_variables_overrides.yml ]; then
+  sed -i '/^tempest/d' /etc/openstack_deploy/user_rpco_variables_overrides.yml
+fi
+
+# generate tempest tests
+cat > /etc/openstack_deploy/user_rpco_tempest.yml <<EOF
+---
+tempest_install: yes
+tempest_run: yes
+tempest_public_subnet_cidr: 172.29.248.0/22
+tempest_public_subnet_allocation_pools: "172.29.249.110-172.29.249.200"
+# RI-357 Tempest Overrides
+tempest_test_whitelist:
+  - "{{ (tempest_service_available_ceilometer | bool) | ternary('tempest.api.telemetry', '') }}"
+  - "{{ (tempest_service_available_heat | bool) | ternary('tempest.api.orchestration.stacks.test_non_empty_stack', '') }}"
+  - "{{ (tempest_service_available_nova | bool) | ternary('tempest.scenario.test_server_basic_ops', '') }}"
+  - "{{ (tempest_service_available_swift | bool) | ternary('tempest.scenario.test_object_storage_basic_ops', '') }}"
+  - "{{ (tempest_volume_backup_enabled | bool) | ternary('tempest.api.volume.admin.test_volumes_backup', '') }}"
+  - "{{ (tempest_volume_multi_backend_enabled | bool) | ternary('tempest.api.volume.admin.test_multi_backend', '') }}"
+EOF
+
 pushd /opt/openstack-ansible/playbooks
   # TODO: establish any overrides
   # install and run tempest
