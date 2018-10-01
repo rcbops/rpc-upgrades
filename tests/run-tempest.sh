@@ -25,6 +25,10 @@ fi
 if [ -f /etc/openstack_deploy/user_rpco_variables_overrides.yml ]; then
   sed -i '/^tempest/d' /etc/openstack_deploy/user_rpco_variables_overrides.yml
 fi
+# remove tempest_images block as it doesn't contain format and we'll use the vars in tempest
+if [ -f /etc/openstack_deploy/user_osa_variables_overrides.yml ]; then
+  sed -i '/tempest_images:/,/.*x86_64-uec.tar.gz/d' /etc/openstack_deploy/user_osa_variables_overrides.yml
+fi
 
 # generate tempest tests
 cat > /etc/openstack_deploy/user_rpco_tempest.yml <<EOF
