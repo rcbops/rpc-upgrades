@@ -79,14 +79,16 @@ if [ "${RE_JOB_ACTION}" != "tox-test" ]; then
   sudo -H --preserve-env ./run-bindep.sh
   sudo -H --preserve-env pip install -r test-requirements.txt
   sudo -H --preserve-env ./tests/prepare-rpco.sh
-  if [ "${RE_JOB_IMAGE_TYPE}" = "mnaio" ]; then
+  if [ "${RE_JOB_IMAGE_TYPE}" == "mnaio" ]; then
     sudo -H --preserve-env ./tests/create-mnaio.sh
     source "${MNAIO_VAR_FILE}"
     if [[ "$RUN_UPGRADES" == "yes" ]]; then
       sudo -H --preserve-env ./tests/upgrade-mnaio.sh
     fi
   else
-    sudo -H --preserve-env ./tests/create-aio.sh
+    if [ "${RE_JOB_IMAGE_TYPE}" == "aio" ]; then
+     sudo -H --preserve-env ./tests/create-aio.sh
+    fi
     sudo -H --preserve-env ./tests/maas-install.sh
     if [[ "$RUN_UPGRADES" == "yes" ]]; then
       sudo -H --preserve-env ./tests/test-upgrade.sh
