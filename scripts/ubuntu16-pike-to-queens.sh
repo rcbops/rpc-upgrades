@@ -16,7 +16,7 @@
 
 set -evu
 
-export RPC_BRANCH=${RPC_BRANCH:-'r17.1.0'}
+export RPC_BRANCH=${RPC_BRANCH:-'r17.1.1'}
 export OSA_SHA="stable/queens"
 
 pushd /opt/rpc-openstack

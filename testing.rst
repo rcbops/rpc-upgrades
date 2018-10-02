@@ -33,7 +33,7 @@ you wish to test with.
 
 .. code-block:: shell
 
-    export RE_JOB_ACTION=r12.2.8_to_r14.17.0_leap
+    export RE_JOB_ACTION=r12.2.8_to_r14.18.0_leap
     ./run-tests.sh
 
 
