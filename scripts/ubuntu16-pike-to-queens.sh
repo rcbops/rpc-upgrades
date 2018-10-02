@@ -53,9 +53,6 @@ pushd /opt/openstack-ansible
   source /usr/local/bin/openstack-ansible.rc
   export TERM=linux
   export I_REALLY_KNOW_WHAT_I_AM_DOING=true
-  # use fork of queens run-upgrade.sh script until fix merges in:
-  # https://review.openstack.org/#/c/597977/ merges in
-  cp /opt/rpc-upgrades/scripts/run-upgrade/queens/run-upgrade.sh scripts/run-upgrade.sh
   echo "YES" | bash scripts/run-upgrade.sh
 popd
 
