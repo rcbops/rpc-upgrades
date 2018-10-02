@@ -49,6 +49,21 @@ fi
 
 pushd /opt/openstack-ansible
   git checkout ${OSA_SHA}
+
+  # hack in some temp fixes until upstream stuff merges
+  # remove once https://review.openstack.org/#/c/607057/ merges
+  if grep '7566d5d68b847f515983ce9cd416462205611c8f' /opt/openstack-ansible/ansible-role-requirements.yml; then
+    sed -i 's/7566d5d68b847f515983ce9cd416462205611c8f/e7369175ba2b377905f8130200d280f3f710ad68/g' /opt/openstack-ansible/ansible-role-requirements.yml
+  fi
+  # remove once https://review.openstack.org/#/c/604804/ merges
+  sed -i '/- name: os_keystone/,+3d' /opt/openstack-ansible/ansible-role-requirements.yml
+  cat <<EOF >> /opt/openstack-ansible/ansible-role-requirements.yml
+- name: os_keystone
+  scm: git
+  src: https://github.com/antonym/openstack-ansible-os_keystone.git
+  version: a9d7dcc9a1c04988954cfd13d1b0c2c865c614c5
+EOF
+
   scripts/bootstrap-ansible.sh
   source /usr/local/bin/openstack-ansible.rc
   export TERM=linux
