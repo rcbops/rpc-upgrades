@@ -54,7 +54,7 @@ pushd /opt/openstack-ansible
 - name: os_keystone
   scm: git
   src: https://github.com/antonym/openstack-ansible-os_keystone.git
-  version: b2af1b37090d18b1ecb2fabfa1b3178f3721d324
+  version: 17e6e38eb51b1a591a03be03044344bf1960d079
 EOF
   scripts/bootstrap-ansible.sh
   source /usr/local/bin/openstack-ansible.rc
