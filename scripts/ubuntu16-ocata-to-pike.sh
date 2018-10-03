@@ -48,6 +48,14 @@ fi
 
 pushd /opt/openstack-ansible
   git checkout ${OSA_SHA}
+  # remove once https://review.openstack.org/#/c/604804/ merges
+  sed -i '/- name: os_keystone/,+3d' /opt/openstack-ansible/ansible-role-requirements.yml
+  cat <<EOF >> /opt/openstack-ansible/ansible-role-requirements.yml
+- name: os_keystone
+  scm: git
+  src: https://github.com/antonym/openstack-ansible-os_keystone.git
+  version: b2af1b37090d18b1ecb2fabfa1b3178f3721d324
+EOF
   scripts/bootstrap-ansible.sh
   source /usr/local/bin/openstack-ansible.rc
 
