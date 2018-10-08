@@ -90,6 +90,12 @@ function set_gating_vars {
 neutron_legacy_ha_tool_enabled: true
 lxc_container_backing_store: dir
 maas_use_api: false
+# set kilo to pin get-pip to 3.3
+pip_get_pip_url: https://bootstrap.pypa.io/3.3/get-pip.py
+pip_get_pip_fallback_url: https://raw.githubusercontent.com/pypa/get-pip/master/3.3/get-pip.py
+# set mitaka and up get-pip to 3.3
+pip_upstream_url: https://bootstrap.pypa.io/3.3/get-pip.py
+pip_fallback_url: https://raw.githubusercontent.com/pypa/get-pip/master/3.3/get-pip.py
 EOF
 }
 
