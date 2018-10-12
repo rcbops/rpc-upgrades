@@ -69,7 +69,6 @@ pushd /opt/openstack-ansible
   # skip setup-openstack on the ocata upgrade
   sed -i '/setup-openstack.yml/d' scripts/run-upgrade.sh
   # patch in restarting of containers into run-upgrade
-  cp /opt/rpc-upgrades/playbooks/patches/ocata/lxc-containers-restart.xml /opt/openstack-ansible/scripts/upgrade-utilities/playbooks
   cp /opt/rpc-upgrades/playbooks/patches/ocata/mariadb-shutdown.xml /opt/openstack-ansible/scripts/upgrade-utilities/playbooks
   cp /opt/rpc-upgrades/playbooks/patches/ocata/run-upgrade.patch /opt/openstack-ansible
   patch -p1 < run-upgrade.patch
