@@ -12,17 +12,7 @@ echo "+-------------------- ENV VARS --------------------+"
 
 ## Vars ----------------------------------------------------------------------
 
-# These vars are set by the CI environment, but are given defaults
-# here to cater for situations where someone is executing the test
-# outside of the CI environment.
-export RE_JOB_NAME="${RE_JOB_NAME:-}"
-export RE_JOB_IMAGE="${RE_JOB_IMAGE:-trusty_aio}"
-export RE_JOB_SCENARIO="${RE_JOB_SCENARIO:-swift}"
-export RE_JOB_ACTION="${RE_JOB_ACTION:-undefined}"
-export RE_JOB_FLAVOR="${RE_JOB_FLAVOR:-}"
-export RE_JOB_TRIGGER="${RE_JOB_TRIGGER:-PR}"
-export RE_HOOK_ARTIFACT_DIR="${RE_HOOK_ARTIFACT_DIR:-/tmp/artifacts}"
-export RE_HOOK_RESULT_DIR="${RE_HOOK_RESULT_DIR:-/tmp/results}"
+source "$(readlink -f $(dirname ${0}))/../gating_vars.sh"
 
 # translates RE_JOB_ACTION to RE_JOB_UPGRADE vars
 export RE_JOB_CONTEXT=`echo ${RE_JOB_ACTION} | awk -F'_' {'print $1'}`
@@ -33,6 +23,7 @@ export RE_JOB_TESTING_ACTION=`echo ${RE_JOB_ACTION} | awk -F'_' {'print $5'}`
 # translates RE_JOB_IMAGE
 export RE_JOB_IMAGE_OS=`echo ${RE_JOB_IMAGE} | awk -F'_' {'print $1'}`
 export RE_JOB_IMAGE_TYPE=`echo ${RE_JOB_IMAGE} | awk -F'_' {'print $2'}`
+export RE_JOB_IMAGE=${RE_JOB_IMAGE_OS}
 
 export TESTING_HOME="${TESTING_HOME:-$HOME}"
 export ANSIBLE_LOG_DIR="${TESTING_HOME}/.ansible/logs"
@@ -42,72 +33,123 @@ export WORKSPACE_PATH=`pwd`
 export RUN_UPGRADES="${RUN_UPGRADES:-yes}"
 
 export MNAIO_VAR_FILE="${MNAIO_VAR_FILE:-/tmp/mnaio_vars}"
+
+## Functions ----------------------------------------------------------------------
+
+function determine_series {
+  ### Determine series from RE_JOB_CONTEXT
+
+  if [[ "${RE_JOB_CONTEXT}" == "r11."* ]]; then
+    export RE_JOB_SERIES="kilo"
+  elif [[ "${RE_JOB_CONTEXT}" == "r12."* ]]; then
+    export RE_JOB_SERIES="liberty"
+  elif [[ "${RE_JOB_CONTEXT}" == "r13."* ]]; then
+    export RE_JOB_SERIES="mitaka"
+  elif [[ "${RE_JOB_CONTEXT}" == "r14."* ]]; then
+    export RE_JOB_SERIES="newton"
+  elif [[ "${RE_JOB_CONTEXT}" == "r15."* ]]; then
+    export RE_JOB_SERIES="ocata"
+  elif [[ "${RE_JOB_CONTEXT}" == "r16."* ]]; then
+    export RE_JOB_SERIES="pike"
+  elif [[ "${RE_JOB_CONTEXT}" == "r17."* ]]; then
+    export RE_JOB_SERIES="queens"
+  elif [[ "${RE_JOB_CONTEXT}" == "r18."* ]]; then
+    export RE_JOB_SERIES="rocky"
+  else
+    export RE_JOB_SERIES=${RE_JOB_CONTEXT}
+  fi
+}
+
+function dump_re_vars {
+  # dump all RE_ vars to file so it can be sourced for MNAIO
+  > /opt/rpc-upgrades/RE_ENV
+  env | grep RE_ | while read -r match; do
+    varName=$(echo ${match} | cut -d= -f1)
+    echo "export ${varName}='${!varName}'" >> /opt/rpc-upgrades/RE_ENV
+  done
+}
+
+function prep_environment {
+  sudo -H --preserve-env ./run-bindep.sh
+  sudo -H --preserve-env pip install -r test-requirements.txt
+  sudo -H --preserve-env ./tests/prepare-rpco.sh
+}
+
+function prep_mnaio {
+  sudo -H --preserve-env ./tests/create-mnaio.sh
+}
+
+function prep_mnaio_snap {
+  sudo -H --preserve-env ./tests/create-mnaio-snap.sh
+}
+
+function prep_aio {
+  sudo -H --preserve-env ./tests/create-aio.sh
+}
+
+function install_maas {
+  sudo -H --preserve-env ./tests/maas-install.sh
+}
+
+function run_aio_upgrade {
+  sudo -H --preserve-env ./tests/test-upgrade.sh
+}
+
+function run_mnaio_upgrade {
+  source "${MNAIO_VAR_FILE}"
+  sudo -H --preserve-env ./tests/upgrade-mnaio.sh
+}
+
+function post_upgrade {
+  if [ "${RE_JOB_UPGRADE_ACTION}" != "incremental" ]; then
+    #sudo -H --preserve-env ./tests/maas-install.sh
+    sudo -H --preserve-env ./tests/qc-test.sh
+    # RLM-292 secondary test-upgrade run to validate idempotency
+    export RUN_PREFLIGHT=no
+    sudo -H --preserve-env ./tests/test-upgrade.sh
+    # RLM-293 secondary qc run after test-upgrade attempt
+    sudo -H --preserve-env ./tests/qc-test.sh
+  fi
+}
+
+function run_tempest {
+  if [ "{$RE_JOB_UPGRADE_TO}" == "queens" ]; then
+    sudo -H --preserve-env ./tests/run-tempest.sh
+  fi
+}
+
+function run_system_tests {
+  if [ "${RE_JOB_TESTING_ACTION}" == "system" ]; then
+    sudo -H --preserve-env ./tests/run_system_tests.sh
+  fi
+}
+
 ## Main ----------------------------------------------------------------------
 
 echo "rpc-upgrades at SHA $(git rev-parse HEAD)"
 
-### Determine series from RE_JOB_CONTEXT
-
-if [[ "${RE_JOB_CONTEXT}" == "r11."* ]]; then
-  export RE_JOB_SERIES="kilo"
-elif [[ "${RE_JOB_CONTEXT}" == "r12."* ]]; then
-  export RE_JOB_SERIES="liberty"
-elif [[ "${RE_JOB_CONTEXT}" == "r13."* ]]; then
-  export RE_JOB_SERIES="mitaka"
-elif [[ "${RE_JOB_CONTEXT}" == "r14."* ]]; then
-  export RE_JOB_SERIES="newton"
-elif [[ "${RE_JOB_CONTEXT}" == "r15."* ]]; then
-  export RE_JOB_SERIES="ocata"
-elif [[ "${RE_JOB_CONTEXT}" == "r16."* ]]; then
-  export RE_JOB_SERIES="pike"
-elif [[ "${RE_JOB_CONTEXT}" == "r17."* ]]; then
-  export RE_JOB_SERIES="queens"
-elif [[ "${RE_JOB_CONTEXT}" == "r18."* ]]; then
-  export RE_JOB_SERIES="rocky"
-else
-  export RE_JOB_SERIES=${RE_JOB_CONTEXT}
-fi
-
-# dump all RE_ vars to file so it can be sourced for MNAIO
-> /opt/rpc-upgrades/RE_ENV
-env | grep RE_ | while read -r match; do
-  varName=$(echo ${match} | cut -d= -f1)
-  echo "export ${varName}='${!varName}'" >> /opt/rpc-upgrades/RE_ENV
-done
+determine_series
+dump_re_vars
 
 if [ "${RE_JOB_ACTION}" != "tox-test" ]; then
-  sudo -H --preserve-env ./run-bindep.sh
-  sudo -H --preserve-env pip install -r test-requirements.txt
-  sudo -H --preserve-env ./tests/prepare-rpco.sh
+  prep_environment
   if [ "${RE_JOB_IMAGE_TYPE}" == "mnaio" ]; then
-    sudo -H --preserve-env ./tests/create-mnaio.sh
-    source "${MNAIO_VAR_FILE}"
-    if [[ "$RUN_UPGRADES" == "yes" ]]; then
-      sudo -H --preserve-env ./tests/upgrade-mnaio.sh
-    fi
-  else
-    if [ "${RE_JOB_IMAGE_TYPE}" == "aio" ]; then
-     sudo -H --preserve-env ./tests/create-aio.sh
-    fi
-    sudo -H --preserve-env ./tests/maas-install.sh
-    if [[ "$RUN_UPGRADES" == "yes" ]]; then
-      sudo -H --preserve-env ./tests/test-upgrade.sh
-      if [[ "${RE_JOB_UPGRADE_ACTION}" != "incremental" ]]; then
-        sudo -H --preserve-env ./tests/maas-install.sh
-        sudo -H --preserve-env ./tests/qc-test.sh
-        # RLM-292 secondary test-upgrade run to validate idempotency
-        export RUN_PREFLIGHT=no
-        sudo -H --preserve-env ./tests/test-upgrade.sh
-        # RLM-293 secondary qc run after test-upgrade attempt
-        sudo -H --preserve-env ./tests/qc-test.sh
-      fi
-      if [[ "$RE_JOB_UPGRADE_TO" == "queens" ]]; then
-        sudo -H --preserve-env ./tests/run-tempest.sh
-      fi
-    fi
+    prep_mnaio
+  elif [ "${RE_JOB_IMAGE_TYPE}" == "mnaio-snap" ]; then
+    prep_mnaio_snap
+  elif [ "${RE_JOB_IMAGE_TYPE}" == "aio" ]; then
+    prep_aio
+    #install_maas
   fi
-  if [[ "$RE_JOB_TESTING_ACTION" == "system" ]]; then
-    sudo -H --preserve-env ./tests/run_system_tests.sh
+  if [ "${RUN_UPGRADES}" == "yes" ]; then
+    if [[ $RE_JOB_IMAGE_TYPE =~ .*mnaio.* ]]; then
+      run_mnaio_upgrade
+    else
+      run_aio_upgrade
+      post_upgrade
+      run_tempest
+      run_system_tests
+    fi
   fi
 else
   # NOTE(mattt): We set a custom workdir here otherwise we may get tox errors

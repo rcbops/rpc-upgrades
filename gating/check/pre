@@ -1,57 +1,13 @@
-#!/usr/bin/env bash
-# Copyright 2017, Rackspace US, Inc.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+#!/bin/bash
 
-function update_apt_sources {
-  # Save a backup of the original file
-  sudo mv /etc/apt/sources.list /etc/apt/sources.list.original
+## Shell Opts ----------------------------------------------------------------
 
-  # Set the environment variables
-  DISTRO_MIRROR="http://mirror.rackspace.com/ubuntu"
-  DISTRO_COMPONENTS="main,universe"
+set -eux
+set -o pipefail
 
-  # Get the distribution name
-  if [[ -e /etc/lsb-release ]]; then
-    source /etc/lsb-release
-    DISTRO_RELEASE=${DISTRIB_CODENAME}
-  elif [[ -e /etc/os-release ]]; then
-    source /etc/os-release
-    DISTRO_RELEASE=${UBUNTU_CODENAME}
-  else
-    echo "Unable to determine distribution due to missing lsb/os-release files."
-    exit 1
-  fi
+source "$(readlink -f $(dirname ${0}))/../gating_vars.sh"
 
-  # Rewrite the apt sources file
-  sudo tee /etc/apt/sources.list <<EOF
-deb ${DISTRO_MIRROR} ${DISTRO_RELEASE} ${DISTRO_COMPONENTS//,/ }
-deb ${DISTRO_MIRROR} ${DISTRO_RELEASE}-updates ${DISTRO_COMPONENTS//,/ }
-deb ${DISTRO_MIRROR} ${DISTRO_RELEASE}-backports ${DISTRO_COMPONENTS//,/ }
-deb ${DISTRO_MIRROR} ${DISTRO_RELEASE}-security ${DISTRO_COMPONENTS//,/ }
-EOF
-
-  # Add apt debug configuration
-  echo 'Debug::Acquire::http "true";' > sudo tee /etc/apt/apt.conf.d/99debug
-}
-
-set -xeuo pipefail
-
-echo "Gate job started"
-echo "Running check/pre hook"
-echo "+-------------------- START ENV VARS --------------------+"
-env
-echo "+-------------------- START ENV VARS --------------------+"
+## Main ----------------------------------------------------------------------
 
 # If the current folder's basename is rpc-upgrades then we assume
 # that it is the root of the git clone. If the git clone is not in
@@ -63,34 +19,16 @@ if [[ "$(basename ${PWD})" == "rpc-upgrades" ]]; then
   fi
 fi
 
-# Install required packages for Ubuntu 16.04
-#   curl        - for getting get-pip.py
-#   iptables    - OSA gate-check-commit script expects it on the host
-#   python      - for installing pip using get-pip.py
-#   python-yaml - for ansible and reading yaml files (like the rpc release info)
-#   util-linux  - for the 'lsblk' tool used by OSA gate-check-commit script
-#   wget        - TODO: provide reason for wget's inclusion here
+# We need to ensure that we use the rackspace mirrors, as they are
+# most reliable. We also need to ensure that python and the python
+# yaml library are present for ansible to work.
+source "$(readlink -f $(dirname ${0}))/../gating_prerequisites.sh"
 
-if which apt-get; then
-    # If there is a backup of the original file, then we're
-    # not on an OnMetal instance but instead are using an
-    # image prepared by nodepool, so leave it alone.
-    if [[ ! -e /etc/apt/sources.list.original ]]; then
-      update_apt_sources
-    fi
-    sudo apt-get update
-    sudo apt-get install -y curl iptables python python-yaml util-linux wget
-fi
-
-# Install required packages for CentOS 7
-#   curl            - for getting get-pip.py
-#   epel-release    - required to install python-ndg_httpsclient/python2-pyasn1
-#   python          - for installing pip using get-pip.py
-#   redhat-lsb-core - for bindep profile support
-#   wget            - TODO: provide reason for wget's inclusion here
-if which yum; then
-    sudo yum install -y curl epel-release python redhat-lsb-core wget
-fi
+echo "Gate job started"
+echo "Running check/pre hook"
+echo "+-------------------- START ENV VARS --------------------+"
+env
+echo "+-------------------- START ENV VARS --------------------+"
 
 # Download the get-pip script using the primary or secondary URL
 GETPIP_CMD="curl --silent --show-error --retry 5"

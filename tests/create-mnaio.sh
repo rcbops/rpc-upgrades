@@ -28,12 +28,15 @@ export RE_JOB_SERIES="${RE_JOB_SERIES:-master}"
 export RE_JOB_CONTEXT="${RE_JOB_CONTEXT:-master}"
 export RE_JOB_IMAGE_OS="${RE_JOB_IMAGE_OS:-trusty}"
 export RE_JOB_IMAGE_TYPE="${RE_JOB_IMAGE_TYPE:-mnaio}"
+export RE_JOB_IMAGE=${RE_JOB_IMAGE_OS}
 
-# set guest OS based on RE_JOB_IMAGE_OS
-if [ ${RE_JOB_IMAGE_OS} == "trusty" ]; then
+# set guest OS based on RE_JOB_IMAGE
+if [ ${RE_JOB_IMAGE} == "trusty" ]; then
   DEFAULT_IMAGE="ubuntu-14.04-amd64"
-elif [ ${RE_JOB_IMAGE_OS} == "xenial" ]; then
+elif [ ${RE_JOB_IMAGE} == "xenial" ]; then
   DEFAULT_IMAGE="ubuntu-16.04-amd64"
+elif [ ${RE_JOB_IMAGE} == "bionic" ]; then
+  DEFAULT_IMAGE="ubuntu-18.04-amd64"
 fi
 
 ## OSA MNAIO Vars
@@ -73,9 +76,6 @@ export RUN_UPGRADES="${RUN_UPGRADES:-yes}"
 # place variable in file to be sourced by parent calling script 'run'
 export MNAIO_VAR_FILE="${MNAIO_VAR_FILE:-/tmp/mnaio_vars}"
 echo "export MNAIO_SSH=\"${MNAIO_SSH}\"" > "${MNAIO_VAR_FILE}"
-
-#export ADDITIONAL_COMPUTE_NODES=${env.ADDITIONAL_COMPUTE_NODES}
-#export ADDITIONAL_VOLUME_NODES=${env.ADDITIONAL_VOLUME_NODES}
 
 # checkout openstack-ansible-ops
 if [ ! -d "/opt/openstack-ansible-ops" ]; then
@@ -194,12 +194,12 @@ ${MNAIO_SSH} "source /opt/rpc-upgrades/RE_ENV; \
 echo "MNAIO RPC-O deploy completed..."
 
 # Install and Verify MaaS post deploy
-${MNAIO_SSH} "source /opt/rpc-upgrades/RE_ENV; \
-              source /opt/rpc-upgrades/ANSIBLE_RETRY; \
-              source /opt/rpc-upgrades/tests/ansible-env.rc; \
-              pushd /opt/rpc-upgrades; \
-              tests/maas-install.sh"
-echo "MaaS Install and Verify Post Deploy completed..."
+#${MNAIO_SSH} "source /opt/rpc-upgrades/RE_ENV; \
+#              source /opt/rpc-upgrades/ANSIBLE_RETRY; \
+#              source /opt/rpc-upgrades/tests/ansible-env.rc; \
+#              pushd /opt/rpc-upgrades; \
+#              tests/maas-install.sh"
+#echo "MaaS Install and Verify Post Deploy completed..."
 
 # Run QC Tests
 ${MNAIO_SSH} "source /opt/rpc-upgrades/RE_ENV; \
