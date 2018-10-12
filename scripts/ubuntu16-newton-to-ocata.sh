@@ -18,7 +18,7 @@ set -evu
 
 export RPC_BRANCH=${RPC_BRANCH:-'ocata'}
 export OSA_SHA="stable/ocata"
-export SKIP_INSTALL=${SKIP_INSTALL:-"yes"}
+export SKIP_INSTALL=${SKIP_INSTALL:-"no"}
 
 # configure apt sources and update all Xenial Packages before jump to Ocata
 pushd /opt/rpc-upgrades/playbooks
@@ -47,6 +47,16 @@ else
   popd
 fi
 
+# ensure security_hardening_is_disabled
+if [[ ! -f /etc/openstack_deploy/user_rpco_upgrade.yml ]]; then
+   echo "---" > /etc/openstack_deploy/user_rpco_upgrade.yml
+   echo "apply_security_hardening: false" >> /etc/openstack_deploy/user_rpco_upgrade.yml
+elif [[ -f /etc/openstack_deploy/user_rpco_upgrade.yml ]]; then
+   if ! grep -i "apply_security_hardening" /etc/openstack_deploy/user_rpco_upgrade.yml; then
+     echo "apply_security_hardening: false" >> /etc/openstack_deploy/user_rpco_upgrade.yml
+   fi
+fi
+
 pushd /opt/openstack-ansible
   git checkout ${OSA_SHA}
   scripts/bootstrap-ansible.sh
@@ -58,6 +68,11 @@ pushd /opt/openstack-ansible
   export I_REALLY_KNOW_WHAT_I_AM_DOING=true
   # skip setup-openstack on the ocata upgrade
   sed -i '/setup-openstack.yml/d' scripts/run-upgrade.sh
+  # patch in restarting of containers into run-upgrade
+  cp /opt/rpc-upgrades/playbooks/patches/ocata/lxc-containers-restart.xml /opt/openstack-ansible/scripts/upgrade-utilities/playbooks
+  cp /opt/rpc-upgrades/playbooks/patches/ocata/mariadb-shutdown.xml /opt/openstack-ansible/scripts/upgrade-utilities/playbooks
+  cp /opt/rpc-upgrades/playbooks/patches/ocata/run-upgrade.patch /opt/openstack-ansible
+  patch -p1 < run-upgrade.patch
   echo "YES" | bash scripts/run-upgrade.sh
   echo "The setup-openstack.yml playbook is skipped in this script as it will be caught up during pike"
 popd

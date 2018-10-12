@@ -47,6 +47,16 @@ elif [ -f "/etc/openstack_deploy/user_osa_secrets.yml" ]; then
   fi
 fi
 
+# ensure security_hardening_is_disabled
+if [[ ! -f /etc/openstack_deploy/user_rpco_upgrade.yml ]]; then
+   echo "---" > /etc/openstack_deploy/user_rpco_upgrade.yml
+   echo "apply_security_hardening: false" >> /etc/openstack_deploy/user_rpco_upgrade.yml
+elif [[ -f /etc/openstack_deploy/user_rpco_upgrade.yml ]]; then
+   if ! grep -i "apply_security_hardening" /etc/openstack_deploy/user_rpco_upgrade.yml; then
+     echo "apply_security_hardening: false" >> /etc/openstack_deploy/user_rpco_upgrade.yml
+   fi
+fi
+
 pushd /opt/openstack-ansible
   git checkout ${OSA_SHA}
 
