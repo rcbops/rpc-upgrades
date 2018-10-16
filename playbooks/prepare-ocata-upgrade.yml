@@ -103,3 +103,8 @@
         dest: /etc/openstack_deploy/user_osa_secrets.yml
         line: "ironic_galera_password: {{ 'password' | password_hash('sha512') }}"
       when: test_ironic_galera_password.rc == 1
+
+    - name: Remove openstack-ansible to ensure we're starting with a fresh repo
+      file:
+        path: /opt/openstack-ansible
+        state: absent

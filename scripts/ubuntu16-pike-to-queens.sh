@@ -25,7 +25,6 @@ pushd /opt/rpc-openstack
   rm -rf openstack-ansible
   rm -rf scripts/artifacts-building/
   git checkout ${RPC_BRANCH}
-# checkout openstack-ansible-ops
 popd
 
 if [ ! -d "/opt/openstack-ansible" ]; then
@@ -59,16 +58,14 @@ fi
 
 pushd /opt/openstack-ansible
   git checkout ${OSA_SHA}
-
   # remove once https://review.openstack.org/#/c/604804/ merges
   sed -i '/- name: os_keystone/,+3d' /opt/openstack-ansible/ansible-role-requirements.yml
   cat <<EOF >> /opt/openstack-ansible/ansible-role-requirements.yml
 - name: os_keystone
   scm: git
   src: https://github.com/antonym/openstack-ansible-os_keystone.git
-  version: 2c735e1a1fecb50fe73a065437e572c82639a53d
+  version: e7af52da061ac83fe9b07c42c9d127a248e305f7
 EOF
-
   scripts/bootstrap-ansible.sh
   source /usr/local/bin/openstack-ansible.rc
   export TERM=linux
