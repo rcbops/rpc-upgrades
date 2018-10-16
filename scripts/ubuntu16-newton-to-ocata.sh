@@ -35,7 +35,6 @@ pushd /opt/rpc-openstack
   rm -rf openstack-ansible
   rm -rf scripts/artifacts-building/
   git checkout ${RPC_BRANCH}
-# checkout openstack-ansible-ops
 popd
 
 if [ ! -d "/opt/openstack-ansible" ]; then
@@ -68,10 +67,6 @@ pushd /opt/openstack-ansible
   export I_REALLY_KNOW_WHAT_I_AM_DOING=true
   # skip setup-openstack on the ocata upgrade
   sed -i '/setup-openstack.yml/d' scripts/run-upgrade.sh
-  # patch in restarting of containers into run-upgrade
-  cp /opt/rpc-upgrades/playbooks/patches/ocata/mariadb-shutdown.xml /opt/openstack-ansible/scripts/upgrade-utilities/playbooks
-  cp /opt/rpc-upgrades/playbooks/patches/ocata/run-upgrade.patch /opt/openstack-ansible
-  patch -p1 < run-upgrade.patch
   echo "YES" | bash scripts/run-upgrade.sh
   echo "The setup-openstack.yml playbook is skipped in this script as it will be caught up during pike"
 popd
