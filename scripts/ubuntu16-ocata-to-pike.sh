@@ -71,8 +71,8 @@ EOF
   export TERM=linux
   export I_REALLY_KNOW_WHAT_I_AM_DOING=true
   # patch in restarting of containers into run-upgrade
-  #cp /opt/rpc-upgrades/playbooks/patches/pike/lxc-containers-restart.xml /opt/openstack-ansible/scripts/upgrade-utilities/playbooks
-  #cp /opt/rpc-upgrades/playbooks/patches/pike/run-upgrade.patch /opt/openstack-ansible
-  #patch -p1 < run-upgrade.patch
+  cp /opt/rpc-upgrades/playbooks/patches/pike/lxc-containers-restart.xml /opt/openstack-ansible/scripts/upgrade-utilities/playbooks
+  cp /opt/rpc-upgrades/playbooks/patches/pike/run-upgrade.patch /opt/openstack-ansible
+  patch -p1 < run-upgrade.patch
   echo "YES" | bash scripts/run-upgrade.sh
 popd
