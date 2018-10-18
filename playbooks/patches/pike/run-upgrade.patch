@@ -1,12 +1,17 @@
 diff --git a/scripts/run-upgrade.sh b/scripts/run-upgrade.sh
-index b957284fb..fcccce0d7 100755
+index 0ce7086..b957284 100755
 --- a/scripts/run-upgrade.sh
 +++ b/scripts/run-upgrade.sh
-@@ -175,6 +175,7 @@ function main {
+@@ -175,10 +175,12 @@ function main {
          RUN_TASKS+=("setup-hosts.yml --limit '!galera_all'")
          # add new container config to galera containers but don't restart
          RUN_TASKS+=("lxc-containers-create.yml -e 'lxc_container_allow_restarts=false' --limit galera_all")
-+        RUN_TASKS+=("${UPGRADE_PLAYBOOKS}/lxc-containers-restart.xml --limit '!galera_all'")
++        RUN_TASKS+=("${UPGRADE_PLAYBOOKS}/lxc-containers-restart.yml --limit '!galera_all'")
          RUN_TASKS+=("haproxy-install.yml")
  	# rebuild the repo servers
          RUN_TASKS+=("repo-install.yml")
+         # explicitly perform mariadb upgrade
++        RUN_TASKS+=("${UPGRADE_PLAYBOOKS}/mariadb-shutdown.yml")
+         RUN_TASKS+=("galera-install.yml -e 'galera_upgrade=true'")
+         # explicitly perform controlled galera cluster restart
+         RUN_TASKS+=("${UPGRADE_PLAYBOOKS}/galera-cluster-rolling-restart.yml")
