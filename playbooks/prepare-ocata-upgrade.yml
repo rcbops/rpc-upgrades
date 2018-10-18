@@ -108,3 +108,8 @@
       file:
         path: /opt/openstack-ansible
         state: absent
+
+    - name: Remove env.d files from openstack_deploy
+      file:
+        path: /etc/openstack_deploy/env.d
+        state: absent

@@ -17,7 +17,7 @@
 # play ensures dnsmasq and containers are restarted fresh.
 
 - name: Restart dnsmasq service to ensure containers receive dhcp
-  hosts: "os-infra_hosts"
+  hosts: "lxc_hosts"
   user: root
   gather_facts: false
   tasks:
