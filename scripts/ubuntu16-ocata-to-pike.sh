@@ -47,8 +47,6 @@ fi
 
 pushd /opt/openstack-ansible
   git checkout ${OSA_SHA}
-  # remove once https://review.openstack.org/#/c/610992/ merges
-  sed -i '/- name: galera_server/,+3d' /opt/openstack-ansible/ansible-role-requirements.yml
   # remove once https://review.openstack.org/#/c/604804/ merges
   sed -i '/- name: os_keystone/,+3d' /opt/openstack-ansible/ansible-role-requirements.yml
   cat <<EOF >> /opt/openstack-ansible/ansible-role-requirements.yml
@@ -56,10 +54,6 @@ pushd /opt/openstack-ansible
   scm: git
   src: https://github.com/antonym/openstack-ansible-os_keystone.git
   version: 7af19232541b74726133a01c140b42828c2c59d7
-- name: galera_server
-  scm: git
-  src: https://github.com/antonym/openstack-ansible-galera_server.git
-  version: 870c0a863525d3da0dcc4e9bc98646f40b585d80
 EOF
   scripts/bootstrap-ansible.sh
   source /usr/local/bin/openstack-ansible.rc
@@ -72,7 +66,6 @@ EOF
   export I_REALLY_KNOW_WHAT_I_AM_DOING=true
   # patch in restarting of containers into run-upgrade
   cp /opt/rpc-upgrades/playbooks/patches/pike/lxc-containers-restart.yml /opt/openstack-ansible/scripts/upgrade-utilities/playbooks
-  cp /opt/rpc-upgrades/playbooks/patches/pike/mariadb-shutdown.yml /opt/openstack-ansible/scripts/upgrade-utilities/playbooks
   cp /opt/rpc-upgrades/playbooks/patches/pike/run-upgrade.patch /opt/openstack-ansible
   patch -p1 < run-upgrade.patch
   echo "YES" | bash scripts/run-upgrade.sh
