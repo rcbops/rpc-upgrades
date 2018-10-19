@@ -16,6 +16,8 @@
 
 set -evu
 
+source lib/functions.sh
+
 export RE_JOB_SERIES=${RE_JOB_SERIES:-'newton'}
 
 # determine incrementals to run depending on starting point

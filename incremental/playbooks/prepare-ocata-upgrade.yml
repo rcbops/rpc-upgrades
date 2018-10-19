@@ -104,12 +104,14 @@
         line: "ironic_galera_password: {{ 'password' | password_hash('sha512') }}"
       when: test_ironic_galera_password.rc == 1
 
-    - name: Remove openstack-ansible to ensure we're starting with a fresh repo
+    - name: Remove various existing openstack-ansible files from Newton deploy
       file:
-        path: /opt/openstack-ansible
+        path: "{{ item }}"
         state: absent
-
-    - name: Remove env.d files from openstack_deploy
-      file:
-        path: /etc/openstack_deploy/env.d
-        state: absent
+      with_items:
+        - /opt/openstack-ansible
+        - /usr/local/bin/openstack-ansible
+        - /usr/local/bin/openstack-ansible.rc
+        - /etc/openstack_deploy/env.d
+        - /etc/openstack_deploy/ansible_facts
+        - /etc/openstack_deploy/user_osa_variables_defaults.yml
