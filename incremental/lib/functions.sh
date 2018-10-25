@@ -16,6 +16,47 @@
 
 # functions for incremental upgrades
 
+function discover_code_version {
+  if [[ ! -f "/etc/openstack-release" ]]; then
+      failure "No release file could be found, failing..."
+      exit 99
+  else
+      source /etc/openstack-release
+      case "${DISTRIB_RELEASE%%.*}" in
+        *14|newton-eol)
+          export CODE_UPGRADE_FROM="newton"
+          echo "You seem to be running Newton"
+        ;;
+        *15|ocata)
+           export CODE_UPGRADE_FROM="ocata"
+           echo "You seem to be running Ocata"
+          ;;
+        *16|pike)
+           export CODE_UPGRADE_FROM="pike"
+           echo "You seem to be running Pike"
+        ;;
+        *17|queens)
+           export CODE_UPGRADE_FROM="queens"
+           echo "You seem to be running Queens"
+        ;;
+        *)
+           echo "Unable to detect current OpenStack version, failing...."
+           exit 99
+        esac
+    fi
+}
+
+function check_user_variables {
+  if [[ ! -f /etc/openstack_deploy/user_variables.yml ]]; then
+     echo "---" > /etc/openstack_deploy/user_variables.yml
+     echo "default_bind_mount_logs: False" >> /etc/openstack_deploy/user_variables.yml
+  elif [[ -f /etc/openstack_deploy/user_variables.yml ]]; then
+     if ! grep -i -q "default_bind_mount_logs" /etc/openstack_deploy/user_variables.yml; then
+       echo "default_bind_mount_logs: False" >> /etc/openstack_deploy/user_variables.yml
+     fi
+  fi
+}
+
 function checkout_rpc_openstack {
   pushd /opt/rpc-openstack
     git clean -df

@@ -17,47 +17,60 @@
 set -evu
 
 source lib/functions.sh
+source lib/vars.sh
 
-export RE_JOB_SERIES=${RE_JOB_SERIES:-'newton'}
+discover_code_version
 
-# determine incrementals to run depending on starting point
-case "${RE_JOB_SERIES}" in
-  newton)
-  RELEASE_TO_DO="ocata pike queens"
-  ;;
-  ocata)
-  RELEASE_TO_DO="pike queens"
-  ;;
-  pike)
-  RELEASE_TO_DO="queens"
-  ;;
-  queens)
-  echo "Queens is the latest upgrade available..."
-  ;;
-  *)
-    echo "No valid RE_JOB_SERIES is to set."
-    exit 99
-  ;;
-esac
+# if target not set, exit and inform user how to proceed
+if [[ -z "$1" ]]; then
+  echo "Please set the target to upgrade to:"
+  echo "i.e ./incremental-upgrade queens"
+  exit 99
+fi
+# convert target to lowercase
+TARGET=${1,,}
 
-if [[ ! -f /etc/openstack_deploy/user_variables.yml ]]; then
-   echo "---" > /etc/openstack_deploy/user_variables.yml
-   echo "default_bind_mount_logs: False" >> /etc/openstack_deploy/user_variables.yml
-elif [[ -f /etc/openstack_deploy/user_variables.yml ]]; then
-   if ! grep -i "default_bind_mount_logs" /etc/openstack_deploy/user_variables.yml; then
-     echo "default_bind_mount_logs: False" >> /etc/openstack_deploy/user_variables.yml
-   fi
+# if target not set, exit and inform user how to proceed
+if [[ -z "$1" ]]; then
+  echo "Please set the target to upgrade to:"
+  echo "i.e ./incremental-upgrade.sh queens"
+  exit 99
 fi
 
-# run incremental upgrade scripts based on TODO list
-pushd /opt/rpc-upgrades/incremental
-  if [[ "${RELEASE_TO_DO}" =~ .*ocata.* ]]; then
-    bash ubuntu16-newton-to-ocata.sh
+# convert target to lowercase
+TARGET=${1,,}
+
+# check if environment is already upgraded to desired target
+if [[ ${TARGET} == ${CODE_UPGRADE_FROM} ]]; then
+  echo "Nothing to do, you're already upgraded to ${TARGET^}."
+  exit 99
+fi
+
+# iterate RELEASES and generate TODO list based on target set
+for RELEASE in ${RELEASES}; do
+  if [[ "${RELEASE}" == "${CODE_UPGRADE_FROM}" ]]; then
+    STARTING_RELEASE=true
+  elif [[ "${RELEASE}" != "${TARGET}" && "${STARTING_RELEASE}" == "true" ]]; then
+    TODO+="${RELEASE} "
   fi
-  if [[ "${RELEASE_TO_DO}" =~ .*pike.* ]]; then
-    bash ubuntu16-ocata-to-pike.sh
+  if [[ "${RELEASE}" == "${TARGET}" && "${STARTING_RELEASE}" == "true" ]]; then
+    TODO+="${RELEASE} "
+    break
   fi
-  if [[ "${RELEASE_TO_DO}" =~ .*queens.* ]]; then
-    bash ubuntu16-pike-to-queens.sh
-  fi
-popd
+done
+
+# validate desired target is valid in the RELEASES list
+if ! echo ${TODO} | grep -w ${TARGET} > /dev/null; then
+  echo Unable to upgrade to the specified target, please check the target and try again.
+  echo Valid releases to use are:
+  echo ${TODO}
+  exit 99
+fi
+
+check_user_variables
+
+# run through TODO list and run incremental upgrade scripts
+for RELEASE_TO_DO in ${TODO}; do
+  echo "Starting upgrade to ${RELEASE_TO_DO^}"
+  bash ubuntu16-upgrade-to-${RELEASE_TO_DO}.sh
+done
