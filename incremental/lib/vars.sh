@@ -20,4 +20,4 @@ RELEASES="newton
           pike
           queens"
 
-export ADD_RELEASE=false
+STARTING_RELEASE=false

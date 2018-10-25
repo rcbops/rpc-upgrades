@@ -38,13 +38,15 @@
         - /etc/apt/sources.list.d/rpco.list
         - /etc/apt/sources.list.d/rax-maas.list
 
-    - name: Update apt-cache
-      apt:
-        update_cache: yes
-
     - name: Update all packages to the latest version
       apt:
         upgrade: dist
+        update_cache: yes
+        cache_valid_time: 1200
+      register: update_packages
+      until: update_packages is success
+      retries: 5
+      delay: 2
 
 - name: Ensure artifact repos removed from containers
   hosts: "hosts:all_containers"

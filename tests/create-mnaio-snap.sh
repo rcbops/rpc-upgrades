@@ -97,9 +97,6 @@ pushd /opt/openstack-ansible-ops/multi-node-aio
   run_mnaio_playbook playbooks/deploy-dhcp.yml
   run_mnaio_playbook playbooks/download-vms.yml -e manifest_url=${RPCO_IMAGE_MANIFEST_URL}
   run_mnaio_playbook playbooks/deploy-vms.yml
-  # TODO - change this to a ansible ping check/wait
-  echo "Waiting for 300 seconds to allow VMs/containers to boot and settle..."
-  sleep 300
 popd
 echo "Multi Node AIO setup from snapshots completed..."
 
