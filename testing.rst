@@ -67,3 +67,29 @@ This should kick off the Multi Node AIO build, then prep the
 rpc-openstack, push the configs to infra1 and boot start the
 RPC-O deploy from there.  By default an Ubuntu 14.04 LTS
 (trusty) image is used for the VMs for all leapfrog jobs.
+
+Incremental MNAIO Test Process
+------------------------------
+For testing Incremental upgrades for builds past Newton, build
+an OnMetal server using the flavor onmetal-io1/io2 and running
+Ubuntu 16.04/18.04 LTS.
+
+If you want to build a Newton Deployment from scratch export
+these variables:
+
+.. code-block:: shell
+
+    export RE_JOB_ACTION="newton_to_queens_incremental"
+    export RE_JOB_IMAGE="xenial_mnaio"
+    ./run-tests.sh
+
+If you want to utilize a Snapshot Build which uses a prebuilt VMs and
+already has the version to be upgraded from deployed, then use:
+
+.. code-block:: shell
+
+    export RE_JOB_ACTION="newton_to_queens_incremental"
+    export RE_JOB_IMAGE="xenial_mnaio-snap"
+    ./run-tests.sh
+
+The snapshot builds can save 2-3 hours of deployment time on average.
