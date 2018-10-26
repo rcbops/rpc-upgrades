@@ -16,8 +16,23 @@
 
 set -evu
 
-export RE_JOB_UPGRADE_TO=${RE_JOB_UPGRADE_TO:-'queens'}
+source lib/functions.sh
 
-pushd /opt/rpc-upgrades/incremental
-  ./incremental-upgrade.sh ${RE_JOB_UPGRADE_TO}
-popd
+export RPC_BRANCH=${RPC_BRANCH:-'r16.2.4'}
+export OSA_SHA="stable/pike"
+export SKIP_INSTALL=${SKIP_INSTALL:-'no'}
+
+echo "Starting Ocata to Pike Upgrade..."
+
+checkout_rpc_openstack
+checkout_openstack_ansible
+disable_hardening
+prepare_pike
+
+if [[ "$SKIP_INSTALL" == "yes" ]]; then
+  strip_install_steps
+fi
+
+run_upgrade
+
+echo "Ocata to Pike Upgrade completed..."

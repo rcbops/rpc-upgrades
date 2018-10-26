@@ -14,10 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-set -evu
+# vars for incremental upgrades
+RELEASES="newton
+          ocata
+          pike
+          queens"
 
-export RE_JOB_UPGRADE_TO=${RE_JOB_UPGRADE_TO:-'queens'}
-
-pushd /opt/rpc-upgrades/incremental
-  ./incremental-upgrade.sh ${RE_JOB_UPGRADE_TO}
-popd
+STARTING_RELEASE=false

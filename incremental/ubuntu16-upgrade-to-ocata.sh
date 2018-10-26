@@ -16,8 +16,26 @@
 
 set -evu
 
-export RE_JOB_UPGRADE_TO=${RE_JOB_UPGRADE_TO:-'queens'}
+source lib/functions.sh
 
-pushd /opt/rpc-upgrades/incremental
-  ./incremental-upgrade.sh ${RE_JOB_UPGRADE_TO}
-popd
+export RPC_BRANCH=${RPC_BRANCH:-'ocata'}
+export OSA_SHA="stable/ocata"
+export SKIP_INSTALL=${SKIP_INSTALL:-"yes"}
+
+echo "Starting Newton to Ocata Upgrade..."
+
+# here we handle a lot of the cleanup from newton and rpc-o
+# to prepare for an OSA deploy
+prepare_ocata
+
+checkout_rpc_openstack
+checkout_openstack_ansible
+disable_hardening
+
+if [[ "$SKIP_INSTALL" == "yes" ]]; then
+  exit 0
+fi
+
+run_upgrade
+
+echo "Newton to Ocata Upgrade completed..."

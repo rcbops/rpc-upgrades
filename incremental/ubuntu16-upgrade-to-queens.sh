@@ -16,8 +16,19 @@
 
 set -evu
 
-export RE_JOB_UPGRADE_TO=${RE_JOB_UPGRADE_TO:-'queens'}
+source lib/functions.sh
 
-pushd /opt/rpc-upgrades/incremental
-  ./incremental-upgrade.sh ${RE_JOB_UPGRADE_TO}
-popd
+export RPC_BRANCH=${RPC_BRANCH:-'r17.1.1'}
+export OSA_SHA="stable/queens"
+export SKIP_INSTALL=${SKIP_INSTALL:-'no'}
+
+echo "Starting Pike to Queens Upgrade..."
+
+checkout_rpc_openstack
+checkout_openstack_ansible
+set_secrets_file
+disable_hardening
+prepare_queens
+run_upgrade
+
+echo "Pike to Queens Upgrade completed..."

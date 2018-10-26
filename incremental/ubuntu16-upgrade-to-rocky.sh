@@ -16,8 +16,20 @@
 
 set -evu
 
-export RE_JOB_UPGRADE_TO=${RE_JOB_UPGRADE_TO:-'queens'}
+source lib/functions.sh
 
-pushd /opt/rpc-upgrades/incremental
-  ./incremental-upgrade.sh ${RE_JOB_UPGRADE_TO}
-popd
+export RPC_BRANCH=${RPC_BRANCH:-'rocky'}
+export OSA_SHA="stable/rocky"
+export SKIP_INSTALL=${SKIP_INSTALL:-'no'}
+
+echo "Starting Queens to Rocky Upgrade..."
+
+checkout_rpc_openstack
+checkout_openstack_ansible
+set_secrets_file
+disable_hardening
+bootstrap_ansible
+prepare_rocky
+run_upgrade
+
+echo "Queens to Rocky Upgrade completed..."
