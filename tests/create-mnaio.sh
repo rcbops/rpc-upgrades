@@ -180,7 +180,7 @@ ${MNAIO_SSH} "source /opt/rpc-upgrades/RE_ENV; \
               export DEPLOY_MAAS=false; \
               export DEPLOY_TELEGRAF=no; \
               export DEPLOY_INFLUX=no; \
-              export DEPLOY_AIO=no; \
+              export DEPLOY_AIO=false; \
               export DEPLOY_HAPROXY=yes; \
               export DEPLOY_OA=yes; \
               export DEPLOY_TEMPEST=no; \
