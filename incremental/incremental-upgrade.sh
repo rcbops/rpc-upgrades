@@ -30,19 +30,13 @@ fi
 # convert target to lowercase
 TARGET=${1,,}
 
-# if target not set, exit and inform user how to proceed
-if [[ -z "$1" ]]; then
-  echo "Please set the target to upgrade to:"
-  echo "i.e ./incremental-upgrade.sh queens"
-  exit 99
-fi
-
-# convert target to lowercase
-TARGET=${1,,}
-
 # check if environment is already upgraded to desired target
 if [[ ${TARGET} == ${CODE_UPGRADE_FROM} ]]; then
   echo "Nothing to do, you're already upgraded to ${TARGET^}."
+  exit 99
+elif [[ ${TARGET} == "ocata" ]]; then
+  echo "Upgrade directly to Ocata is not supported."
+  echo "Pike would be the next supported upgrade target."
   exit 99
 fi
 
