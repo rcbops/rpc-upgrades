@@ -31,6 +31,7 @@ prepare_ocata
 checkout_rpc_openstack
 checkout_openstack_ansible
 disable_hardening
+set_keystone_flush_memcache
 
 if [[ "$SKIP_INSTALL" == "yes" ]]; then
   exit 0

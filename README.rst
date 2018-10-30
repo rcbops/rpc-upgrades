@@ -18,7 +18,7 @@ Supported incremental upgrades (must be running on Ubuntu 16.04):
 * Newton to Pike (Ocata is skipped)
 * Newton to Queens
 
-Full docs for Incremental upgrades are [here](incremental.rst).
+Full docs for Incremental upgrades are `here <incremental.rst>`_.
 
 Leapfrog
 --------
@@ -31,7 +31,7 @@ Leapfrog upgrades from:
 * liberty to r14.18.0 (newton)
 * mitaka to r14.18.0 (newton)
 
-Full docs for Leapfrog upgrades are [here](leapfrog.rst).
+Full docs for Leapfrog upgrades are `here <leapfrog.rst>`_.
 
 Job Testing
 -----------

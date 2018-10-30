@@ -63,6 +63,10 @@ fi
 
 check_user_variables
 
+if [ "${SKIP_PREFLIGHT}" != "true" ]; then
+  pre_flight
+fi
+
 # run through TODO list and run incremental upgrade scripts
 for RELEASE_TO_DO in ${TODO}; do
   echo "Starting upgrade to ${RELEASE_TO_DO^}"

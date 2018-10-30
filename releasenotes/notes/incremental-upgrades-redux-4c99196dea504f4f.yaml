@@ -1,0 +1,10 @@
+---
+features:
+  - |
+    Add scripts for incremental upgrades from Ubuntu 16.04 starting at
+    Newton all the way to Queens.  Formalizes the incremental testing
+    scripts into something a bit more user friendly and allows the jump
+    from Newton to Pike or Newton to Queens directly.  (in testing)
+  - |
+    Adds ability to test gating using AIO and MNAIO snapshots in order to
+    reduce gating time to test.
