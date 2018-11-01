@@ -46,6 +46,44 @@ function discover_code_version {
     fi
 }
 
+function pre_flight {
+    ## Pre-flight Check ----------------------------------------------------------
+    # Clear the screen and make sure the user understands whats happening.
+    clear
+
+    # Notify the user.
+    echo -e "
+    Once you start the upgrade there is no going back.
+    This script will guide you through the process of
+    upgrading RPC-O from:
+
+    ${CODE_UPGRADE_FROM^} to ${TARGET^}
+
+    Note that the upgrade targets impacting the data
+    plane as little as possible, but assumes that the
+    control plane can experience some down time.
+
+    This script executes a one-size-fits-all upgrade,
+    and given that the tests implemented for it are
+    not monitored as well as those for a greenfield
+    environment, the results may vary with each release.
+
+    Please use it against a test environment with your
+    configurations to validate whether it suits your
+    needs and does a suitable upgrade.
+
+    Are you ready to perform this upgrade now?
+    "
+
+    # Confirm the user is ready to upgrade.
+    read -p 'Enter "YES" to continue or anything else to quit: ' UPGRADE
+    if [ "${UPGRADE}" == "YES" ]; then
+      echo "Running Upgrade from ${CODE_UPGRADE_FROM^} to ${TARGET^}"
+    else
+      exit 99
+    fi
+}
+
 function check_user_variables {
   if [[ ! -f /etc/openstack_deploy/user_variables.yml ]]; then
      echo "---" > /etc/openstack_deploy/user_variables.yml
@@ -79,6 +117,17 @@ function checkout_openstack_ansible {
       git fetch --all
       git checkout ${OSA_SHA}
     popd
+  fi
+}
+
+function set_keystone_flush_memcache {
+  if [[ ! -f /etc/openstack_deploy/user_rpco_upgrade.yml ]]; then
+     echo "---" > /etc/openstack_deploy/user_rpco_upgrade.yml
+     echo "keystone_flush_memcache: yes" >> /etc/openstack_deploy/user_rpco_upgrade.yml
+  elif [[ -f /etc/openstack_deploy/user_rpco_upgrade.yml ]]; then
+    if ! grep -i "keystone_flush_memcache" /etc/openstack_deploy/user_rpco_upgrade.yml; then
+      echo "keystone_flush_memcache: yes" >> /etc/openstack_deploy/user_rpco_upgrade.yml
+    fi
   fi
 }
 
@@ -130,14 +179,6 @@ function prepare_ocata {
 
 function prepare_pike {
   pushd /opt/openstack-ansible
-    # remove once https://review.openstack.org/#/c/604804/ merges
-    sed -i '/- name: os_keystone/,+3d' /opt/openstack-ansible/ansible-role-requirements.yml
-    cat <<EOF >> /opt/openstack-ansible/ansible-role-requirements.yml
-- name: os_keystone
-  scm: git
-  src: https://github.com/antonym/openstack-ansible-os_keystone.git
-  version: 7af19232541b74726133a01c140b42828c2c59d7
-EOF
     # patch in restarting of containers into run-upgrade
     cp /opt/rpc-upgrades/playbooks/patches/pike/lxc-containers-restart.yml /opt/openstack-ansible/scripts/upgrade-utilities/playbooks
     cp /opt/rpc-upgrades/playbooks/patches/pike/run-upgrade.patch /opt/openstack-ansible

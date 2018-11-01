@@ -27,6 +27,7 @@ echo "Starting Ocata to Pike Upgrade..."
 checkout_rpc_openstack
 checkout_openstack_ansible
 disable_hardening
+set_keystone_flush_memcache
 prepare_pike
 
 if [[ "$SKIP_INSTALL" == "yes" ]]; then

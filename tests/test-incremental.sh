@@ -19,5 +19,6 @@ set -evu
 export RE_JOB_UPGRADE_TO=${RE_JOB_UPGRADE_TO:-'queens'}
 
 pushd /opt/rpc-upgrades/incremental
+  export SKIP_PREFLIGHT=true
   ./incremental-upgrade.sh ${RE_JOB_UPGRADE_TO}
 popd
