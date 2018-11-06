@@ -162,18 +162,5 @@ glance_api_serial: '100%'
 glance_registry_rolling: '100%'
 EOF
 
-# RLM-1438 patch openstack_hosts fork into 14.7.0 to ensure RLM-322 works
-if [ "${RPC_TARGET_CHECKOUT}" = "r14.7.0" -a ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/patch-rpc-o-14.7.0-ansible-role-requirements.complete" ]; then
-   pushd ${RPCO_DEFAULT_FOLDER}
-     patch -p1 < ${RPC_UPGRADES_DEFAULT_FOLDER}/playbooks/patches/newton/rpc-o-14.7.0-ansible-role-requirements.patch
-     test $? -eq 0 && touch "${UPGRADE_LEAP_MARKER_FOLDER}/patch-rpc-o-14.7.0-ansible-role-requirements.complete"
-   popd
-fi
-
-# RLM-1465 patch group_vars/lxc to get around resolv.conf issue
-if [ "${RPC_TARGET_CHECKOUT}" = "r14.11.0" -a ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/patch-rpc-o-14.11.0-resolv.conf.complete" ]; then
-   pushd ${RPCO_DEFAULT_FOLDER}
-     patch -p1 < ${RPC_UPGRADES_DEFAULT_FOLDER}/playbooks/patches/newton/rpc-o-14.11.0-resolv.conf.patch
-     test $? -eq 0 && touch "${UPGRADE_LEAP_MARKER_FOLDER}/patch-rpc-o-14.11.0-resolv.conf.complete"
-   popd
-fi
+# rsync group_vars from RPC-O repo
+rsync -av --delete ${RPCO_DEFAULT_FOLDER}/group_vars /etc/openstack_deploy/
