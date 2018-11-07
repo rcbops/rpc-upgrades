@@ -12,6 +12,8 @@ set -o pipefail
 # outside of the CI environment.
 export RE_HOOK_ARTIFACT_DIR="${RE_HOOK_ARTIFACT_DIR:-/tmp/artifacts}"
 export RE_HOOK_RESULT_DIR="${RE_HOOK_RESULT_DIR:-/tmp/results}"
+export RE_JOB_CONTEXT=`echo ${RE_JOB_ACTION} | awk -F'_' {'print $1'}`
+export RE_JOB_UPGRADE_TO=`echo ${RE_JOB_ACTION} | awk -F'_' {'print $3'}`
 export RE_JOB_UPGRADE_ACTION=`echo ${RE_JOB_ACTION} | awk -F'_' {'print $4'}`
 export RE_JOB_TESTING_ACTION=`echo ${RE_JOB_ACTION} | awk -F'_' {'print $5'}`
 
@@ -55,19 +57,15 @@ if [[ ${RE_JOB_IMAGE} =~ .*mnaio.* ]] && [[ ${RE_JOB_UPGRADE_ACTION} == "snapcap
   find /data/images -name \*.img -not -name \*-base.img -delete
 
   echo "Moving files to named folder for artifact upload."
-  mv /data/images /data/${RPC_RELEASE}-${RE_JOB_IMAGE}-${RE_JOB_SCENARIO}
+  mv /data/images /data/${RE_JOB_CONTEXT}-${RE_JOB_IMAGE}-${RE_JOB_SCENARIO}
 
   echo "Preparing machine image artifact upload configuration."
   cat > component_metadata.yml <<EOF
 "artifacts": [
   {
     "type": "file",
-    "source": "/data/${RPC_RELEASE}-${RE_JOB_IMAGE}-${RE_JOB_SCENARIO}"
+    "source": "/data/${RE_JOB_CONTEXT}-${RE_JOB_IMAGE}-${RE_JOB_SCENARIO}"
   }
 ]
 EOF
 fi
-
-extract_rpc_release(){
-  awk '/rpc_release/{print $2}' | tr -d '"'
-}
