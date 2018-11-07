@@ -12,6 +12,7 @@ set -o pipefail
 # outside of the CI environment.
 export RE_HOOK_ARTIFACT_DIR="${RE_HOOK_ARTIFACT_DIR:-/tmp/artifacts}"
 export RE_HOOK_RESULT_DIR="${RE_HOOK_RESULT_DIR:-/tmp/results}"
+export RE_JOB_UPGRADE_ACTION=`echo ${RE_JOB_ACTION} | awk -F'_' {'print $4'}`
 export RE_JOB_TESTING_ACTION=`echo ${RE_JOB_ACTION} | awk -F'_' {'print $5'}`
 
 ## Functions -----------------------------------------------------------------
@@ -43,6 +44,29 @@ collect_logs_cmd+=" $(dirname ${0})/collect_logs.yml"
 eval $collect_logs_cmd || true
 
 echo "#### END LOG COLLECTION ###"
+
+if [[ ${RE_JOB_IMAGE} =~ .*mnaio.* ]] && [[ ${RE_JOB_UPGRADE_ACTION} == "snapcap" ]] && [[ "${RE_JOB_STATUS:-SUCCESS}" == "SUCCESS" ]]; then
+  echo "Preparing machine image artifacts."
+  pushd /opt/openstack-ansible-ops/multi-node-aio
+    ansible-playbook -vv -i ${MNAIO_INVENTORY:-"playbooks/inventory"} playbooks/save-vms.yml
+  popd
+
+  echo "Deleting unnecessary image files to prevent artifacting them."
+  find /data/images -name \*.img -not -name \*-base.img -delete
+
+  echo "Moving files to named folder for artifact upload."
+  mv /data/images /data/${RPC_RELEASE}-${RE_JOB_IMAGE}-${RE_JOB_SCENARIO}
+
+  echo "Preparing machine image artifact upload configuration."
+  cat > component_metadata.yml <<EOF
+"artifacts": [
+  {
+    "type": "file",
+    "source": "/data/${RPC_RELEASE}-${RE_JOB_IMAGE}-${RE_JOB_SCENARIO}"
+  }
+]
+EOF
+fi
 
 extract_rpc_release(){
   awk '/rpc_release/{print $2}' | tr -d '"'

@@ -141,6 +141,9 @@ if [ "${RE_JOB_ACTION}" != "tox-test" ]; then
     prep_aio
     #install_maas
   fi
+  if [ "${RE_JOB_UPGRADE_ACTION}" == "snapcap" ]; then
+    export RUN_UPGRADES=no
+  fi
   if [ "${RUN_UPGRADES}" == "yes" ]; then
     if [[ $RE_JOB_IMAGE_TYPE =~ .*mnaio.* ]]; then
       run_mnaio_upgrade
