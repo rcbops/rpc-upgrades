@@ -29,6 +29,11 @@ export RE_JOB_CONTEXT="${RE_JOB_CONTEXT:-master}"
 export RE_JOB_IMAGE_OS="${RE_JOB_IMAGE_OS:-trusty}"
 export RE_JOB_IMAGE_TYPE="${RE_JOB_IMAGE_TYPE:-mnaio}"
 
+export RPCU_ARTIFACT_URL="https://ed2cc5ce4ea792952a06-5946b1c04934c7963c5365082354649f.ssl.cf5.rackcdn.com"
+export RPCU_IMAGE_MANIFEST_URL="${RPCU_ARTIFACT_URL}/${RE_JOB_CONTEXT}-${RE_JOB_IMAGE}-${RE_JOB_SCENARIO}/manifest.json"
+export RPCO_ARTIFACT_URL="https://a5ce27333a8948d82738-b28e2b85e22a27f072118ea786afca3a.ssl.cf5.rackcdn.com"
+export RPCO_IMAGE_MANIFEST_URL="${RPCO_ARTIFACT_URL}/${RE_JOB_CONTEXT}-${RE_JOB_IMAGE}-${RE_JOB_SCENARIO}/manifest.json"
+
 # set guest OS based on RE_JOB_IMAGE_OS
 if [ ${RE_JOB_IMAGE_OS} == "trusty" ]; then
   DEFAULT_IMAGE="ubuntu-14.04-amd64"
@@ -41,7 +46,10 @@ fi
 function determine_manifest {
    # check and see if specific version is present and set RPCO_IMAGE_MANIFEST_URL
    # if not, then attempt to fall back and boot from latest version to attempt upgrade
-   if curl --output /dev/null --silent --head --fail "${RPCO_IMAGE_MANIFEST_URL}"; then
+   if curl --output /dev/null --silent --head --fail "${RPCU_IMAGE_MANIFEST_URL}"; then
+     echo "RPCU_IMAGE_MANIFEST_URL is valid and exists for ${RE_JOB_CONTEXT}."
+     echo "RPCU_IMAGE_MANIFEST_URL set to ${RPCU_IMAGE_MANIFEST_URL}."
+   elif curl --output /dev/null --silent --head --fail "${RPCO_IMAGE_MANIFEST_URL}"; then
      echo "RPCO_IMAGE_MANIFEST_URL is valid and exists for ${RE_JOB_CONTEXT}."
      echo "RPCO_IMAGE_MANIFEST_URL set to ${RPCO_IMAGE_MANIFEST_URL}."
    else
@@ -52,6 +60,8 @@ function determine_manifest {
        export RPCO_IMAGE_MANIFEST_URL="${RPCO_ARTIFACT_URL}/r16.2.5-xenial_mnaio_no_artifacts-swift/manifest.json"
      elif [ "${RE_JOB_SERIES}" == "newton" ]; then
        export RPCO_IMAGE_MANIFEST_URL="${RPCO_ARTIFACT_URL}/r14.18.0-xenial_mnaio_loose_artifacts-swift/manifest.json"
+     else
+       exit 1
      fi
      export DEPLOY_VMS="false"
      echo "RPCO_IMAGE_MANIFEST_URL set to ${RPCO_IMAGE_MANIFEST_URL}."
