@@ -263,6 +263,17 @@ function get_latest_mitaka_roles {
 EOF
 }
 
+function fix_sshd_tag {
+  # RI-575 Fix the sshd checkout version
+  sed -i '/- name: sshd/,+3d' ${OSA_PATH}/ansible-role-requirements.yml
+  cat <<EOF >> ${OSA_PATH}/ansible-role-requirements.yml
+- name: sshd
+  scm: git
+  src: https://github.com/willshersystems/ansible-sshd
+  version: v0.4.4
+EOF
+}
+
 ## Main ----------------------------------------------------------------------
 echo "Gate test starting
 with:
@@ -352,6 +363,7 @@ pushd /opt/rpc-openstack
     fix_galera_apt_cache
     remove_xtrabackup_from_galera_client
     maas_tweaks
+    fix_sshd_tag
     spice_repo_fix
     correct_haproxy_logdir_symlink_patch
     restore_default_apt_sources
@@ -369,6 +381,7 @@ pushd /opt/rpc-openstack
     unset_affinity
     allow_frontloading_vars
     maas_tweaks
+    fix_sshd_tag
     spice_repo_fix
     correct_haproxy_logdir_symlink_patch
     restore_default_apt_sources
