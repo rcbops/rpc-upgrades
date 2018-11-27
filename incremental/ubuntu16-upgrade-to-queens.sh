@@ -24,11 +24,13 @@ require_ubuntu_version 16
 export RPC_BRANCH=${RPC_BRANCH:-'queens'}
 export OSA_SHA="stable/queens"
 export SKIP_INSTALL=${SKIP_INSTALL:-'no'}
+export RPC_PRODUCT_RELEASE="queens"
+export RPC_ANSIBLE_VERSION="2.4.3.0"
 
 echo "Starting Pike to Queens Upgrade..."
 
 checkout_rpc_openstack
-checkout_openstack_ansible
+configure_rpc_openstack
 set_secrets_file
 disable_hardening
 prepare_queens
