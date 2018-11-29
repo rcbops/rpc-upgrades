@@ -18,14 +18,17 @@ set -evu
 
 source lib/functions.sh
 
-export RPC_BRANCH=${RPC_BRANCH:-'r16.2.4'}
+#export RPC_BRANCH=${RPC_BRANCH:-'r16.2.6'}
+export RPC_BRANCH=${RPC_BRANCH:-'pike'}
 export OSA_SHA="stable/pike"
 export SKIP_INSTALL=${SKIP_INSTALL:-'no'}
+export RPC_PRODUCT_RELEASE="pike"
+export RPC_ANSIBLE_VERSION="2.3.2.0"
 
 echo "Starting Ocata to Pike Upgrade..."
 
 checkout_rpc_openstack
-checkout_openstack_ansible
+configure_rpc_openstack
 disable_hardening
 set_keystone_flush_memcache
 prepare_pike
