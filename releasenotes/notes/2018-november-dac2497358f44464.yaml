@@ -1,0 +1,20 @@
+---
+features:
+  - |
+    Leaps to Newton r14.19.0
+  - |
+    Switches leapfrog upgrades to use openstack-ansible from the
+    https://github.com/rcbops/openstack-ansible repo instead of
+    upstream git.openstack.org.  This allows us to make maintenance
+    changes to the EOL branches used in the Leapfrog process.
+    Dependencies break over time and in order to maintain a working
+    leapfrog toolset, the older openstack-ansible release branches
+    occasionally need to be modified to allow the leapfrog tool to
+    continue working.  This is controlled by the OSA_REPO_URL in
+    openstack-ansible-ops leapfrog tooling.
+  - |
+    Incrementals now utilize variables from rpc-openstack for each
+    release to ensure that the version we're upgrading to is in line
+    with the version of RPC-O that we support.  This ensures we're
+    using the same OSA release as an RPC-O release and copies the
+    necessary group_vars over when incrementing up for each version. 
