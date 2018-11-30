@@ -20,9 +20,14 @@ export RPC_TARGET_CHECKOUT=${RE_JOB_UPGRADE_TO:-'newton'}
 if [[ ${RE_JOB_UPGRADE_TO} == "r14.current" ]]; then
   pushd /opt/rpc-openstack
     echo "Getting latest tagged release for r14.current..."
-    git fetch --tags
+    git fetch --all
     RPC_TARGET_CHECKOUT=`git for-each-ref refs/tags --sort=-taggerdate --format='%(tag)' | grep r14. | head -1`
     echo "Upgrading to latest release of ${RPC_TARGET_CHECKOUT} (Newton)..."
+  popd
+else
+  echo "Ensure we have the latest version of the repo..."
+  pushd /opt/rpc-openstack
+    git fetch --all
   popd
 fi
 
