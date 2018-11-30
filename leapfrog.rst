@@ -12,15 +12,26 @@ rpc-upgrades repo supports:
 
 Leapfrog upgrades from:
 
-* kilo to r14.18.0 (newton)
-* liberty to r14.18.0 (newton)
-* mitaka to r14.18.0 (newton)
+* kilo to r14.19.0 (newton)
+* liberty to r14.19.0 (newton)
+* mitaka to r14.19.0 (newton)
 
 Job Testing
 -----------
 
 The status of supported versions can be viewed from the periodic jobs located on the
 `RPC Jenkins <https://rpc.jenkins.cit.rackspace.net/view/Upgrades>`_ server.
+
+Repos Used
+----------
+
+Leapfrog no longer uses the upstream git.openstack.org repos for deployment of
+openstack-ansible.  It now utilizes the repo hosted at:
+
+https://github.com/rcbops/openstack-ansible
+
+This allows us to maintain the various branches used by leapfrog for when upstream dependencies
+break since upstream openstack-ansible repos for the older branches are EOL and frozen.
 
 Terms
 -----
@@ -30,7 +41,7 @@ Terms
 * `OSA-OPS <https://github.com/openstack/openstack-ansible-ops>`_:  OpenStack Operations
 * `Kilo <https://github.com/rcbops/rpc-openstack/tree/kilo>`_: The RPCO release of OpenStack Kilo
 * `Liberty <https://github.com/rcbops/rpc-openstack/tree/liberty>`_: The RPCO release of OpenStack Liberty
-* `r14.18.0 <https://github.com/rcbops/rpc-openstack/tree/r14.18.0>`_: The RPCO release of OpenStack Newton.
+* `r14.19.0 <https://github.com/rcbops/rpc-openstack/tree/r14.19.0>`_: The RPCO release of OpenStack Newton.
 
 Pre Upgrade Tasks
 ------------------
@@ -81,11 +92,11 @@ containers on CONTAINERS_TO_DESTROY as this will override the default that inclu
 
     export CONTAINERS_TO_DESTROY='all_containers:!galera_all:!neutron_agent:!ceph_all:!rsyslog_all:!elasticsearch_all:!swift_all'
 
-**Note:** *Currently the rpc-upgrades repo targets r14.18.0.  If you want to deploy the previous version you can:*
+**Note:** *Currently the rpc-upgrades repo targets r14.19.0.  If you want to deploy the previous version you can:*
 
 .. code-block:: shell
 
-   export RPC_TARGET_CHECKOUT=r14.17.0
+   export RPC_TARGET_CHECKOUT=r14.18.0
 
 If you cannot locate `/etc/openstack-release` or it is outdated. Export the release version which upgrade from manually:
 
