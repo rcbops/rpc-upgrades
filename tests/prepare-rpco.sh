@@ -263,6 +263,15 @@ function get_latest_mitaka_roles {
 EOF
 }
 
+function fix_kilo_arr {
+  cat <<EOF > ${OSA_PATH}/ansible-role-requirements.yml
+- name: sshd
+  scm: git
+  src: https://github.com/willshersystems/ansible-sshd
+  version: v0.4.4
+EOF
+}
+
 function fix_sshd_tag {
   # RI-575 Fix the sshd checkout version
   sed -i '/- name: sshd/,+3d' ${OSA_PATH}/ansible-role-requirements.yml
@@ -315,6 +324,7 @@ pushd /opt/rpc-openstack
     kilo_caches
     allow_frontloading_vars
     get_ssh_role
+    fix_kilo_arr
     maas_tweaks
     spice_repo_fix
     # NOTE(cloudnull): Pycrypto has to be limited.
