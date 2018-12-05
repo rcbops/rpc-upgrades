@@ -170,26 +170,51 @@ sudo cp /etc/openstack_deploy/user_variables.yml.bak /etc/openstack_deploy/user_
 sudo apt-get -y install libvirt-dev
 EOF
 
-# split out to capture exit codes if scripts fail
-# start the rpc-o install from infra1
-${MNAIO_SSH} "source /opt/rpc-upgrades/RE_ENV; \
-              source /opt/rpc-upgrades/ANSIBLE_RETRY; \
-              source /opt/rpc-upgrades/tests/ansible-env.rc; \
-              pushd /opt/rpc-openstack; \
-              export DEPLOY_ELK=no; \
-              export DEPLOY_MAAS=false; \
-              export DEPLOY_TELEGRAF=no; \
-              export DEPLOY_INFLUX=no; \
-              export DEPLOY_AIO=false; \
-              export DEPLOY_HAPROXY=yes; \
-              export DEPLOY_OA=yes; \
-              export DEPLOY_TEMPEST=no; \
-              export DEPLOY_CEILOMETER=no; \
-              export DEPLOY_CEPH=no; \
-              export DEPLOY_SWIFT=yes; \
-              export DEPLOY_RPC=yes; \
-              export ANSIBLE_FORCE_COLOR=true; \
-              scripts/deploy.sh"
+# Pre Newton and Post Newton RPC-O deployments are different so
+# this tunes out the specifics for each type
+case "${RE_JOB_SERIES}" in
+  kilo|liberty|mitaka|newton)
+    ${MNAIO_SSH} "source /opt/rpc-upgrades/RE_ENV; \
+                  source /opt/rpc-upgrades/ANSIBLE_RETRY; \
+                  source /opt/rpc-upgrades/tests/ansible-env.rc; \
+                  pushd /opt/rpc-openstack; \
+                  export DEPLOY_ELK=no; \
+                  export DEPLOY_MAAS=false; \
+                  export DEPLOY_TELEGRAF=no; \
+                  export DEPLOY_INFLUX=no; \
+                  export DEPLOY_AIO=false; \
+                  export DEPLOY_HAPROXY=yes; \
+                  export DEPLOY_OA=yes; \
+                  export DEPLOY_TEMPEST=no; \
+                  export DEPLOY_CEILOMETER=no; \
+                  export DEPLOY_CEPH=no; \
+                  export DEPLOY_SWIFT=yes; \
+                  export DEPLOY_RPC=yes; \
+                  export ANSIBLE_FORCE_COLOR=true; \
+                  scripts/deploy.sh"
+  ;;
+  ocata|pike|queens|rocky|stein)
+    ${MNAIO_SSH} "source /opt/rpc-upgrades/RE_ENV; \
+                  pushd /opt/rpc-openstack; \
+                  export DEPLOY_AIO=false; \
+                  export RPC_PRODUCT_RELEASE="${RE_JOB_SERIES}"; \
+                  export DEPLOY_MAAS=false; \
+                  export ANSIBLE_FORCE_COLOR=true; \
+                  scripts/deploy.sh; \
+                  /opt/rpc-ansible/bin/ansible-playbook -i 'localhost,' playbooks/openstack-ansible-install.yml; \
+                  popd; \
+                  pushd /opt/openstack-ansible/scripts; \
+                  cp /opt/openstack-ansible/etc/openstack_deploy/user_secrets.yml /etc/openstack_deploy/
+                  python pw-token-gen.py --file /etc/openstack_deploy/user_secrets.yml; \
+                  popd; \
+                  pushd /opt/openstack-ansible/playbooks; \
+                  openstack-ansible setup-hosts.yml setup-infrastructure.yml setup-openstack.yml"
+  ;;
+  *)
+    echo "Unable to detect current OpenStack version, failing...."
+    exit 1
+  ;;
+esac
 
 echo "MNAIO RPC-O deploy completed..."
 
