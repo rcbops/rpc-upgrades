@@ -24,7 +24,9 @@ job_actions = [
   "r12.2.2_to_r14.20.0_leap",
   "r12.2.5_to_r14.20.0_leap",
   "r12.2.8_to_r14.20.0_leap",
-  "newton_to_queens_incremental",
+  "newton_to_queens_inc",
+  "pike_to_queens_inc",
+  "queens_to_rocky_inc"
 ]
 
 Vagrant.configure("2") do |config|

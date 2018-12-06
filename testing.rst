@@ -79,7 +79,7 @@ these variables:
 
 .. code-block:: shell
 
-    export RE_JOB_ACTION="newton_to_queens_incremental"
+    export RE_JOB_ACTION="newton_to_queens_inc"
     export RE_JOB_IMAGE="xenial_mnaio"
     ./run-tests.sh
 
@@ -88,7 +88,7 @@ already has the version to be upgraded from deployed, then use:
 
 .. code-block:: shell
 
-    export RE_JOB_ACTION="newton_to_queens_incremental"
+    export RE_JOB_ACTION="newton_to_queens_inc"
     export RE_JOB_IMAGE="xenial_mnaio-snap"
     ./run-tests.sh
 

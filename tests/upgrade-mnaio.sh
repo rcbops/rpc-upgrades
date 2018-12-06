@@ -27,7 +27,7 @@ echo "+-------------------- MNAIO ENV VARS --------------------+"
 export MNAIO_SSH="ssh -ttt -oStrictHostKeyChecking=no root@infra1"
 
 # upgrade mnaio vms from trusty to xenial if testing incremental
-if [[ "${RE_JOB_UPGRADE_ACTION}" == "incremental" && ${RE_JOB_IMAGE_OS} == "trusty" && ${RE_JOB_IMAGE_TYPE} == "mnaio" ]] ; then
+if [[ "${RE_JOB_UPGRADE_ACTION}" == "inc" && ${RE_JOB_IMAGE_OS} == "trusty" && ${RE_JOB_IMAGE_TYPE} == "mnaio" ]] ; then
   push /opt/rpc-upgrades/playbooks
     openstack-ansible mnaio-trusty-to-xenial.yml
   popd

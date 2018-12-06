@@ -102,7 +102,7 @@ function run_mnaio_upgrade {
 }
 
 function post_upgrade {
-  if [ "${RE_JOB_UPGRADE_ACTION}" != "incremental" ]; then
+  if [ "${RE_JOB_UPGRADE_ACTION}" != "inc" ]; then
     #sudo -H --preserve-env ./tests/maas-install.sh
     sudo -H --preserve-env ./tests/qc-test.sh
     # RLM-292 secondary test-upgrade run to validate idempotency
