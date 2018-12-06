@@ -20,6 +20,7 @@ source lib/functions.sh
 source lib/vars.sh
 
 discover_code_version
+require_ubuntu_version 16
 
 # if target not set, exit and inform user how to proceed
 if [[ -z "$1" ]]; then

@@ -18,6 +18,8 @@ set -evu
 
 source lib/functions.sh
 
+require_ubuntu_version 16
+
 export RPC_BRANCH=${RPC_BRANCH:-'rocky'}
 export OSA_SHA="stable/rocky"
 export SKIP_INSTALL=${SKIP_INSTALL:-'no'}

@@ -18,6 +18,8 @@ set -evu
 
 source lib/functions.sh
 
+require_ubuntu_version 16
+
 export RPC_BRANCH=${RPC_BRANCH:-'ocata'}
 export OSA_SHA="stable/ocata"
 export SKIP_INSTALL=${SKIP_INSTALL:-"yes"}

@@ -46,6 +46,15 @@ function discover_code_version {
     fi
 }
 
+# Fail if Ubuntu Major release is not the minimum required for a given OpenStack upgrade
+function require_ubuntu_version {
+  REQUIRED_VERSION="$1"
+  if [ "$(lsb_release -r | cut -f2 -d$'\t' | cut -f1 -d$'.')" -lt "$REQUIRED_VERSION" ]; then
+    echo "Please upgrade to Ubuntu "$REQUIRED_VERSION" before attempting to upgrade OpenStack"
+    exit 99
+  fi
+}
+
 function pre_flight {
     ## Pre-flight Check ----------------------------------------------------------
     # Clear the screen and make sure the user understands whats happening.
