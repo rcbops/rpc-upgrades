@@ -37,7 +37,7 @@ elif [ "${RE_JOB_UPGRADE_ACTION}" == "major" ]; then
   tests/test-major.sh
 elif [ "${RE_JOB_UPGRADE_ACTION}" == "minor" ]; then
   tests/test-minor.sh
-elif [ "${RE_JOB_UPGRADE_ACTION}" == "incremental" ] ; then
+elif [ "${RE_JOB_UPGRADE_ACTION}" == "inc" ] ; then
   tests/test-incremental.sh
 else
   echo "FAIL!"
