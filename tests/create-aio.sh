@@ -55,5 +55,6 @@ pushd /opt/rpc-openstack
   export DEPLOY_MAAS="false"
   export DEPLOY_AIO="yes"
   export DEPLOY_HARDENING="no"
+  export RPC_APT_ARTIFACT_MODE="loose"
   scripts/deploy.sh
 popd
