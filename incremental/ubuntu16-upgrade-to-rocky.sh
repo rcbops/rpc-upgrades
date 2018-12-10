@@ -30,7 +30,6 @@ checkout_rpc_openstack
 configure_rpc_openstack
 set_secrets_file
 disable_hardening
-bootstrap_ansible
 prepare_rocky
 run_upgrade
 
