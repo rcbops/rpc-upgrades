@@ -191,6 +191,7 @@ case "${RE_JOB_SERIES}" in
                   export DEPLOY_SWIFT=yes; \
                   export DEPLOY_RPC=yes; \
                   export ANSIBLE_FORCE_COLOR=true; \
+                  export RPC_APT_ARTIFACT_MODE="loose"; \
                   scripts/deploy.sh"
   ;;
   ocata|pike|queens|rocky|stein)
