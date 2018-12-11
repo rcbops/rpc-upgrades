@@ -147,7 +147,7 @@ lsb_release -a
 uname -a
 echo "+--------------- INFRA1 RELEASE AND KERNEL --------------+"
 # backup mnaio variables
-sudo cp /etc/openstack_deploy/user_variables.yml /etc/openstack_deploy/user_variables.yml.bak
+sudo cp /etc/openstack_deploy/user_mnaio_variables.yml /etc/openstack_deploy/user_mnaio_variables.yml.bak
 
 # install release openstack-ansible deploy files from known locations
 if [ -d "/opt/rpc-openstack/openstack-ansible" ]; then
@@ -164,7 +164,7 @@ elif [ -d "/opt/rpc-openstack/etc/openstack_deploy" ]; then
 fi
 
 # restore mnaio variables
-sudo cp /etc/openstack_deploy/user_variables.yml.bak /etc/openstack_deploy/user_variables.yml
+sudo cp /etc/openstack_deploy/user_mnaio_variables.yml.bak /etc/openstack_deploy/user_mnaio_variables.yml
 
 # install libvirt-dev on infra1 because pinning to libvirt-python requires it
 sudo apt-get -y install libvirt-dev
