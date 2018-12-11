@@ -18,6 +18,8 @@ set -evu
 
 source lib/functions.sh
 
+require_ubuntu_version 16
+
 #export RPC_BRANCH=${RPC_BRANCH:-'r16.2.6'}
 export RPC_BRANCH=${RPC_BRANCH:-'pike'}
 export OSA_SHA="stable/pike"

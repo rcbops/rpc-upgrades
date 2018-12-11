@@ -18,6 +18,8 @@ set -evu
 
 source lib/functions.sh
 
+require_ubuntu_version 16
+
 #export RPC_BRANCH=${RPC_BRANCH:-'r17.1.2'}
 export RPC_BRANCH=${RPC_BRANCH:-'queens'}
 export OSA_SHA="stable/queens"
