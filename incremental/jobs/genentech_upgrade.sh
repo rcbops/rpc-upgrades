@@ -14,13 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# vars for incremental upgrades
-RELEASES="newton
-          ocata
-          pike
-          queens
-          rocky"
+set -evu
 
-STARTING_RELEASE=false
-SKIP_PREFLIGHT=${SKIP_PREFLIGHT:-false}
-UPDATE_XENIAL_PACKAGES=${UPDATE_XENIAL_PACKAGES:-true}
+UPDATE_XENIAL_PACKAGES="false"
+
+#Start upgrade
+/opt/rpc-upgrades/incremental/incremental-upgrade.sh queens

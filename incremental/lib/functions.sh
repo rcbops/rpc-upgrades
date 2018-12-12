@@ -183,7 +183,7 @@ function strip_install_steps {
 
 function prepare_ocata {
   pushd /opt/rpc-upgrades/incremental/playbooks
-    openstack-ansible prepare-ocata-upgrade.yml
+    openstack-ansible prepare-ocata-upgrade.yml -e "update_xenial_packages=${UPDATE_XENIAL_PACKAGES}"
   popd
 }
 
