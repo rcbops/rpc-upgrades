@@ -168,6 +168,7 @@ function run_upgrade {
     export TERM=linux
     export I_REALLY_KNOW_WHAT_I_AM_DOING=true
     export SETUP_ARA=true
+    export ANSIBLE_CALLBACK_PLUGINS=/etc/ansible/roles/plugins/callback:/opt/ansible-runtime/local/lib/python2.7/site-packages/ara/plugins/callbacks
     echo "YES" | bash scripts/run-upgrade.sh
   popd
 }
