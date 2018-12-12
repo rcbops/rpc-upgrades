@@ -23,13 +23,11 @@ require_ubuntu_version 16
 export RPC_BRANCH=${RPC_BRANCH:-'rocky'}
 export OSA_SHA="stable/rocky"
 export SKIP_INSTALL=${SKIP_INSTALL:-'no'}
-export RPC_PRODUCT_RELEASE="rocky"
-export RPC_ANSIBLE_VERSION="2.5.5"
 
 echo "Starting Queens to Rocky Upgrade..."
 
 checkout_rpc_openstack
-configure_rpc_openstack
+checkout_openstack_ansible
 set_secrets_file
 disable_hardening
 prepare_rocky
