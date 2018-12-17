@@ -16,6 +16,7 @@
 - name: Set Repos and Update to latest Xenial Packages
   hosts: hosts:all_containers
   user: root
+  when: "{{ update_xenial_packages | default(true) }}"
   tasks:
     - name: Backup the original sources file
       copy:
