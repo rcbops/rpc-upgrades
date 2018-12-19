@@ -40,6 +40,7 @@ if [[ "$SKIP_INSTALL" == "yes" ]]; then
   exit 0
 fi
 
+set_rpc_release
 run_upgrade
 
 echo "Newton to Ocata Upgrade completed..."

@@ -31,6 +31,7 @@ checkout_openstack_ansible
 set_secrets_file
 disable_hardening
 prepare_rocky
+set_rpc_release
 run_upgrade
 
 echo "Queens to Rocky Upgrade completed..."

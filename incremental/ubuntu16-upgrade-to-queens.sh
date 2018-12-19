@@ -32,6 +32,7 @@ checkout_openstack_ansible
 set_secrets_file
 disable_hardening
 prepare_queens
+set_rpc_release
 run_upgrade
 
 echo "Pike to Queens Upgrade completed..."

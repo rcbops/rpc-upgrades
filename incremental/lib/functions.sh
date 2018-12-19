@@ -181,6 +181,12 @@ function strip_install_steps {
   popd
 }
 
+# Because we are upgrading in place using OSA tooling, rpc_release (defined in /etc/openstack_deploy)
+function set_rpc_release {
+  RPC_RELEASE=$(awk "/$RPC_BRANCH/,/rpc_release/ {print \$2}" /opt/rpc-openstack/playbooks/vars/rpc-release.yml | tail -1)
+  sed -i "s/^\(rpc_release:\).*/\1 \"$RPC_RELEASE\"/" /etc/openstack_deploy/group_vars/all/release.yml
+}
+
 function prepare_ocata {
   pushd /opt/rpc-upgrades/incremental/playbooks
     openstack-ansible prepare-ocata-upgrade.yml

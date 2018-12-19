@@ -38,6 +38,8 @@ if [[ "$SKIP_INSTALL" == "yes" ]]; then
   strip_install_steps
 fi
 
+set_rpc_release
 run_upgrade
+
 
 echo "Ocata to Pike Upgrade completed..."
