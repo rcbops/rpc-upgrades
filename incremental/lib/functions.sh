@@ -204,9 +204,11 @@ function strip_install_steps {
 }
 
 function prepare_ocata {
-  pushd /opt/rpc-upgrades/incremental/playbooks
-    openstack-ansible prepare-ocata-upgrade.yml
-  popd
+  if [[ ! -f "/etc/openstack_deploy/ocata_upgrade_prep.complete" ]]; then
+    pushd /opt/rpc-upgrades/incremental/playbooks
+      openstack-ansible prepare-ocata-upgrade.yml
+    popd
+  fi
 }
 
 function prepare_pike {

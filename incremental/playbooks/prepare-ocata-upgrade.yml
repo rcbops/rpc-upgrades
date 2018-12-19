@@ -38,16 +38,6 @@
         - /etc/apt/sources.list.d/rpco.list
         - /etc/apt/sources.list.d/rax-maas.list
 
-    - name: Update all packages to the latest version
-      apt:
-        upgrade: dist
-        update_cache: yes
-        cache_valid_time: 1200
-      register: update_packages
-      until: update_packages is success
-      retries: 5
-      delay: 2
-
 - name: Ensure artifact repos removed from containers
   hosts: "hosts:all_containers"
   user: root
@@ -106,3 +96,9 @@
         - /etc/openstack_deploy/env.d
         - /etc/openstack_deploy/ansible_facts
         - /etc/openstack_deploy/user_osa_variables_defaults.yml
+
+    - name: Set lock file
+      file:
+        path: /etc/openstack_deploy/ocata_upgrade_prep.complete
+        state: touch
+        mode: 0644
