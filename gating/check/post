@@ -31,13 +31,6 @@ fi
 
 echo "#### BEGIN LOG COLLECTION ###"
 
-# if ARA is installed and supported, generate ara html logs
-ARA_CMD="/opt/ansible-runtime/bin/ara"
-if [ -f ${ARA_CMD} ]; then
-  mkdir -p ${RE_HOOK_ARTIFACT_DIR}/ara
-  ${ARA_CMD} generate html ${RE_HOOK_ARTIFACT_DIR}/ara/
-fi
-
 collect_logs_cmd="ansible-playbook"
 collect_logs_cmd+=" --ssh-common-args='-o StrictHostKeyChecking=no'"
 collect_logs_cmd+=" --extra-vars='artifacts_dir=${RE_HOOK_ARTIFACT_DIR}'"

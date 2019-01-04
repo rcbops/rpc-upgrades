@@ -145,3 +145,55 @@
     artifacts_dir: "/tmp/artifacts"
     result_dir: "/tmp/result"
     target_hosts: "localhost"
+
+- hosts: "{{ target_hosts }}"
+  gather_facts: false
+  tasks:
+    - name: Check if ARA is present
+      stat:
+        path: /opt/ansible-runtime/bin/ara
+      register: ara_installed
+      when: inventory_hostname in ["infra1", "localhost"]
+
+    - name: Generate ARA results directory
+      file:
+        path: "/tmp/ara"
+        state: directory
+      when:
+       - inventory_hostname in ["infra1", "localhost"]
+       - ara_installed.stat.exists == true
+
+    - name: Generate ARA html
+      shell: "/opt/ansible-runtime/bin/ara generate html /tmp/ara"
+      when:
+       - inventory_hostname in ["infra1", "localhost"]
+       - ara_installed.stat.exists == true
+      register: ara_html_results
+
+    - name: Sync ARA results to host
+      command: >
+               rsync
+               --archive
+               --compress
+               --verbose
+               --rsh 'ssh -o StrictHostKeyChecking=no'
+               --ignore-missing-args
+               --safe-links
+               --no-perms
+               --no-owner
+               --no-group
+               {{ inventory_hostname }}:{{ item }}
+               {{ artifacts_dir }}/ara
+      with_items:
+        - "/tmp/ara/"
+      delegate_to: "localhost"
+      ignore_errors: true
+      when:
+       - inventory_hostname in ["infra1", "localhost"]
+       - ara_installed.stat.exists == true
+      tags:
+        - skip_ansible_lint
+  vars:
+    artifacts_dir: "/tmp/artifacts"
+    result_dir: "/tmp/result"
+    target_hosts: "localhost"
