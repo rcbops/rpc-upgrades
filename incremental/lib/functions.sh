@@ -129,6 +129,28 @@ function checkout_openstack_ansible {
   fi
 }
 
+function configure_rpc_openstack {
+  rsync -av --delete /opt/rpc-openstack/etc/openstack_deploy/group_vars /etc/openstack_deploy/
+  rm -rf /opt/rpc-ansible
+  virtualenv /opt/rpc-ansible
+  install_ansible_source
+  pushd /opt/rpc-openstack/playbooks
+    /opt/rpc-ansible/bin/ansible-playbook -i 'localhost,' site-release.yml
+  popd
+  # clean out any existing env.d inventory
+  rm /etc/openstack_deploy/env.d/*
+}
+
+function install_ansible_source {
+  DEBIAN_FRONTEND=noninteractive apt-get -y install \
+                                            gcc libssl-dev libffi-dev \
+                                            python-apt python3-apt \
+                                            python-dev python3-dev \
+                                            python-minimal python-virtualenv
+
+  /opt/rpc-ansible/bin/pip install --isolated "ansible==${RPC_ANSIBLE_VERSION}"
+}
+
 function set_keystone_flush_memcache {
   if [[ ! -f /etc/openstack_deploy/user_rpco_upgrade.yml ]]; then
      echo "---" > /etc/openstack_deploy/user_rpco_upgrade.yml
