@@ -31,8 +31,9 @@
   shell: "innobackupex --stream=xbstream --compress - > /var/backup/galera-backup-{{ datetime_stamp }}.xbstream"
   delegate_to: "{{ groups['galera_all'][0] }}"
 
-- name: Copy xtrabackup
-  synchronize:
-    mode: pull
-    src: "{{ groups['galera_all'][0] }}:/var/backup/galera-backup-{{ datetime_stamp }}.xbstream"
-    dest: "{{ backup_dir }}/galera-backup-{{ datetime_stamp }}.xbstream"
+# Deactivated due to FLEEK-252
+#- name: Copy xtrabackup
+#  synchronize:
+#    mode: pull
+#    src: "{{ groups['galera_all'][0] }}:/var/backup/galera-backup-{{ datetime_stamp }}.xbstream"
+#    dest: "{{ backup_dir }}/galera-backup-{{ datetime_stamp }}.xbstream"
