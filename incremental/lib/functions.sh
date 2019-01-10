@@ -211,6 +211,18 @@ function prepare_ocata {
       openstack-ansible prepare-ocata-upgrade.yml
     popd
   fi
+  if [[ ! -f "/etc/openstack_deploy/ocata_migrate.complete" ]]; then
+    pushd /opt/rpc-upgrades/incremental/playbooks
+      openstack-ansible create-cell0.yml
+      openstack-ansible db-migration-ocata.yml
+    popd
+  fi
+  # purge osa and wrapper so that we start fresh without RPC-O settings
+  if [ -d "/opt/openstack-ansible" ]; then
+    rm -rf /opt/openstack-ansible
+    rm -f /usr/local/bin/openstack-ansible
+    rm -f /usr/local/bin/openstack-ansible.rc
+  fi
 }
 
 function prepare_pike {

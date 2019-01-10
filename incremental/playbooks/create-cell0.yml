@@ -1,0 +1,44 @@
+---
+
+- name: Ensure nova_cell0 database is created
+  hosts: "galera[0]"
+  user: root
+  gather_facts: false
+  tasks:
+    - name: Ensure nova_cell0 is created
+      mysql_db:
+        login_user: "{{ galera_root_user }}"
+        login_password: "{{ galera_root_password }}"
+        login_host: "{{ nova_galera_address }}"
+        name: "{{ nova_cell0_database }}"
+        state: present
+
+    - name: Grant access to DBs for the services
+      mysql_user:
+        login_user: "{{ galera_root_user }}"
+        login_password: "{{ galera_root_password }}"
+        login_host: "{{ nova_galera_address }}"
+        name: "{{ item['name'] }}"
+        password: "{{ item['password'] }}"
+        host: "{{ item['host'] }}"
+        state: "present"
+        priv: "{{ item['database'] }}.*:ALL"
+        append_privs: "{{ item['db_append_privs'] | default(omit) }}"
+      with_items:
+        - name: "{{ nova_api_galera_user }}"
+          password: "{{ nova_api_container_mysql_password }}"
+          host: "localhost"
+          database: "{{ nova_cell0_database }}"
+          db_append_privs: "yes"
+        - name: "{{ nova_api_galera_user }}"
+          password: "{{ nova_api_container_mysql_password }}"
+          host: "%"
+          database: "{{ nova_cell0_database }}"
+          db_append_privs: "yes"
+      no_log: true
+
+  vars:
+    galera_root_user: root
+    nova_api_galera_user: nova_api
+    nova_cell0_database: nova_cell0
+    nova_galera_address: "{{ galera_address | default('127.0.0.1') }}"
