@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Set Repos and Update to latest Xenial Packages
+- name: Set Repos and and refresh apt caches
   hosts: hosts:all_containers
   user: root
   tasks:
@@ -37,16 +37,11 @@
       with_items:
         - /etc/apt/sources.list.d/rpco.list
         - /etc/apt/sources.list.d/rax-maas.list
-
-- name: Ensure artifact repos removed from containers
-  hosts: "hosts:all_containers"
-  user: root
-  gather_facts: false
-  tasks:
-    - name: Remove existing artifact repos
-      file:
-        path: /etc/apt/sources.list.d/rpco.list
-        state: absent
+      ignore_errors: true
+   
+    - name: Refresh apt cache
+      apt:
+        update_cache: yes
       ignore_errors: true
 
 - name: Fix up config files before Ocata jump
