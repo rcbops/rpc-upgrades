@@ -27,9 +27,9 @@ rpc-upgrades repo supports:
 
 Leapfrog upgrades from:
 
-* kilo to r14.20.0 (newton)
-* liberty to r14.20.0 (newton)
-* mitaka to r14.20.0 (newton)
+* kilo to r14.21.0 (newton)
+* liberty to r14.21.0 (newton)
+* mitaka to r14.21.0 (newton)
 
 Full docs for Leapfrog upgrades are `here <leapfrog.rst>`_.
 
