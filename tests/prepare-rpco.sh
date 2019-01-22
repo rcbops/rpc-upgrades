@@ -263,6 +263,14 @@ function get_latest_mitaka_roles {
 EOF
 }
 
+function remove_ceph_roles {
+  # these roles were removed upstream so we don't need them since we use rpc-ceph
+  sed -i '/- name: ceph.ceph-common/,+2d' ${RPCO_PATH}/ansible-role-requirements.yml
+  sed -i '/- name: ceph.ceph-mon/,+2d' ${RPCO_PATH}/ansible-role-requirements.yml
+  sed -i '/- name: ceph.ceph-osd/,+2d' ${RPCO_PATH}/ansible-role-requirements.yml
+  sed -i '/# This removes Ceph roles downloaded/,+4d' ${RPCO_PATH}/scripts/deploy.sh
+}
+
 function fix_kilo_arr {
   cat <<EOF > ${OSA_PATH}/ansible-role-requirements.yml
 - name: sshd
@@ -372,6 +380,7 @@ pushd /opt/rpc-openstack
     get_ssh_role
     fix_galera_apt_cache
     remove_xtrabackup_from_galera_client
+    remove_ceph_roles
     maas_tweaks
     fix_sshd_tag
     spice_repo_fix
@@ -390,6 +399,7 @@ pushd /opt/rpc-openstack
     pin_galera "10.0"
     unset_affinity
     allow_frontloading_vars
+    remove_ceph_roles
     maas_tweaks
     fix_sshd_tag
     spice_repo_fix
