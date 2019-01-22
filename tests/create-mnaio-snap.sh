@@ -60,7 +60,7 @@ function determine_manifest {
      if [ "${RE_JOB_SERIES}" == "pike" ]; then
        export RPCO_IMAGE_MANIFEST_URL="${RPCO_ARTIFACT_URL}/r16.2.8-xenial_mnaio_no_artifacts-swift/manifest.json"
      elif [ "${RE_JOB_SERIES}" == "newton" ]; then
-       export RPCO_IMAGE_MANIFEST_URL="${RPCO_ARTIFACT_URL}/r14.21.0-xenial_mnaio_loose_artifacts-swift/manifest.json"
+       export RPCO_IMAGE_MANIFEST_URL="${RPCO_ARTIFACT_URL}/r14.22.0-xenial_mnaio_loose_artifacts-swift/manifest.json"
      else
        exit 1
      fi

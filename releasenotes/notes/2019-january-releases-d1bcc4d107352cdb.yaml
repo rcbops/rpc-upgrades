@@ -1,7 +1,7 @@
 ---
 features:
   - |
-    Leaps to Newton r14.21.0
+    Leaps to Newton r14.22.0
 issues:
   - |
     Additional bug fixes/optimizations to Incremental upgrades
