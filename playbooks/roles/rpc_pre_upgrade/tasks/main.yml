@@ -19,6 +19,7 @@
 
 # Backup database/repository/vars_files
 - include: backup.yml
+  tags: backup-configuration
 
 # Gather info on:
 # OpenStack service status
@@ -26,6 +27,7 @@
 # Running instances
 # Volume mappings
 - include: gather_stats.yml
+  tags: gather-stats
 
 # Gather swift-recon md5 output
 - include: gather_swift_stats.yml
@@ -33,5 +35,6 @@
 
 # Perform log rotation and cleanup
 - include: log_rotation.yml
+  tags: rotate-logs
 
 - include: enable_maas_holland.yml
