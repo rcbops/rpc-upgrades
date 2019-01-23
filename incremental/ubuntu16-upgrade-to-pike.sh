@@ -20,8 +20,7 @@ source lib/functions.sh
 
 require_ubuntu_version 16
 
-#export RPC_BRANCH=${RPC_BRANCH:-'r16.2.6'}
-export RPC_BRANCH=${RPC_BRANCH:-'pike'}
+export RPC_BRANCH=${RPC_BRANCH:-'r16.2.9'}
 export OSA_SHA="stable/pike"
 export SKIP_INSTALL=${SKIP_INSTALL:-'no'}
 export RPC_PRODUCT_RELEASE="pike"
