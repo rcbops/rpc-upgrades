@@ -85,9 +85,6 @@
         path: "{{ item }}"
         state: absent
       with_items:
-        - /opt/openstack-ansible
-        - /usr/local/bin/openstack-ansible
-        - /usr/local/bin/openstack-ansible.rc
         - /etc/openstack_deploy/env.d
         - /etc/openstack_deploy/ansible_facts
         - /etc/openstack_deploy/user_osa_variables_defaults.yml

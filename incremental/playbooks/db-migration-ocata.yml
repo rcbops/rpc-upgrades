@@ -1,0 +1,141 @@
+---
+
+- name: Ocata Nova DB migrations
+  hosts: "nova_conductor[0]"
+  user: root
+  gather_facts: false
+  tasks:
+    - name: Create Nova venv directory
+      file:
+        path: "/openstack/venvs/nova-{{ nova_venv_version }}"
+        state: directory
+
+    - name: Retrieve Nova venv
+      get_url:
+        url: "{{ nova_venv_location }}/{{ nova_venv_version }}/{{ os_distrib }}/nova-{{ nova_venv_version }}-x86_64.tgz"
+        dest: "/openstack/venvs/nova-{{ nova_venv_version }}/nova-{{ nova_venv_version }}-x86_64.tgz"
+
+    - name: Extract Nova venv
+      shell: "tar zxf nova-{{ nova_venv_version }}-x86_64.tgz"
+      args:
+        chdir: "/openstack/venvs/nova-{{ nova_venv_version }}"
+
+    - name: Setup virtualenv
+      shell: "virtualenv --no-wheel --no-pip --no-setuptools --always-copy --python=/usr/bin/python /openstack/venvs/nova-{{ nova_venv_version }}"
+      args:
+        chdir: "/openstack/venvs/nova-{{ nova_venv_version }}"
+
+    - name: Get the api_db version
+      command: "{{ nova_bin }}/nova-manage api_db version"
+      become: yes
+      become_user: "{{ nova_system_user_name }}"
+      register: nova_api_db_version
+      changed_when: false
+
+    - name: Perform a Nova API DB sync
+      command: "{{ nova_bin }}/nova-manage api_db sync"
+      become: yes
+      become_user: "{{ nova_system_user_name }}"
+      changed_when: false
+      when:
+        - nova_api_db_version.stdout == "0"
+
+    # This is idempotent and therefore safe for greenfield
+    # and brownfield installations.
+    - name: Create the cell0 mapping entry in the nova API DB
+      command: >-
+        {{ nova_bin }}/nova-manage cell_v2 map_cell0
+          --database_connection mysql+pymysql://{{ nova_api_galera_user }}:{{ nova_api_container_mysql_password }}@{{ nova_api_galera_address }}/{{ nova_cell0_database }}?charset=utf8
+      become: yes
+      become_user: "{{ nova_system_user_name }}"
+      changed_when: false
+
+    - name: Create the cell1 mapping entry in the nova API DB
+      command: >-
+        {{ nova_bin }}/nova-manage cell_v2 create_cell
+          --name {{ nova_cell1_name }}
+          --database_connection mysql+pymysql://{{ nova_galera_user }}:{{ nova_container_mysql_password }}@{{ nova_galera_address }}/{{ nova_galera_database }}?charset=utf8
+      become: yes
+      become_user: "{{ nova_system_user_name }}"
+      register: nova_cell1_create
+      # When upgrading, cell1 will already exist and nova-manage will
+      # give a return code of 2, so we therefore know that if the
+      # return code is:
+      # 0: the cell mapping record in the nova API database was
+      #    successfully implemented (greenfield install)
+      # 2: the cell mapping record in the nova API database already
+      #    exists (brownfield install)
+      failed_when: "nova_cell1_create.rc not in [0, 2]"
+      changed_when: "nova_cell1_create.rc == 0"
+
+    - name: Perform a Nova API DB sync
+      command: "{{ nova_bin }}/nova-manage api_db sync"
+      become: yes
+      become_user: "{{ nova_system_user_name }}"
+      changed_when: false
+
+    - name: Perform a Nova DB sync
+      command: "{{ nova_bin }}/nova-manage db sync"
+      become: yes
+      become_user: "{{ nova_system_user_name }}"
+      changed_when: false
+
+  vars:
+    nova_venv_version: "r15.0.0"
+    nova_venv_location: "http://rpc-repo.rackspace.com/venvs"
+    nova_bin: "/openstack/venvs/nova-{{ nova_venv_version }}/bin/python /openstack/venvs/nova-{{ nova_venv_version }}/bin"
+    os_distrib: "ubuntu-16.04-x86_64"
+    nova_api_galera_user: "nova_api"
+    nova_galera_user: "nova"
+    nova_galera_database: "nova"
+    nova_cell0_database: "nova_cell0"
+    nova_cell1_name: "cell1"
+    nova_galera_address: "{{ galera_address | default('127.0.0.1') }}"
+
+- name: Ocata Cinder DB migrations
+  hosts: "cinder_all[0]"
+  user: root
+  gather_facts: false
+  tasks:
+    - name: Create Cinder venv directory
+      file:
+        path: "/openstack/venvs/cinder-{{ cinder_venv_version }}"
+        state: directory
+
+    - name: Retrieve Cinder venv
+      get_url:
+        url: "{{ cinder_venv_location }}/{{ cinder_venv_version }}/{{ os_distrib }}/cinder-{{ cinder_venv_version }}-x86_64.tgz"
+        dest: "/openstack/venvs/cinder-{{ cinder_venv_version }}/cinder-{{ cinder_venv_version }}-x86_64.tgz"
+
+    - name: Extract Cinder venv
+      shell: "tar zxf cinder-{{ cinder_venv_version }}-x86_64.tgz"
+      args:
+        chdir: "/openstack/venvs/cinder-{{ cinder_venv_version }}"
+
+    - name: Setup virtualenv
+      shell: "virtualenv --no-wheel --no-pip --no-setuptools --always-copy --python=/usr/bin/python /openstack/venvs/cinder-{{ cinder_venv_version }}"
+      args:
+        chdir: "/openstack/venvs/cinder-{{ cinder_venv_version }}"
+
+    - name: Perform a Cinder DB sync
+      command: "{{ nova_bin }}/cinder-manage db sync"
+      become: yes
+      become_user: "{{ cinder_system_user_name }}"
+      changed_when: false
+
+  vars:
+    cinder_venv_version: "r15.0.0"
+    cinder_venv_location: "http://rpc-repo.rackspace.com/venvs"
+    nova_bin: "/openstack/venvs/cinder-{{ cinder_venv_version }}/bin/python /openstack/venvs/cinder-{{ cinder_venv_version }}/bin"
+    os_distrib: "ubuntu-16.04-x86_64"
+    cinder_system_user_name: cinder
+
+- name: Write lockfile upon successful completion of db-migration-ocata.yml
+  hosts: localhost
+  user: root
+  tasks:
+    - name: Set lock file
+      file:
+        path: /etc/openstack_deploy/ocata_migrate.complete
+        state: touch
+        mode: 0644
