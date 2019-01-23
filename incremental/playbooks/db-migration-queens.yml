@@ -65,7 +65,7 @@
         - neutron
         - nova
   vars:
-    venv_version: "r16.2.0"
+    venv_version: "r17.1.4"
     venv_location: "http://rpc-repo.rackspace.com/venvs"
     os_distrib: "ubuntu-16.04-x86_64"
 
@@ -80,7 +80,7 @@
       become_user: "{{ keystone_system_user_name }}"
       changed_when: false
   vars:
-    keystone_venv_version: "r16.2.0"
+    keystone_venv_version: "r17.1.4"
     keystone_bin: "/openstack/venvs/keystone-{{ keystone_venv_version }}/bin/python /openstack/venvs/keystone-{{ keystone_venv_version }}/bin"
     keystone_system_user_name: keystone
 
@@ -115,8 +115,14 @@
       become: yes
       become_user: "{{ nova_system_user_name }}"
       changed_when: false
+
+    - name: Perform Nova online_data_migrations DB sync
+      command: "{{ nova_bin }}/nova-manage db online_data_migrations"
+      become: yes
+      become_user: "{{ nova_system_user_name }}"
+      changed_when: false
   vars:
-    nova_venv_version: "r16.2.0"
+    nova_venv_version: "r17.1.4"
     nova_bin: "/openstack/venvs/nova-{{ nova_venv_version }}/bin/python /openstack/venvs/nova-{{ nova_venv_version }}/bin"
     nova_api_galera_user: "nova_api"
     nova_galera_user: "nova"
@@ -146,7 +152,7 @@
       become_user: "{{ neutron_system_user_name }}"
       changed_when: false
   vars:
-    neutron_venv_version: "r16.2.0"
+    neutron_venv_version: "r17.1.4"
     neutron_bin: "/openstack/venvs/neutron-{{ neutron_venv_version }}/bin/python /openstack/venvs/neutron-{{ neutron_venv_version }}/bin"
     neutron_system_user_name: "neutron"
 
@@ -167,7 +173,7 @@
       become_user: "{{ cinder_system_user_name }}"
       changed_when: false
   vars:
-    cinder_venv_version: "r16.2.0"
+    cinder_venv_version: "r17.1.4"
     cinder_bin: "/openstack/venvs/cinder-{{ cinder_venv_version }}/bin/python /openstack/venvs/cinder-{{ cinder_venv_version }}/bin"
     cinder_system_user_name: cinder
 
@@ -182,7 +188,7 @@
       become_user: "{{ glance_system_user_name }}"
       changed_when: false
   vars:
-    glance_venv_version: "r16.2.0"
+    glance_venv_version: "r17.1.4"
     glance_bin: "/openstack/venvs/glance-{{ glance_venv_version }}/bin/python /openstack/venvs/glance-{{ glance_venv_version }}/bin"
     glance_system_user_name: glance
 
@@ -197,7 +203,7 @@
       become_user: "{{ heat_system_user_name }}"
       changed_when: false
   vars:
-    heat_venv_version: "r16.2.0"
+    heat_venv_version: "r17.1.4"
     heat_bin: "/openstack/venvs/heat-{{ heat_venv_version }}/bin/python /openstack/venvs/heat-{{ heat_venv_version }}/bin"
     heat_system_user_name: heat
 
@@ -212,7 +218,7 @@
 #      become_user: "{{ horizon_system_user_name }}"
 #      changed_when: false
 #  vars:
-#    horizon_venv_version: "r16.2.0"
+#    horizon_venv_version: "r17.1.4"
 #    horizon_bin: "/openstack/venvs/horizon-{{ horizon_venv_version }}/bin/python /openstack/venvs/horizon-{{ horizon_venv_version }}/bin"
 #    horizon_system_user_name: horizon
 
@@ -227,7 +233,7 @@
       become_user: "{{ aodh_system_user_name }}"
       changed_when: false
   vars:
-    aodh_venv_version: "r16.2.0"
+    aodh_venv_version: "r17.1.4"
     aodh_bin: "/openstack/venvs/aodh-{{ aodh_venv_version }}/bin/python /openstack/venvs/aodh-{{ aodh_venv_version }}/bin"
     aodh_system_user_name: aodh
 
@@ -242,7 +248,7 @@
       become_user: "{{ ironic_system_user_name }}"
       changed_when: false
   vars:
-    ironic_venv_version: "r16.2.0"
+    ironic_venv_version: "r17.1.4"
     ironic_bin: "/openstack/venvs/ironic-{{ ironic_venv_version }}/bin/python /openstack/venvs/ironic-{{ ironic_venv_version }}/bin"
     ironic_system_user_name: ironic
 
@@ -266,14 +272,14 @@
         - neutron
         - nova
   vars:
-    venv_version: "r16.2.0"
+    venv_version: "r17.1.4"
 
-- name: Write lockfile upon successful completion of db-migration-ocata.yml
+- name: Write lockfile upon successful completion of db-migration-queens.yml
   hosts: localhost
   user: root
   tasks:
     - name: Set lock file
       file:
-        path: /etc/openstack_deploy/ocata_migrate.complete
+        path: /etc/openstack_deploy/queens_migrate.complete
         state: touch
         mode: 0644

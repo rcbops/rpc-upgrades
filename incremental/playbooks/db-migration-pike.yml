@@ -1,0 +1,286 @@
+---
+
+- name: Retrieve venv environments
+  hosts: "keystone_all[0]:glance_all[0]:cinder_all[0]:nova_api_os_compute[0]:neutron_server[0]:heat_all[0]:ironic_conductor[0]:aodh_all[0]:horizon_all[0]"
+  user: root
+  gather_facts: false
+  tasks:
+    - name: Create OpenStack venv directories
+      file:
+        path: "/openstack/venvs/{{ item }}-{{ venv_version }}"
+        state: directory
+      with_items:
+        - aodh
+        - cinder
+        - glance
+        - heat
+        - horizon
+        - ironic
+        - keystone
+        - neutron
+        - nova
+
+    - name: Retrieve OpenStack venvs
+      get_url:
+        url: "{{ venv_location }}/{{ venv_version }}/{{ os_distrib }}/{{ item }}-{{ venv_version }}-x86_64.tgz"
+        dest: "/openstack/venvs/{{ item }}-{{ venv_version }}/{{ item }}-{{ venv_version }}-x86_64.tgz"
+      with_items:
+        - aodh
+        - cinder
+        - glance
+        - heat
+        - horizon
+        - ironic
+        - keystone
+        - neutron
+        - nova
+
+    - name: Extract OpenStack venvs
+      shell: "tar zxf {{ item }}-{{ venv_version }}-x86_64.tgz"
+      args:
+        chdir: "/openstack/venvs/{{ item }}-{{ venv_version }}"
+      with_items:
+        - aodh
+        - cinder
+        - glance
+        - heat
+        - horizon
+        - ironic
+        - keystone
+        - neutron
+        - nova
+
+    - name: Setup virtualenv
+      shell: "virtualenv --no-wheel --no-pip --no-setuptools --always-copy --python=/usr/bin/python /openstack/venvs/{{ item }}-{{ venv_version }}"
+      args:
+        chdir: "/openstack/venvs/{{ item }}-{{ venv_version }}"
+      with_items:
+        - aodh
+        - cinder
+        - glance
+        - heat
+        - horizon
+        - ironic
+        - keystone
+        - neutron
+        - nova
+  vars:
+    venv_version: "r16.2.0"
+    venv_location: "http://rpc-repo.rackspace.com/venvs"
+    os_distrib: "ubuntu-16.04-x86_64"
+
+- name: Keystone DB migrations
+  hosts: "keystone_all[0]"
+  user: root
+  gather_facts: false
+  tasks:
+    - name: Perform a Keystone DB sync
+      command: "{{ keystone_bin }}/keystone-manage db_sync"
+      become: yes
+      become_user: "{{ keystone_system_user_name }}"
+      changed_when: false
+  vars:
+    keystone_venv_version: "r16.2.0"
+    keystone_bin: "/openstack/venvs/keystone-{{ keystone_venv_version }}/bin/python /openstack/venvs/keystone-{{ keystone_venv_version }}/bin"
+    keystone_system_user_name: keystone
+
+- name: Nova DB Migrations and Cell Creation
+  hosts: "nova_api_os_compute[0]"
+  user: root
+  gather_facts: false
+  tasks:
+    - name: Get the api_db version
+      command: "{{ nova_bin }}/nova-manage api_db version"
+      become: yes
+      become_user: "{{ nova_system_user_name }}"
+      register: nova_api_db_version
+      changed_when: false
+
+    - name: Perform a Nova API DB sync
+      command: "{{ nova_bin }}/nova-manage api_db sync"
+      become: yes
+      become_user: "{{ nova_system_user_name }}"
+      changed_when: false
+      when:
+        - nova_api_db_version.stdout == "0"
+
+    - name: Perform a Nova API DB sync
+      command: "{{ nova_bin }}/nova-manage api_db sync"
+      become: yes
+      become_user: "{{ nova_system_user_name }}"
+      changed_when: false
+
+    - name: Perform a Nova DB sync
+      command: "{{ nova_bin }}/nova-manage db sync"
+      become: yes
+      become_user: "{{ nova_system_user_name }}"
+      changed_when: false
+
+    - name: Perform Nova online_data_migrations DB sync
+      command: "{{ nova_bin }}/nova-manage db online_data_migrations"
+      become: yes
+      become_user: "{{ nova_system_user_name }}"
+      changed_when: false
+      
+  vars:
+    nova_venv_version: "r16.2.0"
+    nova_bin: "/openstack/venvs/nova-{{ nova_venv_version }}/bin/python /openstack/venvs/nova-{{ nova_venv_version }}/bin"
+    nova_api_galera_user: "nova_api"
+    nova_galera_user: "nova"
+    nova_galera_database: "nova"
+    nova_cell0_database: "nova_cell0"
+    nova_cell1_name: "cell1"
+    nova_galera_address: "{{ galera_address | default('127.0.0.1') }}"
+
+- name: "Newton: Stop Neutron Server"
+  hosts: "neutron_server"
+  user: root
+  tasks:
+    - name: "Newton: Stop Neutron server"
+      service:
+        name: "neutron-server"
+        state: stopped
+        pattern: "neutron-server"
+
+- name: Neutron DB migrations
+  hosts: "neutron_server[0]"
+  user: root
+  gather_facts: false
+  tasks:
+    - name: Perform a Neutron DB sync
+      command: "{{ neutron_bin }}/neutron-db-manage upgrade --expand"
+      become: yes
+      become_user: "{{ neutron_system_user_name }}"
+      changed_when: false
+  vars:
+    neutron_venv_version: "r16.2.0"
+    neutron_bin: "/openstack/venvs/neutron-{{ neutron_venv_version }}/bin/python /openstack/venvs/neutron-{{ neutron_venv_version }}/bin"
+    neutron_system_user_name: "neutron"
+
+- name: Cinder DB migrations
+  hosts: "cinder_all[0]"
+  user: root
+  gather_facts: false
+  tasks:
+    - name: Perform a Cinder DB sync
+      command: "{{ cinder_bin }}/cinder-manage db sync"
+      become: yes
+      become_user: "{{ cinder_system_user_name }}"
+      changed_when: false
+
+    - name: Perform online data migrations
+      command: "{{ cinder_bin }}/cinder-manage db online_data_migrations"
+      become: yes
+      become_user: "{{ cinder_system_user_name }}"
+      changed_when: false
+  vars:
+    cinder_venv_version: "r16.2.0"
+    cinder_bin: "/openstack/venvs/cinder-{{ cinder_venv_version }}/bin/python /openstack/venvs/cinder-{{ cinder_venv_version }}/bin"
+    cinder_system_user_name: cinder
+
+- name: Glance DB migrations
+  hosts: "glance_all[0]"
+  user: root
+  gather_facts: false
+  tasks:
+    - name: Perform a Glance DB sync
+      command: "{{ glance_bin }}/glance-manage db_sync"
+      become: yes
+      become_user: "{{ glance_system_user_name }}"
+      changed_when: false
+  vars:
+    glance_venv_version: "r16.2.0"
+    glance_bin: "/openstack/venvs/glance-{{ glance_venv_version }}/bin/python /openstack/venvs/glance-{{ glance_venv_version }}/bin"
+    glance_system_user_name: glance
+
+- name: Heat DB migrations
+  hosts: "heat_all[0]"
+  user: root
+  gather_facts: false
+  tasks:
+    - name: Perform a Heat DB sync
+      command: "{{ heat_bin }}/heat-manage db_sync"
+      become: yes
+      become_user: "{{ heat_system_user_name }}"
+      changed_when: false
+  vars:
+    heat_venv_version: "r16.2.0"
+    heat_bin: "/openstack/venvs/heat-{{ heat_venv_version }}/bin/python /openstack/venvs/heat-{{ heat_venv_version }}/bin"
+    heat_system_user_name: heat
+
+#- name: Horizon DB migrations
+#  hosts: "horizon_all[0]"
+#  user: root
+#  gather_facts: false
+#  tasks:
+#    - name: Perform a Horizon DB sync
+#      command: "{{ horizon_bin }}/horizon-manage.py migrate --noinput"
+#      become: yes
+#      become_user: "{{ horizon_system_user_name }}"
+#      changed_when: false
+#  vars:
+#    horizon_venv_version: "r16.2.0"
+#    horizon_bin: "/openstack/venvs/horizon-{{ horizon_venv_version }}/bin/python /openstack/venvs/horizon-{{ horizon_venv_version }}/bin"
+#    horizon_system_user_name: horizon
+
+- name: Aodh DB migrations
+  hosts: "aodh_all[0]"
+  user: root
+  gather_facts: false
+  tasks:
+    - name: Perform a Aodh DB sync
+      command: "{{ aodh_bin }}/aodh-dbsync"
+      become: yes
+      become_user: "{{ aodh_system_user_name }}"
+      changed_when: false
+  vars:
+    aodh_venv_version: "r16.2.0"
+    aodh_bin: "/openstack/venvs/aodh-{{ aodh_venv_version }}/bin/python /openstack/venvs/aodh-{{ aodh_venv_version }}/bin"
+    aodh_system_user_name: aodh
+
+- name: Ironic DB migrations
+  hosts: "ironic_conductor[0]"
+  user: root
+  gather_facts: false
+  tasks:
+    - name: Perform a Ironic DB sync
+      command: "{{ ironic_bin }}/ironic-dbsync upgrade"
+      become: yes
+      become_user: "{{ ironic_system_user_name }}"
+      changed_when: false
+  vars:
+    ironic_venv_version: "r16.2.0"
+    ironic_bin: "/openstack/venvs/ironic-{{ ironic_venv_version }}/bin/python /openstack/venvs/ironic-{{ ironic_venv_version }}/bin"
+    ironic_system_user_name: ironic
+
+- name: Remove venv environments
+  hosts: "keystone_all[0]:glance_all[0]:cinder_all[0]:nova_api_os_compute[0]:neutron_server[0]:heat_all[0]:ironic_conductor[0]:aodh_all[0]:horizon_all[0]"
+  user: root
+  gather_facts: false
+  tasks:
+    - name: Remove OpenStack venv directories
+      file:
+        path: "/openstack/venvs/{{ item }}-{{ venv_version }}"
+        state: absent
+      with_items:
+        - aodh
+        - cinder
+        - glance
+        - heat
+        - horizon
+        - ironic
+        - keystone
+        - neutron
+        - nova
+  vars:
+    venv_version: "r16.2.0"
+
+- name: Write lockfile upon successful completion of db-migration-pike.yml
+  hosts: localhost
+  user: root
+  tasks:
+    - name: Set lock file
+      file:
+        path: /etc/openstack_deploy/pike_migrate.complete
+        state: touch
+        mode: 0644
