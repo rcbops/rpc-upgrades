@@ -20,8 +20,7 @@ source lib/functions.sh
 
 require_ubuntu_version 16
 
-#export RPC_BRANCH=${RPC_BRANCH:-'r17.1.2'}
-export RPC_BRANCH=${RPC_BRANCH:-'queens'}
+export RPC_BRANCH=${RPC_BRANCH:-'r17.1.4'}
 export OSA_SHA="stable/queens"
 export SKIP_INSTALL=${SKIP_INSTALL:-'no'}
 export RPC_PRODUCT_RELEASE="queens"
