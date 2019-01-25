@@ -35,8 +35,6 @@ cat > /etc/openstack_deploy/user_rpco_tempest.yml <<EOF
 ---
 tempest_install: yes
 tempest_run: yes
-tempest_public_subnet_cidr: 172.29.248.0/22
-tempest_public_subnet_allocation_pools: "172.29.249.110-172.29.249.200"
 # RI-357 Tempest Overrides
 tempest_test_whitelist:
   - "{{ (tempest_service_available_ceilometer | bool) | ternary('tempest.api.telemetry', '') }}"
@@ -47,7 +45,13 @@ tempest_test_whitelist:
 #  - "{{ (tempest_volume_backup_enabled | bool) | ternary('tempest.api.volume.admin.test_volumes_backup', '') }}"
 EOF
 
-pushd /opt/openstack-ansible/playbooks
+if [ -d "/opt/openstack-ansible/playbooks" ]; then
+  export TEMPEST_DIR="/opt/openstack-ansible/playbooks"
+elif [ -d "/opt/rpc-openstack/openstack-ansible/playbooks" ]; then
+  export TEMPEST_DIR="/opt/rpc-openstack/openstack-ansible/playbooks"
+fi
+
+pushd ${TEMPEST_DIR}
   # TODO: establish any overrides
   # install and run tempest
   openstack-ansible os-tempest-install.yml --skip-tags=rsyslog -vv
