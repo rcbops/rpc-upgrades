@@ -80,6 +80,12 @@
       become_user: "{{ nova_system_user_name }}"
       changed_when: false
 
+    - name: Perform Nova online_data_migrations DB sync
+      command: "{{ nova_bin }}/nova-manage db online_data_migrations"
+      become: yes
+      become_user: "{{ nova_system_user_name }}"
+      changed_when: false
+
   vars:
     nova_venv_version: "r15.0.0"
     nova_venv_location: "http://rpc-repo.rackspace.com/venvs"
@@ -119,6 +125,12 @@
 
     - name: Perform a Cinder DB sync
       command: "{{ nova_bin }}/cinder-manage db sync"
+      become: yes
+      become_user: "{{ cinder_system_user_name }}"
+      changed_when: false
+
+    - name: Perform Cinder online_data_migrations DB sync
+      command: "{{ nova_bin }}/cinder-manage db online_data_migrations"
       become: yes
       become_user: "{{ cinder_system_user_name }}"
       changed_when: false
