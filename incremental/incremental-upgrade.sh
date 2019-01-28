@@ -63,6 +63,7 @@ if ! echo ${TODO} | grep -w ${TARGET} > /dev/null; then
 fi
 
 check_user_variables
+generate_upgrade_config
 
 if [ "${SKIP_PREFLIGHT}" != "true" ]; then
   pre_flight
@@ -73,3 +74,5 @@ for RELEASE_TO_DO in ${TODO}; do
   echo "Starting upgrade to ${RELEASE_TO_DO^}"
   bash ubuntu16-upgrade-to-${RELEASE_TO_DO}.sh
 done
+
+cleanup

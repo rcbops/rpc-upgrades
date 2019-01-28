@@ -30,8 +30,6 @@ echo "Starting Queens to Rocky Upgrade..."
 
 checkout_rpc_openstack
 configure_rpc_openstack
-set_secrets_file
-disable_hardening
 prepare_rocky
 run_upgrade
 
