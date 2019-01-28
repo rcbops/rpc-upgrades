@@ -193,6 +193,11 @@ function run_upgrade {
     export I_REALLY_KNOW_WHAT_I_AM_DOING=true
     export SETUP_ARA=true
     export ANSIBLE_CALLBACK_PLUGINS=/etc/ansible/roles/plugins/callback:/opt/ansible-runtime/local/lib/python2.7/site-packages/ara/plugins/callbacks
+
+    # Destroy repo container prior to the upgrade to reduce "No space left on device" issues
+    openstack-ansible lxc-containers-destroy.yml -e force_containers_destroy=true -e force_containers_data_destroy=true --limit repo_container
+
+    # Run upgrade
     echo "YES" | bash scripts/run-upgrade.sh
   popd
 }
