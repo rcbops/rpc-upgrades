@@ -50,6 +50,18 @@
       become_user: "{{ nova_system_user_name }}"
       changed_when: false
 
+    - name: Perform a Nova DB sync
+      command: "{{ nova_bin }}/nova-manage db sync"
+      become: yes
+      become_user: "{{ nova_system_user_name }}"
+      changed_when: false
+
+    - name: Perform Nova online_data_migrations DB sync
+      command: "{{ nova_bin }}/nova-manage db online_data_migrations"
+      become: yes
+      become_user: "{{ nova_system_user_name }}"
+      changed_when: false
+
     - name: Create the cell1 mapping entry in the nova API DB
       command: >-
         {{ nova_bin }}/nova-manage cell_v2 create_cell
@@ -68,17 +80,22 @@
       failed_when: "nova_cell1_create.rc not in [0, 2]"
       changed_when: "nova_cell1_create.rc == 0"
 
-    - name: Perform a Nova API DB sync
-      command: "{{ nova_bin }}/nova-manage api_db sync"
+    # When upgrading we need to map existing instances to the new cell1
+    # To do this we need the cell UUID.
+    - name: Get UUID of new Nova Cell
+      shell: "{{ nova_bin }}/nova-manage cell_v2 list_cells | grep ' {{ nova_cell1_name }} '"
       become: yes
       become_user: "{{ nova_system_user_name }}"
+      register: cell1_uuid
       changed_when: false
+      when: "nova_cell1_create.rc == 0"
 
-    - name: Perform a Nova DB sync
-      command: "{{ nova_bin }}/nova-manage db sync"
+    - name: Map instances to new Cell1
+      command: "{{ nova_bin }}/nova-manage cell_v2 map_instances --cell_uuid {{ cell1_uuid['stdout'].split()[3] }}"
       become: yes
       become_user: "{{ nova_system_user_name }}"
       changed_when: false
+      when: "nova_cell1_create.rc == 0"
 
   vars:
     nova_venv_version: "r15.0.0"
@@ -119,6 +136,12 @@
 
     - name: Perform a Cinder DB sync
       command: "{{ nova_bin }}/cinder-manage db sync"
+      become: yes
+      become_user: "{{ cinder_system_user_name }}"
+      changed_when: false
+
+    - name: Perform Cinder online_data_migrations DB sync
+      command: "{{ nova_bin }}/cinder-manage db online_data_migrations"
       become: yes
       become_user: "{{ cinder_system_user_name }}"
       changed_when: false
