@@ -114,7 +114,7 @@ function post_upgrade {
 }
 
 function run_tempest {
-  if [ "{$RE_JOB_UPGRADE_TO}" == "queens" ]; then
+  if [[ "${RE_JOB_UPGRADE_ACTION}" == "inc" ]]; then
     sudo -H --preserve-env ./tests/run-tempest.sh
   fi
 }

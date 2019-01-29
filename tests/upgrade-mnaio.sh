@@ -53,3 +53,12 @@ ${MNAIO_SSH} "source /opt/rpc-upgrades/RE_ENV; \
               pushd /opt/rpc-upgrades; \
               tests/qc-test.sh"
 echo "QC Tests completed..."
+
+if [[ "${RE_JOB_UPGRADE_ACTION}" == "inc" ]]; then
+  # Run Tempest Tests
+  ${MNAIO_SSH} "source /opt/rpc-upgrades/RE_ENV; \
+                source /opt/rpc-upgrades/tests/ansible-env.rc; \
+                pushd /opt/rpc-upgrades; \
+                tests/run-tempest.sh"
+  echo "Tempest Tests completed..."
+fi
