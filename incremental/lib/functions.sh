@@ -201,20 +201,24 @@ function generate_upgrade_config {
 }
 
 function prepare_ocata {
-  if [ ! -f ${UPGRADES_WORKING_DIR}/ocata_upgrade_prep.complete ]; then
-    pushd /opt/rpc-upgrades/incremental/playbooks
+  pushd /opt/rpc-upgrades/incremental/playbooks
+    openstack-ansible configure-lxc-backend.yml
+
+    if [[ ! -f "/etc/openstack_deploy/ocata_upgrade_prep.complete" ]]; then
       openstack-ansible prepare-ocata-upgrade.yml
-    popd
-  fi
-  if [ ! -f ${UPGRADES_WORKING_DIR}/ocata_migrate.complete ]; then
-    pushd /opt/rpc-upgrades/incremental/playbooks
+    fi
+
+    if [[ ! -f "/etc/openstack_deploy/ocata_migrate.complete" ]]; then
       openstack-ansible create-cell0.yml
       openstack-ansible db-migration-ocata.yml
-    popd
-  fi
+  popd
 }
 
 function prepare_pike {
+  pushd /opt/rpc-upgrades/incremental/playbooks
+    openstack-ansible configure-lxc-backend.yml
+  popd
+
   pushd /opt/openstack-ansible
     # patch in restarting of containers into run-upgrade
     cp /opt/rpc-upgrades/playbooks/patches/pike/lxc-containers-restart.yml /opt/openstack-ansible/scripts/upgrade-utilities/playbooks
@@ -224,7 +228,9 @@ function prepare_pike {
 }
 
 function prepare_queens {
-  echo "Queens prepare steps go here..."
+  pushd /opt/rpc-upgrades/incremental/playbooks
+    openstack-ansible configure-lxc-backend.yml
+  popd
 }
 
 function prepare_rocky {
