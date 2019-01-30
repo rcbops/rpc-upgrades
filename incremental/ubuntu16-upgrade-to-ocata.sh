@@ -32,6 +32,7 @@ prepare_ocata
 
 checkout_rpc_openstack
 checkout_openstack_ansible
+ensure_osa_bootstrap
 
 if [[ "$SKIP_INSTALL" == "yes" ]]; then
   exit 0

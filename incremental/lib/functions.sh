@@ -129,6 +129,23 @@ function checkout_openstack_ansible {
   fi
 }
 
+function ensure_osa_bootstrap {
+  if [ ! -f "/etc/openstack_deploy/osa_bootstrapped.complete" ]; then
+    # purge osa and wrapper so that we start fresh without RPC-O settings
+    if [ -d "/opt/openstack-ansible" ]; then
+      rm -rf /opt/openstack-ansible
+      rm -f /usr/local/bin/openstack-ansible
+      rm -f /usr/local/bin/openstack-ansible.rc
+    fi
+    checkout_openstack_ansible
+    pushd /opt/openstack-ansible
+      scripts/bootstrap-ansible.sh
+    popd
+    touch /etc/openstack_deploy/osa_bootstrapped.complete
+  fi
+}
+
+
 function configure_rpc_openstack {
   rsync -av --delete /opt/rpc-openstack/etc/openstack_deploy/group_vars /etc/openstack_deploy/
   rm -rf /opt/rpc-ansible
@@ -189,12 +206,6 @@ function prepare_ocata {
       openstack-ansible create-cell0.yml
       openstack-ansible db-migration-ocata.yml
     popd
-  fi
-  # purge osa and wrapper so that we start fresh without RPC-O settings
-  if [ -d "/opt/openstack-ansible" ]; then
-    rm -rf /opt/openstack-ansible
-    rm -f /usr/local/bin/openstack-ansible
-    rm -f /usr/local/bin/openstack-ansible.rc
   fi
 }
 

@@ -30,6 +30,7 @@ echo "Starting Ocata to Pike Upgrade..."
 
 checkout_rpc_openstack
 configure_rpc_openstack
+ensure_osa_bootstrap
 prepare_pike
 
 if [[ "$SKIP_INSTALL" == "yes" ]]; then
