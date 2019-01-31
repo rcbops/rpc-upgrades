@@ -153,40 +153,6 @@ function install_ansible_source {
   /opt/rpc-ansible/bin/pip install --isolated "ansible==${RPC_ANSIBLE_VERSION}"
 }
 
-function set_keystone_flush_memcache {
-  if [[ ! -f /etc/openstack_deploy/user_rpco_upgrade.yml ]]; then
-     echo "---" > /etc/openstack_deploy/user_rpco_upgrade.yml
-     echo "keystone_flush_memcache: yes" >> /etc/openstack_deploy/user_rpco_upgrade.yml
-  elif [[ -f /etc/openstack_deploy/user_rpco_upgrade.yml ]]; then
-    if ! grep -i "keystone_flush_memcache" /etc/openstack_deploy/user_rpco_upgrade.yml; then
-      echo "keystone_flush_memcache: yes" >> /etc/openstack_deploy/user_rpco_upgrade.yml
-    fi
-  fi
-}
-
-function disable_hardening {
-  if [[ ! -f /etc/openstack_deploy/user_rpco_upgrade.yml ]]; then
-     echo "---" > /etc/openstack_deploy/user_rpco_upgrade.yml
-     echo "apply_security_hardening: false" >> /etc/openstack_deploy/user_rpco_upgrade.yml
-  elif [[ -f /etc/openstack_deploy/user_rpco_upgrade.yml ]]; then
-    if ! grep -i "apply_security_hardening" /etc/openstack_deploy/user_rpco_upgrade.yml; then
-      echo "apply_security_hardening: false" >> /etc/openstack_deploy/user_rpco_upgrade.yml
-    fi
-  fi
-}
-
-function set_secrets_file {
-  if [ -f "/etc/openstack_deploy/user_secrets.yml" ]; then
-    if ! grep "^osa_secrets_file_name" /etc/openstack_deploy/user_rpco_upgrade.yml; then
-      echo 'osa_secrets_file_name: "user_secrets.yml"' >> /etc/openstack_deploy/user_rpco_upgrade.yml
-    fi
-  elif [ -f "/etc/openstack_deploy/user_osa_secrets.yml" ]; then
-    if ! grep "^osa_secrets_file_name" /etc/openstack_deploy/user_rpco_upgrade.yml; then
-      echo 'osa_secrets_file_name: "user_osa_secrets.yml"' >> /etc/openstack_deploy/user_rpco_upgrade.yml
-    fi
-  fi
-}
-
 function run_upgrade {
   pushd /opt/openstack-ansible
     export TERM=linux
@@ -202,6 +168,13 @@ function strip_install_steps {
     sed -i '/RUN_TASKS+=("[a-z]/d' run-upgrade.sh
     sed -i "/memcached-flush.yml/d" run-upgrade.sh
     sed -i "/galera-cluster-rolling-restart/d" run-upgrade.sh
+  popd
+}
+
+function generate_upgrade_config {
+  # generate user_rpco_upgrade.yml
+  pushd /opt/rpc-upgrades/incremental/playbooks
+    openstack-ansible rpco-upgrade-configs.yml
   popd
 }
 
@@ -240,4 +213,10 @@ function prepare_queens {
 
 function prepare_rocky {
   echo "Rocky prepare steps go here..."
+}
+
+function cleanup {
+  if [ -f "/etc/openstack_deploy/user_rpco_upgrade.yml" ]; then
+    rm /etc/openstack_deploy/user_rpco_upgrade.yml
+  fi
 }

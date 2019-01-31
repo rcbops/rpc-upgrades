@@ -30,8 +30,6 @@ echo "Starting Pike to Queens Upgrade..."
 
 checkout_rpc_openstack
 configure_rpc_openstack
-set_secrets_file
-disable_hardening
 prepare_queens
 run_upgrade
 
