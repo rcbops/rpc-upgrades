@@ -30,6 +30,7 @@ echo "Starting Queens to Rocky Upgrade..."
 
 checkout_rpc_openstack
 configure_rpc_openstack
+ensure_osa_bootstrap
 prepare_rocky
 run_upgrade
 

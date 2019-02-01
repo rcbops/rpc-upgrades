@@ -30,6 +30,7 @@ echo "Starting Pike to Queens Upgrade..."
 
 checkout_rpc_openstack
 configure_rpc_openstack
+ensure_osa_bootstrap
 prepare_queens
 run_upgrade
 
