@@ -17,6 +17,7 @@
 set -evu
 
 source lib/functions.sh
+source lib/vars.sh
 
 require_ubuntu_version 16
 
@@ -26,11 +27,9 @@ export SKIP_INSTALL=${SKIP_INSTALL:-'no'}
 export RPC_PRODUCT_RELEASE="queens"
 export RPC_ANSIBLE_VERSION="2.4.3.0"
 
-echo "Starting Pike to Queens Upgrade..."
-
+mark_started
 checkout_rpc_openstack
 configure_rpc_openstack
 prepare_queens
 run_upgrade
-
-echo "Pike to Queens Upgrade completed..."
+mark_completed

@@ -23,3 +23,4 @@ RELEASES="newton
 
 STARTING_RELEASE=false
 SKIP_PREFLIGHT=${SKIP_PREFLIGHT:-false}
+UPGRADES_WORKING_DIR=/etc/openstack_deploy/rpc-upgrades

@@ -17,25 +17,18 @@
 set -evu
 
 source lib/functions.sh
+source lib/vars.sh
 
 require_ubuntu_version 16
 
 export RPC_BRANCH=${RPC_BRANCH:-'r16.2.9'}
 export OSA_SHA="stable/pike"
-export SKIP_INSTALL=${SKIP_INSTALL:-'no'}
 export RPC_PRODUCT_RELEASE="pike"
 export RPC_ANSIBLE_VERSION="2.3.2.0"
 
-echo "Starting Ocata to Pike Upgrade..."
-
+mark_started
 checkout_rpc_openstack
 configure_rpc_openstack
 prepare_pike
-
-if [[ "$SKIP_INSTALL" == "yes" ]]; then
-  strip_install_steps
-fi
-
 run_upgrade
-
-echo "Ocata to Pike Upgrade completed..."
+mark_completed

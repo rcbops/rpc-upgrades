@@ -89,8 +89,13 @@
         - /etc/openstack_deploy/ansible_facts
         - /etc/openstack_deploy/user_osa_variables_defaults.yml
 
+    - name: Ensure rpc-upgrades working directory exists
+      file:
+        path: /etc/openstack_deploy/rpc-upgrades
+        state: directory
+
     - name: Set lock file
       file:
-        path: /etc/openstack_deploy/ocata_upgrade_prep.complete
+        path: /etc/openstack_deploy/rpc-upgrades/ocata_upgrade_prep.complete
         state: touch
         mode: 0644

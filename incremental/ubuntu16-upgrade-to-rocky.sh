@@ -17,6 +17,7 @@
 set -evu
 
 source lib/functions.sh
+source lib/vars.sh
 
 require_ubuntu_version 16
 
@@ -26,11 +27,9 @@ export SKIP_INSTALL=${SKIP_INSTALL:-'no'}
 export RPC_PRODUCT_RELEASE="rocky"
 export RPC_ANSIBLE_VERSION="2.5.5"
 
-echo "Starting Queens to Rocky Upgrade..."
-
+mark_started
 checkout_rpc_openstack
 configure_rpc_openstack
 prepare_rocky
 run_upgrade
-
-echo "Queens to Rocky Upgrade completed..."
+mark_completed

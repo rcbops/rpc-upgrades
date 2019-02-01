@@ -17,14 +17,16 @@
 set -evu
 
 source lib/functions.sh
+source lib/vars.sh
 
 require_ubuntu_version 16
 
 export RPC_BRANCH=${RPC_BRANCH:-'ocata'}
+export RPC_PRODUCT_RELEASE="ocata"
 export OSA_SHA="stable/ocata"
 export SKIP_INSTALL=${SKIP_INSTALL:-"yes"}
 
-echo "Starting Newton to Ocata Upgrade..."
+mark_started
 
 # here we handle a lot of the cleanup from newton and rpc-o
 # to prepare for an OSA deploy
@@ -34,9 +36,9 @@ checkout_rpc_openstack
 checkout_openstack_ansible
 
 if [[ "$SKIP_INSTALL" == "yes" ]]; then
+  mark_completed
   exit 0
 fi
 
 run_upgrade
-
-echo "Newton to Ocata Upgrade completed..."
+mark_completed
