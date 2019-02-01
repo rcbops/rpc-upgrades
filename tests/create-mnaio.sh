@@ -32,11 +32,11 @@ export RE_JOB_IMAGE=${RE_JOB_IMAGE_OS}
 
 # set guest OS based on RE_JOB_IMAGE
 if [ ${RE_JOB_IMAGE} == "trusty" ]; then
-  DEFAULT_IMAGE="ubuntu-14.04-amd64"
+  export DEFAULT_IMAGE="ubuntu-14.04-amd64"
 elif [ ${RE_JOB_IMAGE} == "xenial" ]; then
-  DEFAULT_IMAGE="ubuntu-16.04-amd64"
+  export DEFAULT_IMAGE="ubuntu-16.04-amd64"
 elif [ ${RE_JOB_IMAGE} == "bionic" ]; then
-  DEFAULT_IMAGE="ubuntu-18.04-amd64"
+  export DEFAULT_IMAGE="ubuntu-18.04-amd64"
 fi
 
 ## OSA MNAIO Vars

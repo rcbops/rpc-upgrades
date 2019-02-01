@@ -37,11 +37,11 @@ export RPCO_IMAGE_MANIFEST_URL="${RPCO_ARTIFACT_URL}/${RE_JOB_CONTEXT}-${RE_JOB_
 
 # set guest OS based on RE_JOB_IMAGE_OS
 if [ ${RE_JOB_IMAGE_OS} == "trusty" ]; then
-  DEFAULT_IMAGE="ubuntu-14.04-amd64"
+  export DEFAULT_IMAGE="ubuntu-14.04-amd64"
 elif [ ${RE_JOB_IMAGE_OS} == "xenial" ]; then
-  DEFAULT_IMAGE="ubuntu-16.04-amd64"
+  export DEFAULT_IMAGE="ubuntu-16.04-amd64"
 elif [ ${RE_JOB_IMAGE_OS} == "bionic" ]; then
-  DEFAULT_IMAGE="ubuntu-18.04-amd64"
+  export DEFAULT_IMAGE="ubuntu-18.04-amd64"
 fi
 
 function determine_manifest {
