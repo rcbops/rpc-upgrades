@@ -163,6 +163,9 @@ elif [ -d "/opt/rpc-openstack/etc/openstack_deploy" ]; then
   sudo cp -R /opt/rpc-openstack/etc/openstack_deploy/* /etc/openstack_deploy
 fi
 
+# remove user_variables.yml as we don't utilize this on initial builds
+sudo rm /etc/openstack_deploy/user_variables.yml
+
 # restore mnaio variables
 sudo cp /etc/openstack_deploy/user_mnaio_variables.yml.bak /etc/openstack_deploy/user_mnaio_variables.yml
 

@@ -274,7 +274,6 @@ function remove_ceph_roles {
 function fixup_mitaka {
   sed -i '/# Enable playbook callbacks from OSA/,+1d' ${RPCO_PATH}/scripts/deploy.sh
   sed -i '/# Apply any patched files./,+2d' ${RPCO_PATH}/scripts/deploy.sh
-  echo "thisisadummyvariable: True" >> /etc/openstack_deploy/user_variables.yml
 }
 
 function fix_kilo_arr {
