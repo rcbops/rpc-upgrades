@@ -211,6 +211,23 @@
         - nfs_mount_found.rc == 0
         - glance_nfs_client is undefined
 
+- name: Check for apt_pinned_packages in openstack_deploy
+  hosts: localhost
+  gather_facts: false
+  user: root
+  tasks:
+    - name: Check for apt_pinned_packages in overrides
+      command: "grep 'apt_pinned_packages' user_rpco_variables_overrides.yml user_osa_variables_overrides.yml"
+      args:
+        chdir: /etc/openstack_deploy
+      failed_when: false
+      register: setting_found
+
+    - name: fail if found
+      fail:
+        msg: "apt_pinned_packages appears set in /etc/openstack_deploy, please evaluate and remove before continuing."
+      when: setting_found.rc == 0
+
 - name: Mark preflight check as having run
   hosts: localhost
   gather_facts: false
