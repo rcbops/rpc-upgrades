@@ -30,11 +30,11 @@ export RE_JOB_IMAGE_OS="${RE_JOB_IMAGE_OS:-trusty}"
 export RE_JOB_IMAGE_TYPE="${RE_JOB_IMAGE_TYPE:-mnaio}"
 
 # remove snap from RE_JOB_IMAGE_TYPE var so that we can grab the proper image
-export RE_JOB_IMAGE="${RE_JOB_IMAGE//-snap}"
+export RE_JOB_IMAGE_TYPE="${RE_JOB_IMAGE_TYPE//-snap}"
   
 export RPC_RELEASE="${RE_JOB_CONTEXT:-}"
 export RPCU_ARTIFACT_URL="https://ed2cc5ce4ea792952a06-5946b1c04934c7963c5365082354649f.ssl.cf5.rackcdn.com"
-export RPCU_IMAGE_MANIFEST_URL="${RPCU_ARTIFACT_URL}/${RE_JOB_CONTEXT}-${RE_JOB_IMAGE}-${RE_JOB_SCENARIO}/manifest.json"
+export RPCU_IMAGE_MANIFEST_URL="${RPCU_ARTIFACT_URL}/${RE_JOB_CONTEXT}-${RE_JOB_IMAGE_OS}_${RE_JOB_IMAGE_TYPE}-${RE_JOB_SCENARIO}/manifest.json"
 export RPCO_ARTIFACT_URL="https://a5ce27333a8948d82738-b28e2b85e22a27f072118ea786afca3a.ssl.cf5.rackcdn.com"
 export RPCO_IMAGE_MANIFEST_URL="${RPCO_ARTIFACT_URL}/${RE_JOB_CONTEXT}-${RE_JOB_IMAGE}-${RE_JOB_SCENARIO}/manifest.json"
 
@@ -53,17 +53,23 @@ function determine_manifest {
    if curl --output /dev/null --silent --head --fail "${RPCU_IMAGE_MANIFEST_URL}"; then
      echo "RPCU_IMAGE_MANIFEST_URL is valid and exists for ${RE_JOB_CONTEXT}."
      echo "RPCU_IMAGE_MANIFEST_URL set to ${RPCU_IMAGE_MANIFEST_URL}."
+     export MNAIO_MANIFEST_URL=${RPCU_IMAGE_MANIFEST_URL}
    elif curl --output /dev/null --silent --head --fail "${RPCO_IMAGE_MANIFEST_URL}"; then
      echo "RPCO_IMAGE_MANIFEST_URL is valid and exists for ${RE_JOB_CONTEXT}."
      echo "RPCO_IMAGE_MANIFEST_URL set to ${RPCO_IMAGE_MANIFEST_URL}."
+     export MNAIO_MANIFEST_URL=${RPCO_IMAGE_MANIFEST_URL}
    else
      echo "Requested RE_JOB_SERIES not found for ${RE_JOB_CONTEXT}, falling back to latest available."
      # normally would fail and exit here, but we'll need to build up library of snapshots
      # exit 1
-     if [ "${RE_JOB_SERIES}" == "pike" ]; then
-       export RPCO_IMAGE_MANIFEST_URL="${RPCO_ARTIFACT_URL}/r16.2.8-xenial_mnaio_no_artifacts-swift/manifest.json"
+     if [ "${RE_JOB_SERIES}" == "rocky" ]; then
+       export MNAIO_MANIFEST_URL="${RPCO_ARTIFACT_URL}/r18.0.0-xenial_mnaio_no_artifacts-swift/manifest.json"
+     elif [ "${RE_JOB_SERIES}" == "queens" ]; then
+       export MNAIO_MANIFEST_URL="${RPCO_ARTIFACT_URL}/r17.1.5-xenial_mnaio_no_artifacts-swift/manifest.json"
+     elif [ "${RE_JOB_SERIES}" == "pike" ]; then
+       export MNAIO_MANIFEST_URL="${RPCO_ARTIFACT_URL}/r16.2.9-xenial_mnaio_no_artifacts-swift/manifest.json"
      elif [ "${RE_JOB_SERIES}" == "newton" ]; then
-       export RPCO_IMAGE_MANIFEST_URL="${RPCO_ARTIFACT_URL}/r14.23.0-xenial_mnaio_loose_artifacts-swift/manifest.json"
+       export MNAIO_MANIFEST_URL="${RPCO_ARTIFACT_URL}/r14.23.0-xenial_mnaio_loose_artifacts-swift/manifest.json"
      else
        exit 1
      fi
@@ -109,7 +115,7 @@ pushd /opt/openstack-ansible-ops/multi-node-aio
   run_mnaio_playbook playbooks/deploy-acng.yml
   run_mnaio_playbook playbooks/deploy-pxe.yml
   run_mnaio_playbook playbooks/deploy-dhcp.yml
-  run_mnaio_playbook playbooks/download-vms.yml -e manifest_url=${RPCO_IMAGE_MANIFEST_URL}
+  run_mnaio_playbook playbooks/download-vms.yml -e manifest_url=${MNAIO_MANIFEST_URL}
   run_mnaio_playbook playbooks/deploy-vms.yml
 popd
 echo "Multi Node AIO setup from snapshots completed..."
