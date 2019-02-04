@@ -29,6 +29,9 @@ export RE_JOB_CONTEXT="${RE_JOB_CONTEXT:-master}"
 export RE_JOB_IMAGE_OS="${RE_JOB_IMAGE_OS:-trusty}"
 export RE_JOB_IMAGE_TYPE="${RE_JOB_IMAGE_TYPE:-mnaio}"
 
+# remove snap from RE_JOB_IMAGE_TYPE var so that we can grab the proper image
+export RE_JOB_IMAGE="${RE_JOB_IMAGE//-snap}"
+  
 export RPC_RELEASE="${RE_JOB_CONTEXT:-}"
 export RPCU_ARTIFACT_URL="https://ed2cc5ce4ea792952a06-5946b1c04934c7963c5365082354649f.ssl.cf5.rackcdn.com"
 export RPCU_IMAGE_MANIFEST_URL="${RPCU_ARTIFACT_URL}/${RE_JOB_CONTEXT}-${RE_JOB_IMAGE}-${RE_JOB_SCENARIO}/manifest.json"
