@@ -32,11 +32,11 @@ export RE_JOB_IMAGE=${RE_JOB_IMAGE_OS}
 
 # set guest OS based on RE_JOB_IMAGE
 if [ ${RE_JOB_IMAGE} == "trusty" ]; then
-  DEFAULT_IMAGE="ubuntu-14.04-amd64"
+  export DEFAULT_IMAGE="ubuntu-14.04-amd64"
 elif [ ${RE_JOB_IMAGE} == "xenial" ]; then
-  DEFAULT_IMAGE="ubuntu-16.04-amd64"
+  export DEFAULT_IMAGE="ubuntu-16.04-amd64"
 elif [ ${RE_JOB_IMAGE} == "bionic" ]; then
-  DEFAULT_IMAGE="ubuntu-18.04-amd64"
+  export DEFAULT_IMAGE="ubuntu-18.04-amd64"
 fi
 
 ## OSA MNAIO Vars
@@ -136,6 +136,9 @@ uname -a
 scp -r -o StrictHostKeyChecking=no /opt/rpc-openstack infra1:/opt/
 scp -r -o StrictHostKeyChecking=no /opt/rpc-upgrades infra1:/opt/
 scp -r -o StrictHostKeyChecking=no /etc/openstack_deploy/user_rpco_upgrade.yml infra1:/etc/openstack_deploy/
+if [ -f /etc/openstack_deploy/user_gating_fixes.yml ]; then
+  scp -r -o StrictHostKeyChecking=no /etc/openstack_deploy/user_gating_fixes.yml infra1:/etc/openstack_deploy/
+fi
 if [ -f /etc/openstack_deploy/user_osa_variables_spice.yml ]; then
   scp -r -o StrictHostKeyChecking=no /etc/openstack_deploy/user_osa_variables_spice.yml infra1:/etc/openstack_deploy/
 fi
@@ -162,6 +165,9 @@ if [ -d "/opt/rpc-openstack/rpcd/etc/openstack_deploy" ]; then
 elif [ -d "/opt/rpc-openstack/etc/openstack_deploy" ]; then
   sudo cp -R /opt/rpc-openstack/etc/openstack_deploy/* /etc/openstack_deploy
 fi
+
+# remove user_variables.yml as we don't utilize this on initial builds
+sudo rm /etc/openstack_deploy/user_variables.yml
 
 # restore mnaio variables
 sudo cp /etc/openstack_deploy/user_mnaio_variables.yml.bak /etc/openstack_deploy/user_mnaio_variables.yml

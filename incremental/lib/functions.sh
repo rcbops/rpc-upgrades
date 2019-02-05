@@ -129,6 +129,23 @@ function checkout_openstack_ansible {
   fi
 }
 
+function ensure_osa_bootstrap {
+  if [ ! -f "/etc/openstack_deploy/osa_bootstrapped.complete" ]; then
+    # purge osa and wrapper so that we start fresh without RPC-O settings
+    if [ -d "/opt/openstack-ansible" ]; then
+      rm -rf /opt/openstack-ansible
+      rm -f /usr/local/bin/openstack-ansible
+      rm -f /usr/local/bin/openstack-ansible.rc
+    fi
+    checkout_openstack_ansible
+    pushd /opt/openstack-ansible
+      scripts/bootstrap-ansible.sh
+    popd
+    touch /etc/openstack_deploy/osa_bootstrapped.complete
+  fi
+}
+
+
 function configure_rpc_openstack {
   rsync -av --delete /opt/rpc-openstack/etc/openstack_deploy/group_vars /etc/openstack_deploy/
   rm -rf /opt/rpc-ansible
@@ -151,40 +168,6 @@ function install_ansible_source {
                                             python-minimal python-virtualenv
 
   /opt/rpc-ansible/bin/pip install --isolated "ansible==${RPC_ANSIBLE_VERSION}"
-}
-
-function set_keystone_flush_memcache {
-  if [[ ! -f /etc/openstack_deploy/user_rpco_upgrade.yml ]]; then
-     echo "---" > /etc/openstack_deploy/user_rpco_upgrade.yml
-     echo "keystone_flush_memcache: yes" >> /etc/openstack_deploy/user_rpco_upgrade.yml
-  elif [[ -f /etc/openstack_deploy/user_rpco_upgrade.yml ]]; then
-    if ! grep -i "keystone_flush_memcache" /etc/openstack_deploy/user_rpco_upgrade.yml; then
-      echo "keystone_flush_memcache: yes" >> /etc/openstack_deploy/user_rpco_upgrade.yml
-    fi
-  fi
-}
-
-function disable_hardening {
-  if [[ ! -f /etc/openstack_deploy/user_rpco_upgrade.yml ]]; then
-     echo "---" > /etc/openstack_deploy/user_rpco_upgrade.yml
-     echo "apply_security_hardening: false" >> /etc/openstack_deploy/user_rpco_upgrade.yml
-  elif [[ -f /etc/openstack_deploy/user_rpco_upgrade.yml ]]; then
-    if ! grep -i "apply_security_hardening" /etc/openstack_deploy/user_rpco_upgrade.yml; then
-      echo "apply_security_hardening: false" >> /etc/openstack_deploy/user_rpco_upgrade.yml
-    fi
-  fi
-}
-
-function set_secrets_file {
-  if [ -f "/etc/openstack_deploy/user_secrets.yml" ]; then
-    if ! grep "^osa_secrets_file_name" /etc/openstack_deploy/user_rpco_upgrade.yml; then
-      echo 'osa_secrets_file_name: "user_secrets.yml"' >> /etc/openstack_deploy/user_rpco_upgrade.yml
-    fi
-  elif [ -f "/etc/openstack_deploy/user_osa_secrets.yml" ]; then
-    if ! grep "^osa_secrets_file_name" /etc/openstack_deploy/user_rpco_upgrade.yml; then
-      echo 'osa_secrets_file_name: "user_osa_secrets.yml"' >> /etc/openstack_deploy/user_rpco_upgrade.yml
-    fi
-  fi
 }
 
 function run_upgrade {
@@ -210,6 +193,13 @@ function strip_install_steps {
   popd
 }
 
+function generate_upgrade_config {
+  # generate user_rpco_upgrade.yml
+  pushd /opt/rpc-upgrades/incremental/playbooks
+    openstack-ansible rpco-upgrade-configs.yml
+  popd
+}
+
 function prepare_ocata {
   if [[ ! -f "/etc/openstack_deploy/ocata_upgrade_prep.complete" ]]; then
     pushd /opt/rpc-upgrades/incremental/playbooks
@@ -221,12 +211,6 @@ function prepare_ocata {
       openstack-ansible create-cell0.yml
       openstack-ansible db-migration-ocata.yml
     popd
-  fi
-  # purge osa and wrapper so that we start fresh without RPC-O settings
-  if [ -d "/opt/openstack-ansible" ]; then
-    rm -rf /opt/openstack-ansible
-    rm -f /usr/local/bin/openstack-ansible
-    rm -f /usr/local/bin/openstack-ansible.rc
   fi
 }
 
@@ -245,4 +229,10 @@ function prepare_queens {
 
 function prepare_rocky {
   echo "Rocky prepare steps go here..."
+}
+
+function cleanup {
+  if [ -f "/etc/openstack_deploy/user_rpco_upgrade.yml" ]; then
+    rm /etc/openstack_deploy/user_rpco_upgrade.yml
+  fi
 }
