@@ -271,6 +271,13 @@ function remove_ceph_roles {
   sed -i '/# This removes Ceph roles downloaded/,+4d' ${RPCO_PATH}/scripts/deploy.sh
 }
 
+function fixup_liberty {
+  cat > /etc/openstack_deploy/user_gating_fixes.yml <<EOF
+---
+glance_default_store: swift
+EOF
+}
+
 function fixup_mitaka {
   sed -i '/# Enable playbook callbacks from OSA/,+1d' ${RPCO_PATH}/scripts/deploy.sh
   sed -i '/# Apply any patched files./,+2d' ${RPCO_PATH}/scripts/deploy.sh
@@ -383,6 +390,7 @@ pushd /opt/rpc-openstack
     unset_affinity
     allow_frontloading_vars
     get_ssh_role
+    fixup_liberty
     fix_galera_apt_cache
     remove_xtrabackup_from_galera_client
     remove_ceph_roles
