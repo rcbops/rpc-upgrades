@@ -235,6 +235,10 @@ function cleanup {
   if [ -f "/etc/openstack_deploy/user_rpco_upgrade.yml" ]; then
     rm /etc/openstack_deploy/user_rpco_upgrade.yml
   fi
+
+  pushd /opt/rpc-upgrades/playbooks
+    openstack-ansible preflight_checks/mark.yml --tags "clear"
+  popd
 }
 
 function mark_started {

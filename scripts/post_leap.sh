@@ -91,4 +91,8 @@ else
   done
 fi
 
+pushd /opt/rpc-upgrades/playbooks/
+  openstack-ansible preflight_checks/mark.yml --tags "clear"
+popd
+
 echo "LEAPFROG COMPLETE."

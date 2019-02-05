@@ -23,6 +23,12 @@ discover_code_version
 require_ubuntu_version 16
 ensure_working_dir
 
+if [[ ! -f "${UPGRADES_WORKING_DIR}/rpc-preflight-check.complete" ]]; then
+  pushd /opt/rpc-upgrades/playbooks
+    openstack-ansible incremental-preflight-check.yml
+  popd
+fi
+
 # if target not set, exit and inform user how to proceed
 if [[ -z "$1" ]]; then
   echo "Please set the target to upgrade to:"

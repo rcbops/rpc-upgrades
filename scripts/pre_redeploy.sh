@@ -36,7 +36,7 @@ notice "Pre redeploy steps"
 if [ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/fixup-mitaka-leap.complete" ]; then
     if [ ${CODE_UPGRADE_FROM} == "MITAKA" ]; then
         # skip the variable migration for MITAKA
-        touch /etc/openstack_deploy/upgrade-leap/variable-migration.complete
+        touch /etc/openstack_deploy/rpc-upgrades/variable-migration.complete
         # remove user_osa_variables_defaults as existing settings will not work in newton
         if [ -f "/etc/openstack_deploy/user_osa_variables_defaults.yml" ]; then
             rm /etc/openstack_deploy/user_osa_variables_defaults.yml
