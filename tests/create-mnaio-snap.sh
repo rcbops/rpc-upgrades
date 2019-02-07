@@ -108,6 +108,7 @@ pushd /opt/openstack-ansible-ops/multi-node-aio
   else
     source /opt/rpc-upgrades/gating/mnaio_vars.sh
   fi
+  export MNAIO_ANSIBLE_PARAMETERS="-e default_vm_disk_mode=file -e infra_vm_server_vcpus=10"
   source bootstrap.sh
   source ansible-env.rc
   determine_manifest
