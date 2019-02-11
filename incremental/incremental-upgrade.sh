@@ -70,6 +70,8 @@ if [ "${SKIP_PREFLIGHT}" != "true" ]; then
   pre_flight
 fi
 
+
+vault_decrypt_secrets
 # run through TODO list and run incremental upgrade scripts
 for RELEASE_TO_DO in ${TODO}; do
   if [ ! -f ${UPGRADES_WORKING_DIR}/upgrade-to-${RELEASE_TO_DO}.complete ]; then
@@ -84,4 +86,5 @@ for RELEASE_TO_DO in ${TODO}; do
   fi
 done
 
+vault_encrypt_secrets
 cleanup

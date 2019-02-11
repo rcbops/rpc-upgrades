@@ -250,3 +250,48 @@ function mark_completed {
   echo "Completing ${RPC_PRODUCT_RELEASE^} upgrade..."
   touch ${UPGRADES_WORKING_DIR}/upgrade-to-${RPC_PRODUCT_RELEASE}.complete
 }
+
+function vault_decrypt_secrets {
+  if [ -v ANSIBLE_VAULT_PASSWORD_FILE ]; then
+    for FILENAME in ${VAULT_ENCRYPTED_FILES}; do
+      echo "Checking to see if ${FILENAME} needs to be decrypted..."
+      if [ -a "${OS_DEPLOY_DIR}/${FILENAME}" ]; then
+        head -1 ${OS_DEPLOY_DIR}/${FILENAME} | grep -q \$ANSIBLE_VAULT \
+        && ansible-vault decrypt ${OS_DEPLOY_DIR}/${FILENAME} --vault-password-file ${ANSIBLE_VAULT_PASSWORD_FILE}
+      fi
+    done
+  else
+    for FILENAME in ${VAULT_ENCRYPTED_FILES}; do
+      # test to see if files are encrypted
+      if [ -a "${OS_DEPLOY_DIR}/${FILENAME}" ]; then
+        head -1 ${OS_DEPLOY_DIR}/${FILENAME} | grep -q \$ANSIBLE_VAULT \
+        && echo "Password files are encrypted, please set location of Ansible \
+        Vault File using export ANSIBLE_VAULT_PASSWORD_FILE=location_of_file" && exit 1
+      fi
+    done
+  fi
+}
+
+function vault_encrypt_secrets {
+  if [ -v ANSIBLE_VAULT_PASSWORD_FILE ]; then
+    for FILENAME in ${VAULT_ENCRYPTED_FILES}; do
+      echo "Checking to see if ${FILENAME} needs to be encrypted..."
+      if [ -a "${OS_DEPLOY_DIR}/${FILENAME}" ]; then
+        head -1 ${OS_DEPLOY_DIR}/${FILENAME} | grep -v -q \$ANSIBLE_VAULT \
+        && ansible-vault encrypt ${OS_DEPLOY_DIR}/${FILENAME}
+      fi
+    done
+    echo "Secrets files have been re-encrypted."
+    echo "Please ensure Ansible Vault Password file is removed from:"
+    echo "${ANSIBLE_VAULT_PASSWORD_FILE}"
+  else
+    for FILENAME in ${VAULT_ENCRYPTED_FILES}; do
+      # test to see if files are encrypted
+      if [ -a "${OS_DEPLOY_DIR}/${FILENAME}" ]; then
+        head -1 ${OS_DEPLOY_DIR}/${FILENAME} | grep -v -q \$ANSIBLE_VAULT \
+        && echo "Password files are decrypted, unable to re-encrypt because \
+        ANSIBLE_VAULT_PASSWORD_FILE=location_of_file is not set" && exit 1
+      fi
+    done
+  fi
+}

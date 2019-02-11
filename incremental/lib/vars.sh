@@ -24,3 +24,8 @@ RELEASES="newton
 STARTING_RELEASE=false
 SKIP_PREFLIGHT=${SKIP_PREFLIGHT:-false}
 UPGRADES_WORKING_DIR=/etc/openstack_deploy/rpc-upgrades
+OS_DEPLOY_DIR=${OS_DEPLOY_DIR:-/etc/openstack_deploy}
+VAULT_ENCRYPTED_FILES="user_secrets.yml
+                       user_osa_secrets.yml
+                       user_rpco_secrets.yml
+                       user_extras_secrets.yml"

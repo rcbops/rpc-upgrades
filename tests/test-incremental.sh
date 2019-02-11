@@ -16,9 +16,15 @@
 
 set -evu
 
+source tests/test-vault.sh
+
 export RE_JOB_UPGRADE_TO=${RE_JOB_UPGRADE_TO:-'queens'}
+
+setup_vault_test
 
 pushd /opt/rpc-upgrades/incremental
   export SKIP_PREFLIGHT=true
   ./incremental-upgrade.sh ${RE_JOB_UPGRADE_TO}
 popd
+
+cleanup_vault_test
