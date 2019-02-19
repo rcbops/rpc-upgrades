@@ -18,32 +18,39 @@
 
 function discover_code_version {
   if [[ ! -f "/etc/openstack-release" ]]; then
-      failure "No release file could be found, failing..."
-      exit 99
+    failure "No release file could be found, failing..."
+    exit 99
+  elif [[ -f "${UPGRADES_WORKING_DIR}/openstack-release.upgrade" ]]; then
+    source ${UPGRADES_WORKING_DIR}/openstack-release.upgrade
+    determine_release
   else
-      source /etc/openstack-release
-      case "${DISTRIB_RELEASE%%.*}" in
-        *14|newton-eol)
-          export CODE_UPGRADE_FROM="newton"
-          echo "You seem to be running Newton"
-        ;;
-        *15|ocata)
-           export CODE_UPGRADE_FROM="ocata"
-           echo "You seem to be running Ocata"
-          ;;
-        *16|pike)
-           export CODE_UPGRADE_FROM="pike"
-           echo "You seem to be running Pike"
-        ;;
-        *17|queens)
-           export CODE_UPGRADE_FROM="queens"
-           echo "You seem to be running Queens"
-        ;;
-        *)
-           echo "Unable to detect current OpenStack version, failing...."
-           exit 99
-        esac
-    fi
+    source /etc/openstack-release
+    determine_release
+  fi
+}
+
+function determine_release {
+  case "${DISTRIB_RELEASE%%.*}" in
+    *14|newton-eol)
+      export CODE_UPGRADE_FROM="newton"
+      echo "You seem to be running Newton"
+    ;;
+    *15|ocata)
+      export CODE_UPGRADE_FROM="ocata"
+      echo "You seem to be running Ocata"
+    ;;
+    *16|pike)
+      export CODE_UPGRADE_FROM="pike"
+      echo "You seem to be running Pike"
+    ;;
+    *17|queens)
+      export CODE_UPGRADE_FROM="queens"
+      echo "You seem to be running Queens"
+    ;;
+    *)
+      echo "Unable to detect current OpenStack version, failing...."
+      exit 99
+  esac
 }
 
 # Fail if Ubuntu Major release is not the minimum required for a given OpenStack upgrade
@@ -52,6 +59,12 @@ function require_ubuntu_version {
   if [ "$(lsb_release -r | cut -f2 -d$'\t' | cut -f1 -d$'.')" -lt "$REQUIRED_VERSION" ]; then
     echo "Please upgrade to Ubuntu "$REQUIRED_VERSION" before attempting to upgrade OpenStack"
     exit 99
+  fi
+}
+
+function ensure_working_dir {
+  if [ ! -d "${UPGRADES_WORKING_DIR}" ]; then
+    mkdir -p ${UPGRADES_WORKING_DIR}
   fi
 }
 
@@ -180,14 +193,6 @@ function run_upgrade {
   popd
 }
 
-function strip_install_steps {
-  pushd /opt/openstack-ansible/scripts
-    sed -i '/RUN_TASKS+=("[a-z]/d' run-upgrade.sh
-    sed -i "/memcached-flush.yml/d" run-upgrade.sh
-    sed -i "/galera-cluster-rolling-restart/d" run-upgrade.sh
-  popd
-}
-
 function generate_upgrade_config {
   # generate user_rpco_upgrade.yml
   pushd /opt/rpc-upgrades/incremental/playbooks
@@ -196,12 +201,12 @@ function generate_upgrade_config {
 }
 
 function prepare_ocata {
-  if [[ ! -f "/etc/openstack_deploy/ocata_upgrade_prep.complete" ]]; then
+  if [ ! -f ${UPGRADES_WORKING_DIR}/ocata_upgrade_prep.complete ]; then
     pushd /opt/rpc-upgrades/incremental/playbooks
       openstack-ansible prepare-ocata-upgrade.yml
     popd
   fi
-  if [[ ! -f "/etc/openstack_deploy/ocata_migrate.complete" ]]; then
+  if [ ! -f ${UPGRADES_WORKING_DIR}/ocata_migrate.complete ]; then
     pushd /opt/rpc-upgrades/incremental/playbooks
       openstack-ansible create-cell0.yml
       openstack-ansible db-migration-ocata.yml
@@ -230,4 +235,18 @@ function cleanup {
   if [ -f "/etc/openstack_deploy/user_rpco_upgrade.yml" ]; then
     rm /etc/openstack_deploy/user_rpco_upgrade.yml
   fi
+}
+
+function mark_started {
+  echo "Starting ${RPC_PRODUCT_RELEASE^} upgrade..."
+  ensure_working_dir
+  if [ ! -f ${UPGRADES_WORKING_DIR}/upgrade-to-${RPC_PRODUCT_RELEASE}.started ]; then
+    cp /etc/openstack-release ${UPGRADES_WORKING_DIR}/openstack-release.upgrade
+  fi
+  touch ${UPGRADES_WORKING_DIR}/upgrade-to-${RPC_PRODUCT_RELEASE}.started
+}
+
+function mark_completed {
+  echo "Completing ${RPC_PRODUCT_RELEASE^} upgrade..."
+  touch ${UPGRADES_WORKING_DIR}/upgrade-to-${RPC_PRODUCT_RELEASE}.complete
 }

@@ -21,6 +21,7 @@ source lib/vars.sh
 
 discover_code_version
 require_ubuntu_version 16
+ensure_working_dir
 
 # if target not set, exit and inform user how to proceed
 if [[ -z "$1" ]]; then
@@ -71,8 +72,16 @@ fi
 
 # run through TODO list and run incremental upgrade scripts
 for RELEASE_TO_DO in ${TODO}; do
-  echo "Starting upgrade to ${RELEASE_TO_DO^}"
-  bash ubuntu16-upgrade-to-${RELEASE_TO_DO}.sh
+  if [ ! -f ${UPGRADES_WORKING_DIR}/upgrade-to-${RELEASE_TO_DO}.complete ]; then
+    echo "Starting upgrade to ${RELEASE_TO_DO^}..."
+    sleep 5
+    bash ubuntu16-upgrade-to-${RELEASE_TO_DO}.sh
+  else
+    echo
+    echo "*** Previous upgrade to ${RELEASE_TO_DO^} was completed, moving onto next in series in 10 seconds...***"
+    echo
+    sleep 10
+  fi
 done
 
 cleanup

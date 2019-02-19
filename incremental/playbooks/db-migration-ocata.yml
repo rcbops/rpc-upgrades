@@ -159,6 +159,6 @@
   tasks:
     - name: Set lock file
       file:
-        path: /etc/openstack_deploy/ocata_migrate.complete
+        path: /etc/openstack_deploy/rpc-upgrades/ocata_migrate.complete
         state: touch
         mode: 0644
