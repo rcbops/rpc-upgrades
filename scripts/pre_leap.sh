@@ -22,6 +22,7 @@ set -o pipefail
 # set encrypted vault files
 export OS_DEPLOY_DIR="/etc/openstack_deploy"
 export VAULT_ENCRYPTED_FILES="user_secrets.yml
+                              user_extras_secrets.yml
                               user_osa_secrets.yml
                               user_rpco_secrets.yml"
 

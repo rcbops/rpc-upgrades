@@ -21,6 +21,7 @@ export AUTOMATIC_VAR_MIGRATE_FLAG="--for-testing-take-new-vars-only"
 export RPC_TARGET_CHECKOUT=${RPC_TARGET_CHECKOUT:-'newton'}
 export OS_DEPLOY_DIR="/etc/openstack_deploy"
 export VAULT_ENCRYPTED_FILES="user_secrets.yml
+                              user_extras_secrets.yml
                               user_osa_secrets.yml
                               user_rpco_secrets.yml"
 
