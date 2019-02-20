@@ -292,6 +292,17 @@ function fix_kilo_arr {
 EOF
 }
 
+function clean_kilo_submodules {
+  # removes all ceph roles that no longer work
+  pushd ${RPCO_PATH}
+    for GIT_MODULE in ceph-common ceph-mon ceph-osd; do
+      git submodule deinit -f rpcd/playbooks/roles/${GIT_MODULE}
+      rm -rf .git/rpcd/playbooks/roles/${GIT_MODULE}
+      git rm -f rpcd/playbooks/roles/${GIT_MODULE}
+    done
+  popd
+}
+
 function fix_sshd_tag {
   # RI-575 Fix the sshd checkout version
   sed -i '/- name: sshd/,+3d' ${OSA_PATH}/ansible-role-requirements.yml
@@ -337,6 +348,7 @@ pushd /opt/rpc-openstack
   fi
   if [ "${RE_JOB_SERIES}" == "kilo" ]; then
     git_checkout "kilo"  # Last commit of Kilo
+    clean_kilo_submodules
     (git submodule init && git submodule update) || true
 
     # NOTE(cloudnull): Run Kilo pre-setup functions
