@@ -25,30 +25,5 @@
       service:
         name: lxc-dnsmasq
         state: restarted
-
-- name: Restart containers
-  hosts: "{{ container_group|default('all_containers') }}"
-  gather_facts: false
-  user: root
-  tasks:
-    - name: Stop LXC Container
-      command: >
-        lxc-stop --name {{ inventory_hostname }}
-        --logfile {{ lxc_container_log_path }}/lxc-{{ inventory_hostname }}.log
-        --logpriority {{ (debug | bool) | ternary('DEBUG', 'INFO') }}
-      delegate_to: "{{ physical_host }}"
-      register: container_stop
-      changed_when: true
-      failed_when: not container_stop.rc in [0, 2]
-      until: container_stop.rc in [0, 2]
-      retries: 3
-      delay: 2
-    - name: Start LXC Container
-      command: >
-        lxc-start --daemon --name {{ inventory_hostname }}
-        --logfile {{ lxc_container_log_path }}/lxc-{{ inventory_hostname }}.log
-        --logpriority {{ (debug | bool) | ternary('DEBUG', 'INFO') }}
-      delegate_to: "{{ physical_host }}"
-      register: container_start
-      until: container_start | success
-      retries: 3
+    - name: Run lxc-veth-check to ensure containers are on-line and connected
+      command: lxc-veth-check
