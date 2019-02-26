@@ -150,12 +150,12 @@ function ensure_osa_bootstrap {
       rm -f /usr/local/bin/openstack-ansible
       rm -f /usr/local/bin/openstack-ansible.rc
     fi
-    checkout_openstack_ansible
-    pushd /opt/openstack-ansible
-      scripts/bootstrap-ansible.sh
-    popd
-    touch /etc/openstack_deploy/osa_bootstrapped.complete
   fi
+  checkout_openstack_ansible
+  pushd /opt/openstack-ansible
+    scripts/bootstrap-ansible.sh
+  popd
+  touch /etc/openstack_deploy/osa_bootstrapped.complete
 }
 
 
@@ -193,8 +193,13 @@ function run_upgrade {
     # Destroy repo container prior to the upgrade to reduce "No space left on device" issues
     pushd /opt/openstack-ansible/playbooks
       openstack-ansible lxc-containers-destroy.yml -e force_containers_destroy=true -e force_containers_data_destroy=true --limit repo_container
-      openstack-ansible lxc-containers-create.yml --limit repo_container -e lxc_container_fs_size=10G
+      openstack-ansible lxc-containers-create.yml --limit repo-infra_all -e lxc_container_fs_size=10G
     popd
+
+    # Remove pip from deploy host to prevent issues before repo has been rebuilt
+    if [ -f /root/.pip/pip.conf ]; then
+      rm /root/.pip/pip.conf
+    fi
 
     # Run upgrade
     echo "YES" | bash scripts/run-upgrade.sh
@@ -219,6 +224,7 @@ function prepare_ocata {
     if [[ ! -f "/etc/openstack_deploy/ocata_migrate.complete" ]]; then
       openstack-ansible create-cell0.yml
       openstack-ansible db-migration-ocata.yml
+    fi
   popd
 }
 

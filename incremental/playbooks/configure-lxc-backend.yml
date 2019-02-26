@@ -33,3 +33,4 @@
         dest: "{{ _osa_config.results[0].stat.path }}"
         line: "lxc_container_backing_store: {{ lxc_backend }}"
         regexp: '^lxc_container_backing_store:.*'
+      when: _osa_config.results[0].stat.path is defined
