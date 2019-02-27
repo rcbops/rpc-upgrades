@@ -29,6 +29,18 @@
     - name: Ensure Apt is in a healthy state
       shell: "dpkg -a --configure; apt install -y -f"
 
+- name: Ensure we have the latest ca-certificates package
+  hosts: "hosts"
+  gather_facts: false
+  user: root
+  tasks:
+    - name: Ensure we have the latest ca-certificates package
+      apt:
+        name: ca-certificates
+        state: latest
+        update_cache: yes
+        cache_valid_time: 3600
+
 - name: Openstack release check if exists 
   hosts: localhost
   gather_facts: false
