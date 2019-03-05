@@ -1,0 +1,36 @@
+---
+
+- hosts: localhost
+  gather_facts: "{{ gather_facts | default(false) }}"
+  tasks:
+    - name: Get current lxc.rootfs.backend from first container
+      command: "lxc-info -n {{ hostvars[item]['container_name'] }} -c lxc.rootfs.backend"
+      with_items: "{{ groups['all_containers'] |first }}"
+      changed_when: false
+      delegate_to: "{{ hostvars[item]['physical_host'] }}"
+      register: _repo_backend_rootfs
+      until: _repo_backend_rootfs |success
+      retries: 3
+      delay: 5
+      failed_when: not _repo_backend_rootfs.stdout is search('lxc.rootfs.backend')
+
+    - set_fact:
+        lxc_backend: "{{ _repo_backend_rootfs.results[0].stdout.split('=')[1] |trim() }}"
+
+    - name: Find overrides file
+      stat:
+        path: "/etc/openstack_deploy/{{ item }}"
+        follow: yes
+      changed_when: false
+      register: _osa_config
+      until: _osa_config |success
+      with_items:
+        - 'user_osa_variables_overrides.yml'
+        - 'user_variables.yml'
+
+    - name: Configure lxc_container_backing_store
+      lineinfile:
+        dest: "{{ _osa_config.results[0].stat.path }}"
+        line: "lxc_container_backing_store: {{ lxc_backend }}"
+        regexp: '^lxc_container_backing_store:.*'
+      when: _osa_config.results[0].stat.path is defined

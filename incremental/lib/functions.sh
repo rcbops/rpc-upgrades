@@ -150,12 +150,12 @@ function ensure_osa_bootstrap {
       rm -f /usr/local/bin/openstack-ansible
       rm -f /usr/local/bin/openstack-ansible.rc
     fi
-    checkout_openstack_ansible
-    pushd /opt/openstack-ansible
-      scripts/bootstrap-ansible.sh
-    popd
-    touch /etc/openstack_deploy/osa_bootstrapped.complete
   fi
+  checkout_openstack_ansible
+  pushd /opt/openstack-ansible
+    scripts/bootstrap-ansible.sh
+  popd
+  touch /etc/openstack_deploy/osa_bootstrapped.complete
 }
 
 
@@ -189,6 +189,19 @@ function run_upgrade {
     export I_REALLY_KNOW_WHAT_I_AM_DOING=true
     export SETUP_ARA=true
     export ANSIBLE_CALLBACK_PLUGINS=/etc/ansible/roles/plugins/callback:/opt/ansible-runtime/local/lib/python2.7/site-packages/ara/plugins/callbacks
+
+    # Destroy repo container prior to the upgrade to reduce "No space left on device" issues
+    pushd /opt/openstack-ansible/playbooks
+      openstack-ansible lxc-containers-destroy.yml -e force_containers_destroy=true -e force_containers_data_destroy=true --limit repo_container
+      openstack-ansible lxc-containers-create.yml --limit repo-infra_all -e lxc_container_fs_size=10G
+    popd
+
+    # Remove pip from deploy host to prevent issues before repo has been rebuilt
+    if [ -f /root/.pip/pip.conf ]; then
+      rm /root/.pip/pip.conf
+    fi
+
+    # Run upgrade
     echo "YES" | bash scripts/run-upgrade.sh
   popd
 }
@@ -201,20 +214,25 @@ function generate_upgrade_config {
 }
 
 function prepare_ocata {
-  if [ ! -f ${UPGRADES_WORKING_DIR}/ocata_upgrade_prep.complete ]; then
-    pushd /opt/rpc-upgrades/incremental/playbooks
+  pushd /opt/rpc-upgrades/incremental/playbooks
+    openstack-ansible configure-lxc-backend.yml
+
+    if [[ ! -f "/etc/openstack_deploy/ocata_upgrade_prep.complete" ]]; then
       openstack-ansible prepare-ocata-upgrade.yml
-    popd
-  fi
-  if [ ! -f ${UPGRADES_WORKING_DIR}/ocata_migrate.complete ]; then
-    pushd /opt/rpc-upgrades/incremental/playbooks
+    fi
+
+    if [[ ! -f "/etc/openstack_deploy/ocata_migrate.complete" ]]; then
       openstack-ansible create-cell0.yml
       openstack-ansible db-migration-ocata.yml
-    popd
-  fi
+    fi
+  popd
 }
 
 function prepare_pike {
+  pushd /opt/rpc-upgrades/incremental/playbooks
+    openstack-ansible configure-lxc-backend.yml
+  popd
+
   pushd /opt/openstack-ansible
     # patch in restarting of containers into run-upgrade
     cp /opt/rpc-upgrades/playbooks/patches/pike/lxc-containers-restart.yml /opt/openstack-ansible/scripts/upgrade-utilities/playbooks
@@ -224,7 +242,9 @@ function prepare_pike {
 }
 
 function prepare_queens {
-  echo "Queens prepare steps go here..."
+  pushd /opt/rpc-upgrades/incremental/playbooks
+    openstack-ansible configure-lxc-backend.yml
+  popd
 }
 
 function prepare_rocky {
