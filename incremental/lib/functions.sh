@@ -121,6 +121,7 @@ function checkout_rpc_openstack {
   pushd /opt/rpc-openstack
     git clean -df
     git reset --hard HEAD
+    git fetch --all
     rm -rf openstack-ansible
     rm -rf scripts/artifacts-building/
     git checkout ${RPC_BRANCH}
