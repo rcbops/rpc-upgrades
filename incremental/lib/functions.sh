@@ -245,6 +245,10 @@ function prepare_pike {
 function prepare_queens {
   pushd /opt/rpc-upgrades/incremental/playbooks
     openstack-ansible configure-lxc-backend.yml
+
+    if [[ ! -f "/etc/openstack_deploy/queens_upgrade_prep.complete" ]]; then
+      openstack-ansible prepare-queens-upgrade.yml
+    fi
   popd
 }
 
