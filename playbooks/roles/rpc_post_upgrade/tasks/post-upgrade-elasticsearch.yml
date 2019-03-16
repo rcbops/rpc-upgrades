@@ -42,7 +42,6 @@
   debug: var=es_indicies_list
 
 - name: Check ES for green health status
-  debug:
-    var: "{{ item }}"
-  failed_when: "'green' not in \"{{ item }}\""
+  debug: var=item
+  failed_when: "'green' not in item"
   with_items: "{{ es_indicies_list|default([]) }}"
