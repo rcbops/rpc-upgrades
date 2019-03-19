@@ -38,6 +38,11 @@
         - /etc/apt/sources.list.d/rpco.list
         - /etc/apt/sources.list.d/rax-maas.list
       ignore_errors: true
+
+    - name: Remove rpc-repo GPG keys
+      apt_key:
+        id: 52AA252F
+        state: absent
    
     - name: Refresh apt cache
       apt:

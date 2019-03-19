@@ -197,6 +197,11 @@ function run_upgrade {
       openstack-ansible lxc-containers-create.yml --limit repo-infra_all -e lxc_container_fs_size=10G
     popd
 
+    # ensure no traces of rpco repos that may have come from lxc-cache
+    pushd /opt/rpc-upgrades/incremental/playbooks
+      openstack-ansible remove-rpco-repos.yml
+    popd
+
     # Remove pip from deploy host to prevent issues before repo has been rebuilt
     if [ -f /root/.pip/pip.conf ]; then
       rm /root/.pip/pip.conf
