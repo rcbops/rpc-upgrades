@@ -21,16 +21,15 @@ source lib/vars.sh
 
 require_ubuntu_version 16
 
-export RPC_BRANCH=${RPC_BRANCH:-'rocky'}
 export OSA_SHA="stable/rocky"
 export SKIP_INSTALL=${SKIP_INSTALL:-'no'}
 export RPC_PRODUCT_RELEASE="rocky"
 export RPC_ANSIBLE_VERSION="2.5.5"
 
 mark_started
-checkout_rpc_openstack
-configure_rpc_openstack
+checkout_openstack_ansible
 ensure_osa_bootstrap
+configure_osa
 prepare_rocky
 run_upgrade
 mark_completed

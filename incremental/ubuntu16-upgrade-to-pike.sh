@@ -21,15 +21,14 @@ source lib/vars.sh
 
 require_ubuntu_version 16
 
-export RPC_BRANCH=${RPC_BRANCH:-'r16.2.9'}
 export OSA_SHA="stable/pike"
 export RPC_PRODUCT_RELEASE="pike"
 export RPC_ANSIBLE_VERSION="2.3.2.0"
 
 mark_started
-checkout_rpc_openstack
-configure_rpc_openstack
+checkout_openstack_ansible
 ensure_osa_bootstrap
+configure_osa
 prepare_pike
 run_upgrade
 mark_completed

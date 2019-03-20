@@ -117,21 +117,6 @@ function check_user_variables {
   fi
 }
 
-function checkout_rpc_openstack {
-  if [ ! -d "/opt/rpc-openstack" ]; then
-    git clone --branch ${RPC_BRANCH} --recursive https://github.com/rcbops/rpc-openstack /opt/rpc-openstack
-  else
-    pushd /opt/rpc-openstack
-      git clean -df
-      git reset --hard HEAD
-      git fetch --all
-      rm -rf openstack-ansible
-      rm -rf scripts/artifacts-building/
-      git checkout ${RPC_BRANCH}
-    popd
-  fi
-}
-
 function checkout_openstack_ansible {
   if [ ! -d "/opt/openstack-ansible" ]; then
     git clone --recursive https://github.com/openstack/openstack-ansible /opt/openstack-ansible
@@ -170,14 +155,8 @@ function ensure_osa_bootstrap {
 }
 
 
-function configure_rpc_openstack {
-  rsync -av --delete /opt/rpc-openstack/etc/openstack_deploy/group_vars /etc/openstack_deploy/
-  rm -rf /opt/rpc-ansible
-  virtualenv /opt/rpc-ansible
-  install_ansible_source
-  pushd /opt/rpc-openstack/playbooks
-    /opt/rpc-ansible/bin/ansible-playbook -i 'localhost,' site-release.yml
-  popd
+function configure_osa {
+  rm -rf /etc/openstack_deploy/group_vars
   # clean out any existing env.d inventory
   if [ -d "/etc/openstack_deploy/env.d" ]; then
     rm -rf /etc/openstack_deploy/env.d

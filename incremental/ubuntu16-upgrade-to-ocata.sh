@@ -21,7 +21,6 @@ source lib/vars.sh
 
 require_ubuntu_version 16
 
-export RPC_BRANCH=${RPC_BRANCH:-'ocata'}
 export RPC_PRODUCT_RELEASE="ocata"
 export OSA_SHA="stable/ocata"
 export SKIP_INSTALL=${SKIP_INSTALL:-"yes"}
@@ -32,7 +31,6 @@ mark_started
 # to prepare for an OSA deploy
 prepare_ocata
 
-checkout_rpc_openstack
 checkout_openstack_ansible
 ensure_osa_bootstrap
 
