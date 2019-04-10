@@ -49,6 +49,15 @@
         update_cache: yes
       ignore_errors: true
 
+- name: Install psmisc package for killall command
+  hosts: hosts
+  user: root
+  tasks:
+    - name: Install psmisc to ensure killall is present for lxc-dnsmasq
+      apt:
+        name: psmisc
+        state: present
+
 - name: Fix up config files before Ocata jump
   hosts: localhost
   user: root
