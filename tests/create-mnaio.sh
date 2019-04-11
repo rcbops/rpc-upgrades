@@ -139,6 +139,9 @@ scp -r -o StrictHostKeyChecking=no /etc/openstack_deploy/user_rpco_upgrade.yml i
 if [ -f /etc/openstack_deploy/user_gating_fixes.yml ]; then
   scp -r -o StrictHostKeyChecking=no /etc/openstack_deploy/user_gating_fixes.yml infra1:/etc/openstack_deploy/
 fi
+if [ -f /etc/openstack_deploy/user_rpco_kilo.yml ]; then
+  scp -r -o StrictHostKeyChecking=no /etc/openstack_deploy/user_rpco_kilo.yml infra1:/etc/openstack_deploy/
+fi
 if [ -f /etc/openstack_deploy/user_osa_variables_spice.yml ]; then
   scp -r -o StrictHostKeyChecking=no /etc/openstack_deploy/user_osa_variables_spice.yml infra1:/etc/openstack_deploy/
 fi
