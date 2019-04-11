@@ -199,6 +199,17 @@ function spice_repo_fix {
   fi
 }
 
+function fixup_kilo_deploy {
+  cat > /etc/openstack_deploy/user_rpco_kilo.yml <<EOF
+## SSL Settings
+ssl_protocol: "ALL -SSLv2 -SSLv3"
+# Cipher suite string from https://hynek.me/articles/hardening-your-web-servers-ssl-ciphers/
+ssl_cipher_suite: "ECDH+AESGCM:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:ECDH+3DES:DH+3DES:RSA+AESGCM:RSA+AES:RSA+3DES:!aNULL:!MD5:!DSS"
+## Glance Options
+glance_default_store: swift
+EOF
+}
+
 function restore_default_apt_sources {
   if [[ -f "/etc/apt/sources.list.original" ]]; then
     mv /etc/apt/sources.list.original /etc/apt/sources.list
@@ -359,6 +370,7 @@ pushd /opt/rpc-openstack
     fix_kilo_arr
     maas_tweaks
     spice_repo_fix
+    fixup_kilo_deploy
     # NOTE(cloudnull): Pycrypto has to be limited.
     sed -i 's|pycrypto.*|pycrypto<=2.6.1|g' ${OSA_PATH}/requirements.txt
 
