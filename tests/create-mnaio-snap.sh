@@ -130,6 +130,14 @@ case "${RE_JOB_SERIES}" in
     ;;
 esac
 
+# create user_variables.yml if it doesn't exist
+if [ ! -f /etc/openstack_deploy/user_variables.yml ]; then
+  cat > /etc/openstack_deploy/user_variables.yml <<EOF
+---
+osa_ops_mnaio: true
+EOF
+fi
+ 
 set -xe
 echo "+---------------- MNAIO RELEASE AND KERNEL --------------+"
 lsb_release -a
@@ -138,6 +146,9 @@ echo "+---------------- MNAIO RELEASE AND KERNEL --------------+"
 scp -r -o StrictHostKeyChecking=no /opt/rpc-upgrades infra1:/opt/
 scp -r -o StrictHostKeyChecking=no /opt/rpc-openstack infra1:/opt/
 scp -r -o StrictHostKeyChecking=no /etc/openstack_deploy/user_rpco_upgrade.yml infra1:/etc/openstack_deploy/
+if [ -f /etc/openstack_deploy/user_variables.yml ]; then
+  scp -r -o StrictHostKeyChecking=no /etc/openstack_deploy/user_variables.yml infra1:/etc/openstack_deploy/
+fi
 if [ -f /etc/openstack_deploy/user_rpco_kilo.yml ]; then
   scp -r -o StrictHostKeyChecking=no /etc/openstack_deploy/user_rpco_kilo.yml infra1:/etc/openstack_deploy/
 fi
