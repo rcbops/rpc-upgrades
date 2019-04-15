@@ -137,7 +137,7 @@ if [ ! -f /etc/openstack_deploy/user_variables.yml ]; then
 osa_ops_mnaio: true
 EOF
 fi
- 
+
 set -xe
 echo "+---------------- MNAIO RELEASE AND KERNEL --------------+"
 lsb_release -a
