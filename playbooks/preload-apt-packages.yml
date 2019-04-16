@@ -1,0 +1,145 @@
+---
+# Preloads apt host packages for RPC-O/OSA Release
+#
+# Can be run before doing a leapfrog upgrade to Newton,
+# or incremental upgrades past Newton
+# Allows for operator to prestage apt packages on hosts
+# to avoid bottleneck issues from retrieving packages
+# during the maintenance.
+
+# legacy RPC-O
+# pass -e target_release=newton if upgrading to newton
+# newton will utilize rpco.list
+# if you need to override newton release, pass
+# -e newton_version=r14.23.0
+
+# RPC-O and OSA (Post Newton)
+# pass -e target_release=pike/queens/rocky
+# utilizes the uca repo set in
+
+- name: Fail if target release var is not defined
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Checking that required variables are defined
+      assert:
+        that:
+          - target_release != ""
+        msg: Ensure target_release is set so that we can generate the proper repo to download apt packages. i.e. -e target_release=newton
+
+- name: Ensure hosts are up
+  hosts: hosts
+  gather_facts: false
+  user: root
+  tasks:
+    - name: Ping check
+      ping:
+
+- name: Ensure Apt is in a healthy state across all hosts
+  hosts: hosts
+  gather_facts: false
+  user: root
+  vars:
+    newton_version: r14.23.0
+  tasks:
+    - name: Ensure Apt is in a healthy state on all hosts
+      shell: "dpkg -a --configure; apt install -y -f"
+
+    - name: Remove existing RPC-O repos
+      file:
+        path: "/etc/apt/sources.list.d/{{ item }}"
+        state: absent
+      with_items:
+        - rpc_repo_rackspace_com_apt_mirror_integrated.list
+        - rpco.list
+      when: target_release == 'newton'
+
+    - name: Remove existing OSA repos
+      file:
+        path: "/etc/apt/sources.list.d/{{ item }}"
+        state: absent
+      with_items:
+        - uca.list
+        - ubuntu_cloud_archive_canonical_com_ubuntu.list
+      when: target_release != 'newton'
+
+    - name: Install rpco repo key
+      apt_key:
+        url: https://rpc-repo.rackspace.com/apt-mirror/rcbops-release-signing-key.asc
+        state: present
+      when: target_release == 'newton'
+
+    - name: Set Newton repo for RPC-O leapfrog
+      apt_repository:
+        repo: deb http://rpc-repo.rackspace.com/apt-mirror/integrated/ {{ newton_version }}-trusty main
+        state: present
+        update_cache: yes
+      when: target_release == 'newton'
+
+    - name: Set uca repo for ocata and newer upgrades
+      apt_repository:
+        repo: "deb http://ubuntu-cloud.archive.canonical.com/ubuntu {{ ansible_lsb.codename }}-updates/{{ target_release }} main"
+        filename: uca
+        state: present
+        update_cache: yes
+      when:
+        - target_release != "newton"
+        - ansible_lsb.codename != "trusty"
+
+- name: Preload openstack_host apt packages
+  hosts: hosts
+  user: root
+  vars_files:
+    - "vars/{{ target_release }}-{{ ansible_distribution | lower }}-{{ ansible_distribution_version | lower }}.yml"
+  tasks:
+    - name: Download apt packages but don't install
+      shell: "apt-get -d -y install {{ item }}"
+      with_items:
+        - "{{ openstack_host_distro_packages | join(' ') }}"
+
+- name: Preload lxc_hosts apt packages
+  hosts: lxc_hosts
+  user: root
+  vars_files:
+    - "vars/{{ target_release }}-{{ ansible_distribution | lower }}-{{ ansible_distribution_version | lower }}.yml"
+  tasks:
+    - name: Download apt packages but don't install
+      shell: "apt-get -d -y install {{ item }}"
+      with_items:
+        - "{{ lxc_hosts_distro_packages | join(' ') }}"
+
+- name: Preload compute_host apt packages
+  hosts: compute_hosts
+  user: root
+  vars_files:
+    - "vars/{{ target_release }}-{{ ansible_distribution | lower }}-{{ ansible_distribution_version | lower }}.yml"
+  tasks:
+    - name: Download apt packages but don't install
+      shell: "apt-get -d -y install {{ item }}"
+      with_items:
+        - "{{ nova_distro_packages | join(' ') }}"
+        - "{{ nova_compute_kvm_distro_packages | join(' ') }}"
+        - "{{ nova_spice_distro_packages | join(' ') }}"
+        - "{{ nova_novnc_distro_packages | join(' ') }}"
+
+- name: Cleanup repos
+  hosts: hosts
+  user: root
+  tasks:
+    - name: Remove OSA repos as they will be added during upgrade
+      file:
+        path: "/etc/apt/sources.list.d/{{ item }}"
+        state: absent
+      with_items:
+        - rpc_repo_rackspace_com_apt_mirror_integrated.list
+        - rpco.list
+      when: target_release == 'newton'
+
+    - name: Remove OSA repos as they will be added during upgrade
+      file:
+        path: "/etc/apt/sources.list.d/{{ item }}"
+        state: absent
+      with_items:
+        - uca.list
+        - ubuntu_cloud_archive_canonical_com_ubuntu.list
+      when: target_release != 'newton'
