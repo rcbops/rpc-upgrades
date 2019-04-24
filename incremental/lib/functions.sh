@@ -157,6 +157,12 @@ function ensure_osa_bootstrap {
     scripts/bootstrap-ansible.sh
   popd
   touch /etc/openstack_deploy/osa_bootstrapped.complete
+  # ensure we don't rerun bootstrap-ansible in run-upgrade script
+  # by telling it to skip bootstrap
+  if [ ! -d  "/etc/openstack_deploy/upgrade-${RPC_PRODUCT_RELEASE}" ]; then
+    mkdir -p "/etc/openstack_deploy/upgrade-${RPC_PRODUCT_RELEASE}"
+  fi
+  touch /etc/openstack_deploy/upgrade-${RPC_PRODUCT_RELEASE}/bootstrap-ansible.complete
 }
 
 
