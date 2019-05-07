@@ -198,10 +198,13 @@ function run_upgrade {
     export ANSIBLE_CALLBACK_PLUGINS=/etc/ansible/roles/plugins/callback:/opt/ansible-runtime/local/lib/python2.7/site-packages/ara/plugins/callbacks
 
     # Destroy repo container prior to the upgrade to reduce "No space left on device" issues
-    pushd /opt/openstack-ansible/playbooks
-      openstack-ansible lxc-containers-destroy.yml -e force_containers_destroy=true -e force_containers_data_destroy=true --limit repo_container
-      openstack-ansible lxc-containers-create.yml --limit repo-infra_all -e lxc_container_fs_size=10G
-    popd
+    if [[ ! -f "/etc/openstack_deploy/repo-container-rebuild.complete" ]]; then
+      pushd /opt/openstack-ansible/playbooks
+        openstack-ansible lxc-containers-destroy.yml -e force_containers_destroy=true -e force_containers_data_destroy=true --limit repo_container
+        openstack-ansible lxc-containers-create.yml --limit repo-infra_all -e lxc_container_fs_size=10G
+        test $? -eq 0 && touch /etc/openstack_deploy/repo-container-rebuild.complete
+      popd
+    fi
 
     # ensure no traces of rpco repos that may have come from lxc-cache
     pushd /opt/rpc-upgrades/incremental/playbooks
