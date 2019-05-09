@@ -30,6 +30,25 @@ Pre Upgrade Tasks
 * Verify that the deployment is healthy and at the latest version.
 * Perform database housekeeping to prevent unnecessary migrations.
 
+Prestaging Apt Packages
+-----------------------
+
+For large environments it make be worth prestaging the apt packages that will be downloaded for infra hosts
+and computes ahead of time to speed up the leapfrog deployment process.  This will prevent issues of
+slamming the mirror servers and will hopefully decrease the time of the actual maintenance since the
+packages may already be staged in the apt cache.  Since these are incremental, make sure to run the preload
+for each version you will be upgrading to.  This will put the needed apt files in the cache.
+
+    cd /opt/rpc-upgrades/playbooks
+    openstack-ansible preload-apt-packages.yml -e target_release=pike
+    openstack-ansible preload-apt-packages.yml -e target_release=queens
+    openstack-ansible preload-apt-packages.yml -e target_release=rocky
+
+This will temporarily install the apt sources for the target_release and apt download packages for infra and
+compute hosts.  It also removes any rpco and uca repos that are currently in place as the upgrade will install
+those again.  This can be ran in production and will not install anything, only download so it can be ran
+outside of a maintenance.
+
 Executing an incremental upgrade
 ----------------------------
 

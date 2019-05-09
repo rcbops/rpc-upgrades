@@ -29,7 +29,7 @@
 
 - name: Ensure hosts are up
   hosts: hosts
-  gather_facts: false
+  gather_facts: no
   user: root
   tasks:
     - name: Ping check
@@ -37,7 +37,7 @@
 
 - name: Ensure Apt is in a healthy state across all hosts
   hosts: hosts
-  gather_facts: false
+  gather_facts: yes
   user: root
   vars:
     newton_version: r14.23.0
@@ -79,12 +79,32 @@
     - name: Set uca repo for ocata and newer upgrades
       apt_repository:
         repo: "deb http://ubuntu-cloud.archive.canonical.com/ubuntu {{ ansible_lsb.codename }}-updates/{{ target_release }} main"
-        filename: uca
+        filename: uca-preload
         state: present
         update_cache: yes
       when:
-        - target_release != "newton"
-        - ansible_lsb.codename != "trusty"
+        - target_release == "queens" or target_release == "pike" or target_release == "ocata"
+        - ansible_lsb.codename == "xenial"
+
+    - name: Set uca repo to queens if xenial and rocky/stein
+      apt_repository:
+        repo: "deb http://ubuntu-cloud.archive.canonical.com/ubuntu {{ ansible_lsb.codename }}-updates/queens main"
+        filename: uca-preload
+        state: present
+        update_cache: yes
+      when:
+        - target_release == "rocky" or target_release == "stein"
+        - ansible_lsb.codename == "xenial"
+
+    - name: Set uca repo for bionic and rocky/stein
+      apt_repository:
+        repo: "deb http://ubuntu-cloud.archive.canonical.com/ubuntu {{ ansible_lsb.codename }}-updates/{{ target_release }} main"
+        filename: uca-preload
+        state: present
+        update_cache: yes
+      when:
+        - target_release == "rocky" or target_release == "stein"
+        - ansible_lsb.codename == "bionic"
 
 - name: Preload openstack_host apt packages
   hosts: hosts
@@ -140,6 +160,11 @@
         path: "/etc/apt/sources.list.d/{{ item }}"
         state: absent
       with_items:
+        - uca-preload.list
         - uca.list
         - ubuntu_cloud_archive_canonical_com_ubuntu.list
       when: target_release != 'newton'
+
+    - name: Refresh apt cache with repos removed
+      apt:
+        update_cache: yes
