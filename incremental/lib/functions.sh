@@ -156,11 +156,10 @@ function ensure_osa_bootstrap {
 
 
 function configure_osa {
-  rm -rf /etc/openstack_deploy/group_vars
-  # clean out any existing env.d inventory
-  if [ -d "/etc/openstack_deploy/env.d" ]; then
-    rm -rf /etc/openstack_deploy/env.d
-  fi
+  # check for existing env.d files and remove rpc-o specific group_vars
+  pushd /opt/rpc-upgrades/incremental/playbooks
+    openstack-ansible config-file-check.yml
+  popd
 }
 
 function install_ansible_source {
