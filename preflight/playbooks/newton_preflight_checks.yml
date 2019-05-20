@@ -1,0 +1,128 @@
+---
+# Copyright 2019, Rackspace US, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- name: Ceph check
+  hosts: "ceph_all:ceph_mon_container:ceph_osd_container"
+  gather_facts: false
+  user: root
+  tasks:
+    - name: check ceph exists
+      fail:
+        msg: "Not Implemented: leap upgrades where ceph is deployed is not implemented at this time."
+
+- name: Check OSA OPS repo
+  hosts: localhost
+  gather_facts: false
+  user: root
+  tasks:
+    - name: Install dependencies for uri module (pre Ansible 2.1)
+      pip:
+        name: httplib2
+        state: present
+
+    - name: Reaching OSA OPS git repo URL
+      uri:
+        url: https://github.com/openstack/openstack-ansible-ops.git
+        return_content: yes
+      register: osa_ops_repo
+
+    - name: Check OSA OPS git repo URL
+      fail:
+        msg: "OSA OPS git repo doesn't work."
+      when: 'not "{{ osa_ops_repo.status }}" == "200"'
+
+- name: Ensure correct Glance auth version
+  hosts: localhost
+  gather_facts: false
+  user: root
+  vars:
+    auth_key: 'glance_swift_store_auth_version'
+  tasks:
+    - name: Set glance_swift_auth_version to 2 for CloudFiles
+      lineinfile:
+        dest: "{{ item }}"
+        regexp: "^{{ auth_key }}:.*"
+        line: "{{ auth_key }}: 2"
+        state: present
+      with_first_found:
+        - /etc/openstack_deploy/user_osa_variables_overrides.yml
+        - /etc/openstack_deploy/user_variables.yml
+      when:
+        - glance_swift_store_auth_address is defined
+        - glance_swift_store_auth_address | search("api.rackspacecloud")
+  tags:
+    - cloudfiles-check
+
+- name: Check deployment configuration
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  user: root
+  tasks:
+    - name: Create a backup openstack_user_config.yml
+      command: >
+        cp /etc/openstack_deploy/openstack_user_config.yml
+        /etc/openstack_deploy/openstack_user_config.yml.pre-leap
+      args:
+        creates: /etc/openstack_deploy/openstack_user_config.yml.pre-leap
+
+    - name: Check for required keys in the openstack_user_config.yml
+      script: "../scripts/required_user_config_keys.py"
+      failed_when: required_user_config_keys.rc not in [0, 3]
+      changed_when: required_user_config_keys.rc == 3
+      register: required_user_config_keys
+
+    - name: Remove old upgrade overrides configurations
+      file:
+        path: "{{ item }}"
+        state: absent
+      ignore_errors: true
+      with_items:
+        - /etc/openstack_deploy/user_deleteme_post_upgrade_variables.yml
+  tags:
+    - deployment-configuration-check
+
+- name: Check for duplicate Nova flavor IDs
+  hosts: utility_all[0]
+  tasks:
+    - name: Get duplicate flavor IDs
+      shell: ". ~/openrc; nova {{ openrc_insecure | default(false) | bool | ternary('--insecure','') }} flavor-list | awk '$2 {print $2}' | uniq -D"
+      register: flavor_check
+
+    - name: Duplicate flavors exist
+      fail: msg="Duplicated flavor IDs are detected."
+      when: flavor_check.stdout != ""
+
+# RLM-1372 Check NFS exsiting
+- name: Check Glance NFS backend on glance
+  hosts: glance_all
+  gather_facts: false
+  user: root
+  tasks:
+    - name: Check mount on Glance
+      command: "grep 'nfs' /proc/mounts"
+      failed_when: false
+      register: nfs_mount_found
+
+    - name: Fail when Glance has NFS mount and no user config
+      fail:
+        msg: >-
+          CHECK FAILED: Glance currently has an NFS mount but has no user
+          configuration to support it. Please review the documentation on
+          setting up glance with NFS -
+          https://docs.openstack.org/openstack-ansible-os_glance/latest
+      when:
+        - nfs_mount_found.rc == 0
+        - glance_nfs_client is undefined

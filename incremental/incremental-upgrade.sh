@@ -21,6 +21,13 @@ source lib/vars.sh
 
 discover_code_version
 require_ubuntu_version 16
+
+if [[ ! -f "${UPGRADES_WORKING_DIR}/rpc-preflight-check.complete" ]]; then
+  pushd /opt/rpc-upgrades/preflight
+    openstack-ansible preflight-check-incremental.yml
+  popd
+fi
+
 ensure_working_dir
 
 # if target not set, exit and inform user how to proceed
@@ -85,3 +92,6 @@ for RELEASE_TO_DO in ${TODO}; do
 done
 
 cleanup
+
+# mark upgrade as completed
+touch /etc/openstack_deploy/rpc-upgrades/openstack-upgrade.complete

@@ -1,0 +1,170 @@
+---
+# Copyright 2019, Rackspace US, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- name: Check for previous upgrades
+  hosts: localhost
+  gather_facts: false
+  user: root
+  tasks:
+    - name: Check to see if previous upgrade has been completed
+      stat:
+        path: /etc/openstack_deploy/rpc-upgrades/openstack-upgrade.complete
+      register: previous_upgrade_complete
+
+    - name: Halt the upgrade and warn the user to clean previous rpc-upgrades working directory
+      fail:
+        msg: |
+          A previously completed upgrade has been detected.  Please remove the directory located
+          at /etc/openstack_deploy/rpc-upgrades if you no longer need it.  A new working directory
+          will be created automatically for the next upgrade.
+      when:
+        - previous_upgrade_complete.stat.exists | bool
+
+- name: Preflight check
+  hosts: "hosts:all_containers"
+  gather_facts: false
+  user: root
+  tasks:
+    - name: Ping check
+      ping:
+
+- name: Ensure all rpco repos are removed from repo containers
+  hosts: "hosts:all_containers"
+  user: root
+  tasks:
+    - name: Remove existing artifact repos
+      file:
+        path: "{{ item }}"
+        state: absent
+      with_items:
+        - /etc/apt/sources.list.d/rpco.list
+      ignore_errors: true
+
+    - name: Remove rpc-repo GPG keys
+      apt_key:
+        id: 52AA252F
+        state: absent
+
+    - name: Refresh apt cache
+      apt:
+        update_cache: yes
+      ignore_errors: true
+
+- name: Ensure Apt is in a healthy state across all hosts and containers
+  hosts: "hosts:all_containers"
+  gather_facts: false
+  user: root
+  tasks:
+    - name: Ensure Apt is in a healthy state
+      shell: "dpkg -a --configure; apt install -y -f"
+
+- name: Ensure we have the latest ca-certificates package
+  hosts: "hosts"
+  gather_facts: false
+  user: root
+  tasks:
+    - name: Ensure we have the latest ca-certificates package
+      apt:
+        name: ca-certificates
+        state: latest
+        update_cache: yes
+        cache_valid_time: 3600
+
+- name: Openstack release check if exists
+  hosts: localhost
+  gather_facts: false
+  user: root
+  tasks:
+    - name: stat openstack-release
+      stat:
+        path: /etc/openstack-release
+      register: openstack_release_stat
+
+    - name: stat rpc-release
+      stat:
+        path: /etc/rpc-release
+      register: rpc_release_stat
+
+    - name: Check release upgrade from
+      fail:
+        msg: "Cannot find either openstack-release file or rpc-release, this will causeproblems during the upgrade. Please copy it from other hosts or generate a correct one. You can skip this check by passing the option 'enable_openstack_release_check=false'."
+      when:
+        - openstack_release_stat.stat.exists == False
+        - rpc_release_stat.stat.exists == False
+        - enable_openstack_release_check | default(true) | bool
+
+- name: Check file system usage
+  hosts: all
+  gather_facts: false
+  user: root
+  tasks:
+    - name: Gather filesystem used percentages
+      shell: >-
+        df --output=pcent,target --exclude-type=iso9660 --exclude-type=tmpfs --exclude-type=devtmpfs | tail -n +2 | sed s/%//g | awk '{if($1 > 97) print "Alert: "$1 "% full - " $2}'
+      register: fs_check
+      tags:
+        - leap-fs-check
+
+    - name: Check if any filesystem is greater than 97% full
+      debug:
+        msg: >-
+          The filesystem(s) found to be (nearly) full.
+          Details: "{{ item.split() | join(' ') }}"
+      failed_when: true
+      when:
+        - fs_check.stdout_lines
+      with_items: "{{ fs_check.stdout_lines }}"
+      tags:
+        - leap-fs-check
+
+# RLM-1371 detect if enough space for rootfs backup
+- name: Gather LXC file system usage for backup
+  hosts: "os-infra_hosts"
+  gather_facts: false
+  user: root
+  tasks:
+    - name: Gather lxc filesystem used percentages
+      shell: |
+        df -h {{ lxc_container_directory | default('/var/lib/lxc') }} | tail -n +2 | sed s/%//g | awk '{if($5 > 50) print "Alert: "$5 "% full - "$0}'
+      register: lxc_fs_check
+
+    - name: Check if lxc filesystem is greater than 50% full
+      debug:
+        msg: >-
+          The LXC filesystem(s) have been found to be greater than 50% full.
+          Details: "{{ item.split() | join(' ') }}"
+          If you have fully awareness of the potential risk having failure at rootfs backup stage, you can skip this check by passing the option 'enable_lxc_fs_check=false'.
+      failed_when: true
+      when:
+        - lxc_fs_check.stdout_lines
+        - enable_lxc_fs_check | default(true) | bool
+      with_items: "{{ lxc_fs_check.stdout_lines | default(['LXC FS check was skipped.']) }}"
+
+- name: Check for apt_pinned_packages in openstack_deploy
+  hosts: localhost
+  gather_facts: false
+  user: root
+  tasks:
+    - name: Check for apt_pinned_packages in overrides
+      command: "grep 'apt_pinned_packages' user*.yml"
+      args:
+        chdir: /etc/openstack_deploy
+      failed_when: false
+      register: setting_found
+
+    - name: fail if found
+      fail:
+        msg: "apt_pinned_packages appears set in /etc/openstack_deploy, please evaluateand remove before continuing."
+      when: setting_found.rc == 0

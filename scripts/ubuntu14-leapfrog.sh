@@ -45,7 +45,7 @@ export OSA_REPO_URL=https://github.com/rcbops/openstack-ansible
 # folder that will get archived for gating logs
 export REDEPLOY_OA_FOLDER="${RPCO_DEFAULT_FOLDER}/openstack-ansible"
 export DEBUG_PATH="/var/log/osa-leapfrog-debug.log"
-export UPGRADE_LEAP_MARKER_FOLDER="/etc/openstack_deploy/upgrade-leap"
+export UPGRADE_LEAP_MARKER_FOLDER="/etc/openstack_deploy/rpc-upgrades"
 export PRE_LEAP_STEPS="${LEAP_BASE_DIR}/pre_leap.sh"
 export POST_LEAP_STEPS="${LEAP_BASE_DIR}/post_leap.sh"
 export RPCD_DEFAULTS='/etc/openstack_deploy/user_rpco_variables_defaults.yml'
@@ -60,7 +60,7 @@ export RUN_PREFLIGHT=${RUN_PREFLIGHT:-yes}
 function log {
     echo "Task: $1 status: $2" >> ${DEBUG_PATH}
     if [[ "$2" == "ok" ]]; then
-        touch /etc/openstack_deploy/upgrade-leap/${1}.complete
+        touch ${UPGRADE_LEAP_MARKER_FOLDER}/${1}.complete
     fi
 }
 
@@ -82,7 +82,6 @@ fi
 pushd /opt/rpc-upgrades/playbooks/
   ansible -m synchronize shared-infra_hosts[0]:infra_hosts[0] -a 'mode=pull src=/etc/openstack-release dest=/etc/openstack-release'
 popd
-
 
 # Glance cache cleanup
 if [[ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/glance-cache-cleanup.complete" ]]; then
@@ -106,8 +105,9 @@ fi
 # Pre-flight check
 if [[ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/rpc-preflight-check.complete" ]]; then
   if [[ "$RUN_PREFLIGHT" == "yes" ]]; then
-    pushd /opt/rpc-upgrades/playbooks
-      openstack-ansible preflight-check.yml
+    pushd /opt/rpc-upgrades/preflight
+      export ANSIBLE_INVENTORY=/opt/rpc-openstack/openstack-ansible/playbooks/inventory
+      openstack-ansible preflight-check-leapfrog.yml
     popd
   fi
   log "rpc-preflight-check" "ok"

@@ -71,4 +71,7 @@ else
   done
 fi
 
+# mark upgrade as completed
+touch /etc/openstack_deploy/rpc-upgrades/openstack-upgrade.complete
+
 echo "LEAPFROG COMPLETE."
