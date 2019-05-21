@@ -118,14 +118,18 @@ function check_user_variables {
 }
 
 function checkout_rpc_openstack {
-  pushd /opt/rpc-openstack
-    git clean -df
-    git reset --hard HEAD
-    git fetch --all
-    rm -rf openstack-ansible
-    rm -rf scripts/artifacts-building/
-    git checkout ${RPC_BRANCH}
-  popd
+  if [ ! -d "/opt/rpc-openstack" ]; then
+    git clone --branch ${RPC_BRANCH} --recursive https://github.com/rcbops/rpc-openstack /opt/rpc-openstack
+  else
+    pushd /opt/rpc-openstack
+      git clean -df
+      git reset --hard HEAD
+      git fetch --all
+      rm -rf openstack-ansible
+      rm -rf scripts/artifacts-building/
+      git checkout ${RPC_BRANCH}
+    popd
+  fi
 }
 
 function checkout_openstack_ansible {
