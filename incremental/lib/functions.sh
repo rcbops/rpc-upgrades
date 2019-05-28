@@ -291,5 +291,7 @@ function mark_started {
 
 function mark_completed {
   echo "Completing ${RPC_PRODUCT_RELEASE^} upgrade..."
+  # copy current openstack-release to openstack-release.upgrade to signify next starting point
+  cp /etc/openstack-release ${UPGRADES_WORKING_DIR}/openstack-release.upgrade
   touch ${UPGRADES_WORKING_DIR}/upgrade-to-${RPC_PRODUCT_RELEASE}.complete
 }
