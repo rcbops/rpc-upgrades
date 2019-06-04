@@ -1,0 +1,8 @@
+Zombies Report
+
+{% for host in groups['all'] %}
+{% if hostvars[host].zombie_check.rc == 0 %}
+Hostname: {{ hostvars[host].inventory_hostname }}
+{{ hostvars[host].zombie_check.stdout_lines }}
+{% endif %}
+{% endfor %}

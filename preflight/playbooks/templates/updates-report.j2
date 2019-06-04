@@ -1,0 +1,15 @@
+RPC Environment Report
+
+{% for host in groups['all'] %}
+---------------------------------------------------------------------------
+Hostname: {{ hostvars[host].inventory_hostname }}
+---------------------------------------------------------------------------
+OS: {{ hostvars[host].ansible_lsb.description }}
+Kernel: {{ hostvars[host].ansible_kernel }}
+Vendor: {{ hostvars[host].ansible_system_vendor }}
+Model: {{ hostvars[host].ansible_product_name }}
+Standard Package Updates Needed ({{ hostvars[host].regular_updates.stdout_lines | length }}): {{ hostvars[host].regular_updates.stdout_lines }}
+Security Updates Needed ({{ hostvars[host].security_updates.stdout_lines | length }}): {{ hostvars[host].security_updates.stdout_lines }}
+
+{% endfor %}
+---------------------------------------------------------------------------

@@ -1,0 +1,40 @@
+---
+- name: Generate environment snapshot using ansible-cmdb
+  hosts: localhost
+  gather_facts: yes
+  tasks:
+    - name: Install ansible-cmdb
+      pip:
+        name: ansible-cmdb
+        state: latest
+        extra_args: "--isolated"
+
+    - name: Create directories
+      file:
+        path: "{{ item }}"
+        state: directory
+      with_items:
+        - /opt/rpc-inventory
+        - /var/log/rpc-upgrades
+
+    - name: Gather inventory
+      shell: ansible -i /opt/openstack-ansible/inventory -m setup --tree /opt/rpc-inventory/ all
+
+    - name: Generate inventory with ansible-cmdb
+      shell: ansible-cmdb /opt/rpc-inventory/ > {{ overview_location }}
+
+    - name: Cleanup inventory directory once overview is generated
+      file:
+        path: /opt/rpc-inventory/
+        state: absent
+
+    - name: Display notification that environment overview has been generated
+      debug:
+        msg:
+          - "Environment overview has been generated using ansible-cmdb and is located"
+          - "at {{ overview_location }}."
+  vars:
+    overview_location: /var/log/rpc-upgrades/environment_overview.html
+
+  tags:
+    - cmdb

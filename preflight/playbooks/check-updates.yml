@@ -1,0 +1,43 @@
+---
+# Generate report needed package and security updates across hosts and containers
+
+- name: Ensure logging directories are created
+  hosts: localhost
+  gather_facts: yes
+  tasks:
+    - name: Generate updates report
+      file:
+        path: "{{ item }}"
+        state: directory
+      with_items:
+        - /var/log/rpc-upgrades
+
+- name: Gather package and security updates for hosts and containers
+  hosts: all_containers:hosts
+  gather_facts: yes
+  tasks:
+    - name: Check for security updates
+      shell: 'apt-get -s --no-download dist-upgrade -V | grep "^Inst.*security.*$" | cut -d " " -f 2'
+      register: security_updates
+      failed_when: ( security_updates.rc not in [ 0, 1 ] )
+
+    - name: Check for regular updates
+      shell: 'apt-get -s --no-download dist-upgrade -V | grep "^Inst.*updates.*$" | cut -d " " -f 2'
+      register: regular_updates
+
+- name: Generate updates report
+  hosts: localhost
+  gather_facts: yes
+  tasks:
+    - name: Generate updates report
+      template:
+        src: templates/updates-report.j2
+        dest: "{{ update_report_location }}"
+
+    - name: Display notification that environment overview has been generated
+      debug:
+        msg:
+          - "Environment updates report has been generated and is located"
+          - "at {{ update_report_location }}."
+  vars:
+    update_report_location: /var/log/rpc-upgrades/updates-report.txt

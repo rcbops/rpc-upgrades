@@ -1,0 +1,20 @@
+---
+
+- name: Check for Zombies across environment
+  hosts: all_containers:hosts
+  gather_facts: no
+  tasks:
+    - name: Check for Zombies
+      shell: "ps axo stat,ppid,pid,comm | grep -w defunct"
+      register: zombie_check
+      failed_when: ( zombie_check.rc not in [ 0, 1 ] )
+      ignore_errors: true
+
+    - name: Generate zombies report
+      local_action:
+        module: template
+        src: templates/zombies-report.j2
+        dest: "{{ zombies_report_location }}"
+      run_once: true
+  vars:
+    zombies_report_location: /var/log/rpc-upgrades/zombies-report.txt

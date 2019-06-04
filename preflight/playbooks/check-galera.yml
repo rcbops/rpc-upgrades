@@ -1,0 +1,11 @@
+---
+# Test galera-install.yml
+- name: Sanity checks for all containers
+  hosts: all_containers:physical_hosts
+  gather_facts: no
+  tasks:
+    - name: Connect to galera port
+      wait_for:
+        port: 3306
+        host: "{{ internal_lb_vip_address }}"
+        state: started
