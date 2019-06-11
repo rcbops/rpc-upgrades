@@ -1,0 +1,47 @@
+---
+
+# set backup_dir as a fact to ensure dir name doesn't change during run
+- name: Set backup dir to use
+  local_action:
+    module: set_fact
+    backup_dir: "{{ ansible_env.BKUPDIR |default(local_home+'/'+'rpc-upgrade-'+date_stamp) }}"
+  run_once: true
+
+- name: Update apt cache to generate latest packages list
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Check for security updates
+  shell: 'apt-get -s --no-download dist-upgrade -V | grep "^Inst.*security.*$" | cut -d " " -f 2'
+  register: security_updates
+  failed_when: ( security_updates.rc not in [ 0, 1 ] )
+
+- name: Check for regular updates
+  shell: 'apt-get -s --no-download dist-upgrade -V | grep "^Inst.*updates.*$" | cut -d " " -f 2'
+  register: regular_updates
+  failed_when: ( regular_updates.rc not in [ 0, 1 ] )
+
+- set_fact:
+    security_updates_needed: "yes"
+  when: security_updates.rc == 0
+
+- name: Check for Zombies
+  shell: "ps axo stat,ppid,pid,comm | grep -w defunct"
+  register: zombie_check
+  failed_when: ( zombie_check.rc not in [ 0, 1 ] )
+
+- set_fact:
+    zombies_detected: "yes"
+  when: zombie_check.rc == 1
+
+- name: Generate reports
+  local_action:
+    module: template
+    src: "{{ item }}.txt.j2"
+    dest: "{{ backup_dir }}/{{ item }}-{{ datetime_stamp }}.txt"
+  run_once: true
+  with_items:
+    - hosts
+    - tldr
+    - zombies

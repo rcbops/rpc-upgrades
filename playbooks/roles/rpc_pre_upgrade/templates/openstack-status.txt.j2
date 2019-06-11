@@ -39,7 +39,8 @@ neutron agent-list output as at {{ ansible_date_time.date }}-{{ ansible_date_tim
 
 
 openstack endpoint list output as at {{ ansible_date_time.date }}-{{ ansible_date_time.time }}
-Compare output to external_lb_vip_address: {{ external_lb_vip_address }}
+Public Endpoint {{ endpointlist_public_match | default('is a match to') }} external_lb_vip_address of {{ external_lb_vip_address }}
+Internal Endpoint {{ endpointlist_internal_match | default('is a match to') }} internal_lb_vip_address of {{ internal_lb_vip_address }}
 
 {% for line in endpointlist_result.stdout_lines %}
 {{ line }}

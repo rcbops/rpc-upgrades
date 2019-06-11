@@ -1,0 +1,27 @@
+----------------------------------------------
+Openstack Ansible Environment Pre-Upgrade TLDR
+----------------------------------------------
+Generated at {{ ansible_date_time.date }}-{{ ansible_date_time.time }}
+
+-----------
+Host Checks
+-----------
+
+Security Updates Needed: {{ "\033[1m" }}{{ security_updates_needed | default('no') }}{{ "\033[0m" }}
+ - See {{ backup_dir }}/hosts-{{ datetime_stamp }}.txt for more details
+
+Zombies Detected: {{ "\033[1m" }}{{ zombies_detected | default('no') }}{{ "\033[0m" }}
+ - See {{ backup_dir }}/zombies-{{ datetime_stamp }}.txt for more details
+
+----------------
+Endpoints Checks
+----------------
+
+Public Endpoints {{ "\033[1m" }}{{ endpointlist_public_match | default('is a match to') }}{{ "\033[0m" }} external_lb_vip_address of {{ external_lb_vip_address }}.
+Internal Endpoints {{ "\033[1m" }}{{ endpointlist_internal_match | default('is a match to') }}{{ "\033[0m" }} internal_lb_vip_address of {{ internal_lb_vip_address }}.
+
+----------------
+OpenStack Checks
+----------------
+
+Service checks status

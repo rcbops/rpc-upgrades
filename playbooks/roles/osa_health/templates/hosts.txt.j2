@@ -1,0 +1,21 @@
+-----------
+Host Report
+-----------
+Generated at {{ ansible_date_time.date }}-{{ ansible_date_time.time }}
+
+{% for host in groups['all'] %}
+---------------------------------------------------------------------------
+Hostname: {{ hostvars[host].inventory_hostname }}
+---------------------------------------------------------------------------
+OS: {{ hostvars[host].ansible_lsb.description }}
+Kernel: {{ hostvars[host].ansible_kernel }}
+Vendor: {{ hostvars[host].ansible_system_vendor }}
+Model: {{ hostvars[host].ansible_product_name }}
+BIOS Date: {{ hostvars[host].ansible_bios_date }}
+BIOS Version: {{ hostvars[host].ansible_bios_version }}
+Standard Package Updates Needed ({{ hostvars[host].regular_updates.stdout_lines | length }}): {{ hostvars[host].regular_updates.stdout_lines }}
+Security Updates Needed ({{ hostvars[host].security_updates.stdout_lines | length }}): {{ hostvars[host].security_updates.stdout_lines }}
+
+{% endfor %}
+---------------------------------------------------------------------------
+

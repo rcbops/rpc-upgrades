@@ -1,0 +1,12 @@
+----------------
+Zombie Processes
+----------------
+Generated at {{ ansible_date_time.date }}-{{ ansible_date_time.time }}
+
+{% for host in groups['all'] %}
+{% if hostvars[host].zombie_check.rc == 0 %}
+Hostname: {{ hostvars[host].inventory_hostname }}
+{{ hostvars[host].zombie_check.stdout_lines }}
+{% endif %}
+{% endfor %}
+

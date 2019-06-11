@@ -94,6 +94,34 @@
   register: endpointlist_result
   delegate_to: "{{ groups['utility_all'][0] }}"
 
+- name: Gather openstack public endpoint list
+  shell: |
+    . {{ ansible_env.HOME }}/openrc
+    openstack {{ openrc_insecure |default(false) |bool |ternary('--insecure','') }} endpoint list | grep -i public | grep -v {{ external_lb_vip_address }}
+  args:
+    executable: /bin/bash
+  register: endpointlist_public_result
+  delegate_to: "{{ groups['utility_all'][0] }}"
+  failed_when: ( endpointlist_public_result.rc not in [ 0, 1 ] )
+
+- name: Gather openstack internal endpoint list
+  shell: |
+    . {{ ansible_env.HOME }}/openrc
+    openstack {{ openrc_insecure |default(false) |bool |ternary('--insecure','') }} endpoint list | grep -i internal | grep -v {{ internal_lb_vip_address }}
+  args:
+    executable: /bin/bash
+  register: endpointlist_internal_result
+  delegate_to: "{{ groups['utility_all'][0] }}"
+  failed_when: ( endpointlist_internal_result.rc not in [ 0, 1 ] )
+
+- set_fact:
+    endpointlist_internal_match: "does not match"
+  when: endpointlist_internal_result.stdout_lines | length >= 1
+
+- set_fact:
+    endpointlist_public_match: "does not match"
+  when: endpointlist_public_result.stdout_lines | length >= 1
+
 - name: Gather running instances from mysql
   shell: "mysql -BN -e \"select uuid from instances where deleted=0 and vm_state='active' order by uuid\" nova"
   args:
@@ -113,7 +141,7 @@
     src: "{{ item }}.txt.j2"
     dest: "{{ backup_dir }}/{{ item }}-{{ datetime_stamp }}.txt"
   with_items:
-    - status
+    - openstack-status
     - instance-volume-mappings
     - running-instances
 
