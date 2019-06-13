@@ -263,15 +263,19 @@ function prepare_pike {
 function prepare_queens {
   pushd /opt/rpc-upgrades/incremental/playbooks
     openstack-ansible configure-lxc-backend.yml
-
-    if [[ ! -f "/etc/openstack_deploy/queens_upgrade_prep.complete" ]]; then
+    if [[ ! -f "${UPGRADES_WORKING_DIR}/queens_upgrade_prep.complete" ]]; then
       openstack-ansible prepare-queens-upgrade.yml
     fi
   popd
 }
 
 function prepare_rocky {
-  echo "Rocky prepare steps go here..."
+  pushd /opt/rpc-upgrades/incremental/playbooks
+    openstack-ansible configure-lxc-backend.yml
+    if [[ ! -f "${UPGRADES_WORKING_DIR}/rocky_upgrade_prep.complete" ]]; then
+      openstack-ansible prepare-rocky-upgrade.yml
+    fi
+  popd
 }
 
 function cleanup {
