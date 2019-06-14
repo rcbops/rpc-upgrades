@@ -13,10 +13,18 @@ run-upgrade.sh script provided in each release of Openstack Ansible.  They are u
 releases for releases Newton and on.  They allow a stairstep approach to upgrading the
 environment.
 
-Supported incremental upgrades (must be running on Ubuntu 16.04):
+Supported incremental upgrades:
+
+Ubuntu 16.04 required:
 
 * Newton to Pike (Ocata is skipped)
 * Newton to Queens
+* Queens to Rocky
+
+Ubuntu 18.04 required:
+
+* Rocky to Stein (testing)
+* Stein to Train (testing)
 
 Full docs for Incremental upgrades are `here <incremental.rst>`_.
 

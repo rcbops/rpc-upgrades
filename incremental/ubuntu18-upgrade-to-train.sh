@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Copyright 2018, Rackspace US, Inc.
+# Copyright 2019, Rackspace US, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,28 +19,17 @@ set -evu
 source lib/functions.sh
 source lib/vars.sh
 
-require_ubuntu_version 16
+require_ubuntu_version 18
 
-export RPC_BRANCH=${RPC_BRANCH:-'ocata'}
-export RPC_PRODUCT_RELEASE="ocata"
-export OSA_SHA="stable/ocata"
-export SKIP_INSTALL=${SKIP_INSTALL:-"yes"}
+export OSA_SHA="master"
+export SKIP_INSTALL=${SKIP_INSTALL:-'no'}
+export RPC_PRODUCT_RELEASE="train"
+export RPC_ANSIBLE_VERSION="2.7.10"
 
+check_rpc_config
 mark_started
-
-# here we handle a lot of the cleanup from newton and rpc-o
-# to prepare for an OSA deploy
-prepare_ocata
-
-checkout_rpc_openstack
 checkout_openstack_ansible
 ensure_osa_bootstrap
-
-if [[ "$SKIP_INSTALL" == "yes" ]]; then
-  mark_completed
-  exit 0
-fi
-
-repo_rebuild
+prepare_train
 run_upgrade
 mark_completed
