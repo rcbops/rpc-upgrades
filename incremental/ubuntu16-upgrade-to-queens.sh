@@ -32,5 +32,6 @@ checkout_rpc_openstack
 configure_rpc_openstack
 ensure_osa_bootstrap
 prepare_queens
+repo_rebuild
 run_upgrade
 mark_completed

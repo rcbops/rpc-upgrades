@@ -75,7 +75,7 @@ for RELEASE_TO_DO in ${TODO}; do
   if [ ! -f ${UPGRADES_WORKING_DIR}/upgrade-to-${RELEASE_TO_DO}.complete ]; then
     echo "Starting upgrade to ${RELEASE_TO_DO^}..."
     sleep 5
-    bash ubuntu16-upgrade-to-${RELEASE_TO_DO}.sh
+    bash ubuntu${DETECTED_VERSION}-upgrade-to-${RELEASE_TO_DO}.sh
   else
     echo
     echo "*** Previous upgrade to ${RELEASE_TO_DO^} was completed, moving onto next in series in 10 seconds...***"
