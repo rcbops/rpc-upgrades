@@ -39,6 +39,8 @@ slamming the mirror servers and will hopefully decrease the time of the actual m
 packages may already be staged in the apt cache.  Since these are incremental, make sure to run the preload
 for each version you will be upgrading to.  This will put the needed apt files in the cache.
 
+.. code-block:: shell
+
     cd /opt/rpc-upgrades/playbooks
     openstack-ansible preload-apt-packages.yml -e target_release=pike
     openstack-ansible preload-apt-packages.yml -e target_release=queens
