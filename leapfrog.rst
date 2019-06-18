@@ -57,6 +57,8 @@ and computes ahead of time to speed up the leapfrog deployment process.  This wi
 slamming the mirror servers and will hopefully decrease the time of the actual maintenance since the
 packages may already be staged in the apt cache.
 
+.. code-block:: shell
+
     cd /opt/rpc-upgrades/playbooks
     openstack-ansible preload-apt-packages.yml -e target_release=newton
 
