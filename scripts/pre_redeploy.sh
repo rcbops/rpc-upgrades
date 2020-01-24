@@ -163,4 +163,7 @@ glance_registry_rolling: '100%'
 EOF
 
 # rsync group_vars from RPC-O repo
-rsync -av --delete ${RPCO_DEFAULT_FOLDER}/group_vars /etc/openstack_deploy/
+if [ ! -f "${UPGRADE_LEAP_MARKER_FOLDER}/rpco-group-vars-sync.complete" ]; then
+  rsync -av --delete ${RPCO_DEFAULT_FOLDER}/group_vars /etc/openstack_deploy/
+  touch "${UPGRADE_LEAP_MARKER_FOLDER}/rpco-group-vars-sync.complete"
+fi
