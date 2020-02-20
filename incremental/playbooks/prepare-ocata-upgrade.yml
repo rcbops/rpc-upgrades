@@ -38,11 +38,25 @@
         - /etc/apt/sources.list.d/rpco.list
         - /etc/apt/sources.list.d/rax-maas.list
       ignore_errors: true
+
+    - name: Remove rpc-repo GPG keys
+      apt_key:
+        id: 52AA252F
+        state: absent
    
     - name: Refresh apt cache
       apt:
         update_cache: yes
       ignore_errors: true
+
+- name: Install psmisc package for killall command
+  hosts: hosts
+  user: root
+  tasks:
+    - name: Install psmisc to ensure killall is present for lxc-dnsmasq
+      apt:
+        name: psmisc
+        state: present
 
 - name: Fix up config files before Ocata jump
   hosts: localhost

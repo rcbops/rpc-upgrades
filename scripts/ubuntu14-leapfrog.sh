@@ -39,7 +39,7 @@ export OA_OPS_REPO=${OA_OPS_REPO:-'https://github.com/openstack/openstack-ansibl
 # Please bump the following when a patch for leapfrog is merged into osa-ops
 # If you are developing, just clone your ops repo into (by default)
 # /opc/rpc-leapfrog/openstack-ansible-ops
-export OA_OPS_REPO_BRANCH=${OA_OPS_REPO_BRANCH:-'b1232aead5c7b33e01275bca6cddbb044f615dbe'}
+export OA_OPS_REPO_BRANCH=${OA_OPS_REPO_BRANCH:-'79cbbd23d7b4a257fd9f58e0c46c61e5f8880d29'}
 export OSA_REPO_URL=https://github.com/rcbops/openstack-ansible
 # Instead of storing the debug's log of run in /tmp, we store it in an
 # folder that will get archived for gating logs
@@ -51,7 +51,7 @@ export POST_LEAP_STEPS="${LEAP_BASE_DIR}/post_leap.sh"
 export RPCD_DEFAULTS='/etc/openstack_deploy/user_rpco_variables_defaults.yml'
 export OA_DEFAULTS='/etc/openstack_deploy/user_osa_variables_defaults.yml'
 # Set the target checkout used when leaping forward.
-export RPC_TARGET_CHECKOUT=${RPC_TARGET_CHECKOUT:-'r14.23.0'}
+export RPC_TARGET_CHECKOUT=${RPC_TARGET_CHECKOUT:-'r14.23.1'}
 export RPC_APT_ARTIFACT_MODE=loose
 export QC_TEST=${QC_TEST:-'no'}
 export RUN_PREFLIGHT=${RUN_PREFLIGHT:-yes}

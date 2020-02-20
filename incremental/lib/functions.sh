@@ -47,6 +47,18 @@ function determine_release {
       export CODE_UPGRADE_FROM="queens"
       echo "You seem to be running Queens"
     ;;
+    *18|rocky)
+      export CODE_UPGRADE_FROM="rocky"
+      echo "You seem to be running Rocky"
+    ;;
+    *19|stein)
+      export CODE_UPGRADE_FROM="stein"
+      echo "You seem to be running Stein"
+    ;;
+    *20|train)
+      export CODE_UPGRADE_FROM="train"
+      echo "You seem to be running Train"
+    ;;
     *)
       echo "Unable to detect current OpenStack version, failing...."
       exit 99
@@ -56,6 +68,7 @@ function determine_release {
 # Fail if Ubuntu Major release is not the minimum required for a given OpenStack upgrade
 function require_ubuntu_version {
   REQUIRED_VERSION="$1"
+  DETECTED_VERSION="$(lsb_release -r | cut -f2 -d$'\t' | cut -f1 -d$'.')"
   if [ "$(lsb_release -r | cut -f2 -d$'\t' | cut -f1 -d$'.')" -lt "$REQUIRED_VERSION" ]; then
     echo "Please upgrade to Ubuntu "$REQUIRED_VERSION" before attempting to upgrade OpenStack"
     exit 99
@@ -118,14 +131,18 @@ function check_user_variables {
 }
 
 function checkout_rpc_openstack {
-  pushd /opt/rpc-openstack
-    git clean -df
-    git reset --hard HEAD
-    git fetch --all
-    rm -rf openstack-ansible
-    rm -rf scripts/artifacts-building/
-    git checkout ${RPC_BRANCH}
-  popd
+  if [ ! -d "/opt/rpc-openstack" ]; then
+    git clone --branch ${RPC_BRANCH} --recursive https://github.com/rcbops/rpc-openstack /opt/rpc-openstack
+  else
+    pushd /opt/rpc-openstack
+      git clean -df
+      git reset --hard HEAD
+      git fetch --all
+      rm -rf openstack-ansible
+      rm -rf scripts/artifacts-building/
+      git checkout ${RPC_BRANCH}
+    popd
+  fi
 }
 
 function checkout_openstack_ansible {
@@ -152,11 +169,18 @@ function ensure_osa_bootstrap {
       rm -f /usr/local/bin/openstack-ansible.rc
     fi
   fi
+  export SETUP_ARA=true
   checkout_openstack_ansible
   pushd /opt/openstack-ansible
     scripts/bootstrap-ansible.sh
   popd
   touch /etc/openstack_deploy/osa_bootstrapped.complete
+  # ensure we don't rerun bootstrap-ansible in run-upgrade script
+  # by telling it to skip bootstrap
+  if [ ! -d  "/etc/openstack_deploy/upgrade-${RPC_PRODUCT_RELEASE}" ]; then
+    mkdir -p "/etc/openstack_deploy/upgrade-${RPC_PRODUCT_RELEASE}"
+  fi
+  touch /etc/openstack_deploy/upgrade-${RPC_PRODUCT_RELEASE}/bootstrap-ansible.complete
 }
 
 
@@ -184,17 +208,42 @@ function install_ansible_source {
   /opt/rpc-ansible/bin/pip install --isolated "ansible==${RPC_ANSIBLE_VERSION}"
 }
 
+function check_rpc_config {
+  if [ ! -d /opt/rpc-config ]; then
+    echo "Unable to locate rpc-environments configuration setup in /opt/rpc-config."
+    echo "Please ensure configuration using rpc-environments template has been set up"
+    echo "and install properly before running an upgrade on Rocky and up:"
+    echo ""
+    echo "https://github.com/rpc-environments/RPCO-OSA-Template"
+    exit 99
+  fi
+}
+
+function repo_rebuild {
+    # Destroy repo container prior to the upgrade to reduce "No space left on device" issues
+    if [[ ! -f "${UPGRADES_WORKING_DIR}/repo-container-rebuild.complete" ]]; then
+      pushd /opt/openstack-ansible/playbooks
+        openstack-ansible lxc-containers-destroy.yml -e force_containers_destroy=true -e force_containers_data_destroy=true --limit repo_container
+        openstack-ansible lxc-containers-create.yml --limit repo-infra_all -e lxc_container_fs_size=10G
+        test $? -eq 0 && touch ${UPGRADES_WORKING_DIR}/repo-container-rebuild.complete
+      popd
+    fi
+}
+
 function run_upgrade {
   pushd /opt/openstack-ansible
     export TERM=linux
     export I_REALLY_KNOW_WHAT_I_AM_DOING=true
     export SETUP_ARA=true
-    export ANSIBLE_CALLBACK_PLUGINS=/etc/ansible/roles/plugins/callback:/opt/ansible-runtime/local/lib/python2.7/site-packages/ara/plugins/callbacks
+    ANSIBLE_CALLBACK_PLUGINS=/etc/ansible/roles/plugins/callback
+    ARA_LOCATION=$(/opt/ansible-runtime/bin/python -m ara.setup.callback_plugins || true)
+    if [[ -n "$ARA_LOCATION" ]]; then
+      export ANSIBLE_CALLBACK_PLUGINS="${ANSIBLE_CALLBACK_PLUGINS}:${ARA_LOCATION}"
+    fi
 
-    # Destroy repo container prior to the upgrade to reduce "No space left on device" issues
-    pushd /opt/openstack-ansible/playbooks
-      openstack-ansible lxc-containers-destroy.yml -e force_containers_destroy=true -e force_containers_data_destroy=true --limit repo_container
-      openstack-ansible lxc-containers-create.yml --limit repo-infra_all -e lxc_container_fs_size=10G
+    # ensure no traces of rpco repos that may have come from lxc-cache
+    pushd /opt/rpc-upgrades/incremental/playbooks
+      openstack-ansible remove-rpco-repos.yml
     popd
 
     # Remove pip from deploy host to prevent issues before repo has been rebuilt
@@ -245,11 +294,27 @@ function prepare_pike {
 function prepare_queens {
   pushd /opt/rpc-upgrades/incremental/playbooks
     openstack-ansible configure-lxc-backend.yml
+    if [[ ! -f "${UPGRADES_WORKING_DIR}/queens_upgrade_prep.complete" ]]; then
+      openstack-ansible prepare-queens-upgrade.yml
+    fi
   popd
 }
 
 function prepare_rocky {
-  echo "Rocky prepare steps go here..."
+  pushd /opt/rpc-upgrades/incremental/playbooks
+    openstack-ansible configure-lxc-backend.yml
+    if [[ ! -f "${UPGRADES_WORKING_DIR}/rocky_upgrade_prep.complete" ]]; then
+      openstack-ansible prepare-rocky-upgrade.yml
+    fi
+  popd
+}
+
+function prepare_stein {
+  echo "Stein prepare steps go here..."
+}
+
+function prepare_train {
+  echo "Train prepare steps go here..."
 }
 
 function cleanup {
@@ -269,5 +334,7 @@ function mark_started {
 
 function mark_completed {
   echo "Completing ${RPC_PRODUCT_RELEASE^} upgrade..."
+  # copy current openstack-release to openstack-release.upgrade to signify next starting point
+  cp /etc/openstack-release ${UPGRADES_WORKING_DIR}/openstack-release.upgrade
   touch ${UPGRADES_WORKING_DIR}/upgrade-to-${RPC_PRODUCT_RELEASE}.complete
 }

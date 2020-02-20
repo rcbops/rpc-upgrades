@@ -25,23 +25,23 @@
   pip:
     name: httplib2
 
-- name: Get elastic search indicies
+- name: Get elastic search indices
   uri:
     url: "http://{{ esurl }}/_cat/indices?v"
     return_content: "yes"
-  register: es_indicies
+  register: es_indices
 
-- name: debug es_indicies
-  debug: var=es_indicies
+- name: debug es_indices
+  debug: var=es_indices
 
-- name: Set ES indicies fact for processing
+- name: Set ES indices fact for processing
   set_fact:
-    es_indicies_list: "{{ es_indicies['content'].split('\n')[1:-1] }}"
+    es_indices_list: "{{ es_indices['content'].split('\n')[1:-1] }}"
 
-- name: debug es_indicies_list
-  debug: var=es_indicies_list
+- name: debug es_indices_list
+  debug: var=es_indices_list
 
 - name: Check ES for green health status
   debug: var=item
   failed_when: "'green' not in item"
-  with_items: "{{ es_indicies_list|default([]) }}"
+  with_items: "{{ es_indices_list|default([]) }}"
