@@ -21,7 +21,7 @@ source lib/vars.sh
 
 require_ubuntu_version 16
 
-export RPC_BRANCH=${RPC_BRANCH:-'rocky'}
+export RPC_BRANCH=${RPC_BRANCH:-'r18.0.1'}
 export OSA_SHA="stable/rocky"
 export SKIP_INSTALL=${SKIP_INSTALL:-'no'}
 export RPC_PRODUCT_RELEASE="rocky"
