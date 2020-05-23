@@ -19,8 +19,11 @@ function ensure_working_dir {
    if [ ! -d "${UPGRADES_WORKING_DIR}" ]; then
      mkdir -p ${UPGRADES_WORKING_DIR}
    fi
-   if [ ! -d  "/etc/openstack_deploy/upgrade-${RPC_PRODUCT_RELEASE}" ]; then
-     mkdir -p "/etc/openstack_deploy/upgrade-${RPC_PRODUCT_RELEASE}"
+
+   if [ -n "${RPC_PRODUCT_RELEASE}" ]; then
+     if [ ! -d  "/etc/openstack_deploy/upgrade-${RPC_PRODUCT_RELEASE}" ]; then
+       mkdir -p "/etc/openstack_deploy/upgrade-${RPC_PRODUCT_RELEASE}"
+     fi
    fi
  }
 
