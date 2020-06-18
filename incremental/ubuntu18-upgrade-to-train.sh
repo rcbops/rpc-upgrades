@@ -24,7 +24,7 @@ require_ubuntu_version 18
 export OSA_SHA="20.1.2"
 export SKIP_INSTALL=${SKIP_INSTALL:-'no'}
 export RPC_PRODUCT_RELEASE="train"
-export RPC_ANSIBLE_VERSION="2.9.9"
+export RPC_ANSIBLE_VERSION="2.8.8"
 
 check_rpc_config
 mark_started
