@@ -16,6 +16,7 @@
 - name: Set config_files fact
   set_fact:
     config_files:
+      - /etc/openstack_deploy/user_local_variables.yml
       - /etc/openstack_deploy/user_variables.yml
       - /etc/openstack_deploy/user_osa_variables_overrides.yml
 

@@ -27,9 +27,30 @@
 #- name: Backup original playbooks
 #  command: "tar czf {{ backup_dir }}/rpc-openstack-{{ datetime_stamp }}.tar.gz {{ backup_dir }}"
 
-- name: Perform a DB backup (using xtrabackup)
-  shell: "innobackupex --stream=xbstream --compress - > /var/backup/galera-backup-{{ datetime_stamp }}.xbstream"
+- name: Find backup utility
+  stat:
+    path: '/usr/bin/innobackupex'
+  register: innobackupex
+
+- name: Set innobackupex utility
+  set_fact:
+    galera_backup_program: "/usr/bin/innobackupex"
+  when: innobackupex.stat.exists
+
+- name: Set mariabackup utility
+  set_fact:
+    galera_backup_program: "/usr/bin/mariabackup"
+  when: not innobackupex.stat.exists
+
+- name: Perform a DB backup (using innobackupex)
+  shell: "{{ galera_backup_program }} --stream=xbstream --compress - > /var/backup/galera-backup-{{ datetime_stamp }}.xbstream"
   delegate_to: "{{ groups['galera_all'][0] }}"
+  when: innobackupex.stat.exists
+
+- name: Perform a DB backup (using mariabackup)
+  shell: "{{ galera_backup_program }} --backup --stream=xbstream --compress > /var/backup/galera-backup-{{ datetime_stamp }}.xbstream"
+  delegate_to: "{{ groups['galera_all'][0] }}"
+  when: not innobackupex.stat.exists
 
 # Deactivated due to FLEEK-252
 #- name: Copy xtrabackup
