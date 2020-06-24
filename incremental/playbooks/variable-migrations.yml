@@ -1,0 +1,29 @@
+---
+
+- hosts: localhost
+  gather_facts: "{{ gather_facts | default(false) }}"
+  tasks:
+    - name: Find overrides file
+      stat:
+        path: "/etc/openstack_deploy/{{ item }}"
+        follow: yes
+      changed_when: false
+      register: _osa_config
+      until: _osa_config |success
+      with_items:
+        - 'user_local_variables.yml'
+        - 'user_osa_variables_overrides.yml'
+        - 'user_variables.yml'
+
+    - name: Adding required variables
+      lineinfile:
+        dest: "{{ _osa_config.results[0].stat.path }}"
+        line: "{{ item.key }}: {{ item.value }}"
+        regexp: "{{ item.regexp | default('^' + item.key) }}"
+      with_items:
+          # Freeze ceph_stable_release prior openstack upgrade to prevent accidental ceph client changes
+          - key: "ceph_stable_release"
+            value: "{{ ceph_stable_release | default('mimic') }}"
+          - key: "upgrade_ceph_packages"
+            value: False
+      when: _osa_config.results[0].stat.path is defined

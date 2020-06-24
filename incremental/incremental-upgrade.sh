@@ -64,7 +64,7 @@ if ! echo ${TODO} | grep -w ${TARGET} > /dev/null; then
 fi
 
 check_user_variables
-generate_upgrade_config
+prepare_config_for_upgrade
 
 if [ "${SKIP_PREFLIGHT}" != "true" ]; then
   pre_flight

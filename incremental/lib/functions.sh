@@ -135,6 +135,8 @@ function check_user_variables {
        echo "default_bind_mount_logs: False" >> /etc/openstack_deploy/user_variables.yml
      fi
   fi
+
+
 }
 
 function checkout_rpc_openstack {
@@ -272,10 +274,11 @@ function run_upgrade {
   popd
 }
 
-function generate_upgrade_config {
-  # generate user_rpco_upgrade.yml
+function prepare_config_for_upgrade {
+  # generate user_rpco_upgrade.yml and configure
+  # required variables
   pushd /opt/rpc-upgrades/incremental/playbooks
-    openstack-ansible rpco-upgrade-configs.yml
+    openstack-ansible rpco-upgrade-configs.yml variable-migrations.yml
   popd
 }
 
