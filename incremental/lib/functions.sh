@@ -340,6 +340,10 @@ function prepare_train {
   echo "Train prepare steps go here..."
 }
 
+function prepare_ussuri {
+  echo "Ussuri prepare steps go here..."
+}
+
 function cleanup {
   if [ -f "/etc/openstack_deploy/user_rpco_upgrade.yml" ]; then
     rm /etc/openstack_deploy/user_rpco_upgrade.yml

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Copyright 2018, Rackspace US, Inc.
+# Copyright 2019, Rackspace US, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,16 +14,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# vars for incremental upgrades
-RELEASES="newton
-          ocata
-          pike
-          queens
-          rocky
-          stein
-          train
-          ussuri"
+set -evu
 
-STARTING_RELEASE=false
-SKIP_PREFLIGHT=${SKIP_PREFLIGHT:-false}
-UPGRADES_WORKING_DIR=/etc/openstack_deploy/rpc-upgrades
+source lib/functions.sh
+source lib/vars.sh
+
+require_ubuntu_version 18
+
+export OSA_SHA="21.1.0"
+export SKIP_INSTALL=${SKIP_INSTALL:-'no'}
+export RPC_PRODUCT_RELEASE="ussuri"
+export RPC_ANSIBLE_VERSION="2.9.9"
+
+check_rpc_config
+mark_started
+checkout_openstack_ansible
+ensure_osa_bootstrap
+prepare_ussuri
+run_upgrade
+mark_completed
