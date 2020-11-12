@@ -72,6 +72,10 @@ function determine_release {
       export CODE_UPGRADE_FROM="train"
       echo "You seem to be running Train"
     ;;
+    *21|ussuri)
+      export CODE_UPGRADE_FROM="ussuri"
+      echo "You seem to be running Ussuri"
+    ;;
     *)
       echo "Unable to detect current OpenStack version, failing...."
       exit 99
@@ -341,7 +345,16 @@ function prepare_train {
 }
 
 function prepare_ussuri {
-  echo "Ussuri prepare steps go here..."
+  ensure_working_dir
+
+  pushd /opt/rpc-upgrades/incremental/playbooks
+    # Shutdown mariadb slaves are the version gets upgraded
+    # to >= 10.4.12
+    openstack-ansible mariadb-slaves-shutdown.yml
+    #if [[ ! -f "${UPGRADES_WORKING_DIR}/ussuri_upgrade_prep.complete" ]]; then
+    #  openstack-ansible prepare-ussuri-upgrade.yml
+    #fi
+  popd
 }
 
 function cleanup {
