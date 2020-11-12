@@ -23,8 +23,9 @@ Ubuntu 16.04 required:
 
 Ubuntu 18.04 required:
 
-* Rocky to Stein (testing)
+* Rocky to Stein
 * Stein to Train (testing)
+* Train to Ussuri (testing)
 
 Full docs for Incremental upgrades are `here <incremental.rst>`_.
 
