@@ -96,14 +96,14 @@
         - target_release == "rocky" or target_release == "stein"
         - ansible_lsb.codename == "xenial"
 
-    - name: Set uca repo for bionic and rocky/stein
+    - name: Set uca repo for bionic and rocky to ussuri
       apt_repository:
         repo: "deb http://ubuntu-cloud.archive.canonical.com/ubuntu {{ ansible_lsb.codename }}-updates/{{ target_release }} main"
         filename: uca-preload
         state: present
         update_cache: yes
       when:
-        - target_release == "rocky" or target_release == "stein"
+        - target_release in ["rocky","stein","train","ussuri"]
         - ansible_lsb.codename == "bionic"
 
 - name: Preload openstack_host apt packages
