@@ -9,7 +9,7 @@
       changed_when: false
       delegate_to: "{{ hostvars[item]['physical_host'] }}"
       register: _repo_backend_rootfs
-      until: _repo_backend_rootfs |success
+      until: _repo_backend_rootfs is success
       retries: 3
       delay: 5
       failed_when: not _repo_backend_rootfs.stdout is search('lxc.rootfs.backend')
@@ -23,7 +23,7 @@
         follow: yes
       changed_when: false
       register: _osa_config
-      until: _osa_config |success
+      until: _osa_config is success
       with_items:
         - 'user_osa_variables_overrides.yml'
         - 'user_variables.yml'

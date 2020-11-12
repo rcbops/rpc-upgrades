@@ -17,6 +17,14 @@ Supported incremental upgrades (must be running on Ubuntu 16.04):
 
 * Newton to Pike (Ocata is skipped)
 * Newton to Queens
+* Queens to Rocky
+
+Supported incremental upgrades (must be running on Ubuntu 18.04):
+
+* Rocky to Stein
+* Stein to Train
+* Train to Ussuri
+
 
 Job Testing
 -----------
@@ -45,6 +53,9 @@ for each version you will be upgrading to.  This will put the needed apt files i
     openstack-ansible preload-apt-packages.yml -e target_release=pike
     openstack-ansible preload-apt-packages.yml -e target_release=queens
     openstack-ansible preload-apt-packages.yml -e target_release=rocky
+    openstack-ansible preload-apt-packages.yml -e target_release=stein
+    openstack-ansible preload-apt-packages.yml -e target_release=train
+    openstack-ansible preload-apt-packages.yml -e target_release=ussuri
 
 This will temporarily install the apt sources for the target_release and apt download packages for infra and
 compute hosts.  It also removes any rpco and uca repos that are currently in place as the upgrade will install
