@@ -9,7 +9,7 @@
         follow: yes
       changed_when: false
       register: _osa_config
-      until: _osa_config is success
+      until: _osa_config | success
       with_items:
         - 'user_local_variables.yml'
         - 'user_osa_variables_overrides.yml'
