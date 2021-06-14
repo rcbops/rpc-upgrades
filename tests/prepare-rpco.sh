@@ -90,12 +90,10 @@ function set_gating_vars {
 neutron_legacy_ha_tool_enabled: true
 lxc_container_backing_store: dir
 maas_use_api: false
-# set kilo to pin get-pip to 3.3
-pip_get_pip_url: https://bootstrap.pypa.io/3.3/get-pip.py
-pip_get_pip_fallback_url: https://raw.githubusercontent.com/pypa/get-pip/master/3.3/get-pip.py
-# set mitaka and up get-pip to 3.3
-pip_upstream_url: https://bootstrap.pypa.io/3.3/get-pip.py
-pip_fallback_url: https://raw.githubusercontent.com/pypa/get-pip/master/3.3/get-pip.py
+# set kilo to pin get-pip to 2.7 (compatible with python 2)
+pip_get_pip_url: https://bootstrap.pypa.io/2.7/get-pip.py
+# set mitaka and up get-pip to 2.7
+pip_upstream_url: https://bootstrap.pypa.io/2.7/get-pip.py
 EOF
 }
 
@@ -105,11 +103,11 @@ function kilo_caches {
 
   # NOTE(cloudnull): Early kilo versions fail system bootstrap due to the get
   #                  pip script and general SSL issues.
-  export GET_PIP_URL="https://raw.githubusercontent.com/pypa/get-pip/master/get-pip.py"
+  export GET_PIP_URL="https://bootstrap.pypa.io/2.7/get-pip.py"
 
   cat > /etc/openstack_deploy/user_kilo_caches.yml <<EOF
 ---
-pip_get_pip_url: 'https://raw.githubusercontent.com/pypa/get-pip/master/get-pip.py'
+pip_get_pip_url: 'https://bootstrap.pypa.io/2.7/get-pip.py'
 
 repo_mirror_excludes:
   - '/repos'
