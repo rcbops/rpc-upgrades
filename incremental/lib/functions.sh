@@ -76,6 +76,10 @@ function determine_release {
       export CODE_UPGRADE_FROM="ussuri"
       echo "You seem to be running Ussuri"
     ;;
+    *22|victoria)
+      export CODE_UPGRADE_FROM="victoria"
+      echo "You seem to be running Victoria"
+    ;;
     *)
       echo "Unable to detect current OpenStack version, failing...."
       exit 99
@@ -353,6 +357,18 @@ function prepare_ussuri {
     openstack-ansible mariadb-slaves-shutdown.yml
     #if [[ ! -f "${UPGRADES_WORKING_DIR}/ussuri_upgrade_prep.complete" ]]; then
     #  openstack-ansible prepare-ussuri-upgrade.yml
+    #fi
+  popd
+}
+
+function prepare_victoria {
+  ensure_working_dir
+
+  pushd /opt/rpc-upgrades/incremental/playbooks
+    # Shutdown mariadb slaves to ease version upgrades
+    openstack-ansible mariadb-slaves-shutdown.yml
+    #if [[ ! -f "${UPGRADES_WORKING_DIR}/victoria_upgrade_prep.complete" ]]; then
+    #  openstack-ansible prepare-victoria-upgrade.yml
     #fi
   popd
 }
