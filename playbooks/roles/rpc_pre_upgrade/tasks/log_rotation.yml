@@ -21,6 +21,7 @@
   when:
     - (groups['mons_hosts'] is undefined or item not in groups['mons_hosts'])
     - (groups['cephrgwdummy_hosts'] is undefined or item not in groups['cephrgwdummy_hosts'])
+  ignore_errors: yes
 
 - name: Compressed logs
   debug: var=large_logs.stdout_lines
