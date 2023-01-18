@@ -23,6 +23,7 @@ require_ubuntu_version 20
 
 export OSA_SHA="23.4.1"
 export SKIP_INSTALL=${SKIP_INSTALL:-'no'}
+export SKIP_CUSTOM_ENVD_CHECK=true
 export RPC_PRODUCT_RELEASE="wallaby"
 export RPC_ANSIBLE_VERSION="2.10.10"
 
