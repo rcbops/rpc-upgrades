@@ -23,6 +23,7 @@ require_ubuntu_version 18
 
 export OSA_SHA="20.2.4"
 export SKIP_INSTALL=${SKIP_INSTALL:-'no'}
+export SKIP_CUSTOM_ENVD_CHECK=true
 export RPC_PRODUCT_RELEASE="train"
 export RPC_ANSIBLE_VERSION="2.8.8"
 

@@ -381,11 +381,9 @@ function prepare_wallaby {
   ensure_working_dir
 
   pushd /opt/rpc-upgrades/incremental/playbooks
-    # Shutdown mariadb slaves to ease version upgrades
-    openstack-ansible mariadb-slaves-shutdown.yml
-    #if [[ ! -f "${UPGRADES_WORKING_DIR}/wallaby_upgrade_prep.complete" ]]; then
-    #  openstack-ansible prepare-wallaby-upgrade.yml
-    #fi
+    if [[ ! -f "${UPGRADES_WORKING_DIR}/wallaby_upgrade_prep.complete" ]]; then
+      openstack-ansible prepare-wallaby-upgrade.yml
+    fi
   popd
 }
 

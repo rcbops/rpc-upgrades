@@ -26,6 +26,9 @@ export SKIP_INSTALL=${SKIP_INSTALL:-'no'}
 export RPC_PRODUCT_RELEASE="stein"
 export RPC_ANSIBLE_VERSION="2.7.9"
 
+# Skip OSA env.d check as RPC deploys custom env.d configurations
+test -f /etc/openstack_deploy/env.d/cephrgwdummy.yml 2>&1 && export SKIP_CUSTOM_ENVD_CHECK=true
+
 check_rpc_config
 mark_started
 checkout_openstack_ansible

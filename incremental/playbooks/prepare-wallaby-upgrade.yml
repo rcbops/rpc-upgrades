@@ -1,0 +1,45 @@
+---
+# Copyright 2023, Rackspace US, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- name: Generate user_rpco_upgrade.yml for upgrade duration
+  hosts: localhost
+  user: root
+  vars:
+    upgrade_config_file: /etc/openstack_deploy/user_rpco_upgrade.yml
+  tasks:
+    - name: Ensure user_rpco_upgrade.yml exists
+      file:
+        path: "{{ upgrade_config_file }}"
+        state: touch
+
+    - name: Configure overrides only for Wallaby upgrade
+      lineinfile:
+        dest: "{{ upgrade_config_file }}"
+        regexp: "{{ item.regexp | default('^' + item.key) }}"
+        line: "{{ item.key }}: {{ item.value }}"
+        state: present
+      with_items:
+        - key: "venv_wheel_build_skip_check"
+          value: True
+
+- name: Fix up config files
+  hosts: localhost
+  user: root
+  tasks:
+    - name: Set lock file
+      file:
+        path: /etc/openstack_deploy/rpc-upgrades/wallaby_upgrade_prep.complete
+        state: touch
+        mode: 0644
