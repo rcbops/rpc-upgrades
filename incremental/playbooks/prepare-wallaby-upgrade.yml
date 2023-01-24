@@ -33,6 +33,8 @@
       with_items:
         - key: "venv_wheel_build_skip_check"
           value: True
+        - key: "venv_wheel_build_enable"
+          value: True
 
 - name: Fix up config files
   hosts: localhost
