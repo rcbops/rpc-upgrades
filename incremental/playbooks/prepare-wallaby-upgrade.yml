@@ -18,6 +18,8 @@
   user: root
   vars:
     upgrade_config_file: /etc/openstack_deploy/user_rpco_upgrade.yml
+  vars_files:
+    - "vars/wallaby.yml"
   tasks:
     - name: Ensure user_rpco_upgrade.yml exists
       file:
@@ -35,6 +37,77 @@
           value: True
         - key: "venv_wheel_build_enable"
           value: True
+
+        - key: "novncproxy_git_repo"
+          value: "{{ openstack_git_base_url }}/novnc/noVNC"
+
+        - key: "spicehtml5_git_repo"
+          value: "{{ openstack_git_base_url }}/freedesktop/spice-html5"
+
+        - key: "aodh_git_repo"
+          value: "{{ openstack_git_base_url }}/openstack/aodh"
+
+        - key: "barbican_git_repo"
+          value: "{{ openstack_git_base_url }}/openstack/barbican"
+        - key: "barbican_dashboard_git_repo"
+          value: "{{ openstack_git_base_url }}//openstack/barbican-ui"
+
+        - key: "ceilometer_git_repo"
+          value: "{{ openstack_git_base_url }}/openstack/ceilometer"
+
+        - key: "cinder_git_repo"
+          value: "{{ openstack_git_base_url }}/openstack/cinder"
+
+        - key: "designate_git_repo"
+          value: "{{ openstack_git_base_url }}/openstack/designate"
+        - key: "designate_dashboard_git_repo"
+          value: "{{ openstack_git_base_url }}/openstack/designate-dashboard"
+
+        - key: "glance_git_repo"
+          value: "{{ openstack_git_base_url }}/openstack/glance"
+
+        - key: "heat_git_repo"
+          value: "{{ openstack_git_base_url }}/openstack/heat"
+        - key: "heat_dashboard_git_repo"
+          value: "{{ openstack_git_base_url }}/openstack/heat-dashboard"
+
+        - key: "horizon_git_repo"
+          value: "{{ openstack_git_base_url }}/openstack/horizon"
+
+        - key: "ironic_dashboard_git_repo"
+          value: "{{ openstack_git_base_url}}/openstack/ironic-ui"
+        - key: "ironic_git_repo"
+          value: "{{ openstack_git_base_url }}/openstack/ironic"
+        - key: "ironic_inspector_git_repo"
+          value: "{{ openstack_git_base_url }}/openstack/ironic-inspector"
+
+        - key: "keystone_git_repo"
+          value: "{{ openstack_git_base_url }}/openstack/keystone"
+
+        - key: "manila_git_repo"
+          value: "{{ openstack_git_base_url }}/openstack/manila"
+
+        - key: "neutron_git_repo"
+          value: "{{ openstack_git_base_url }}/openstack/neutron"
+        - key: "neutron_dynamic_routing_git_repo"
+          value: "{{ openstack_git_base_url }}/openstack/neutron-dynamic-routing"
+        - key: "networking_baremetal_git_repo"
+          value: "{{ openstack_git_base_url }}/openstack/networking-baremetal"
+
+        - key: "nova_git_repo"
+          value: "{{ openstack_git_base_url }}/openstack/nova"
+
+        - key: "swift_git_repo"
+          value: "{{ openstack_git_base_url }}/openstack/swift"
+
+        - key: "octavia_git_repo"
+          value: "{{ openstack_git_base_url }}/openstack/octavia"
+
+        - key: "placement_git_repo"
+          value: "{{ openstack_git_base_url }}/openstack/placement"
+
+        - key: "octavia_dashboard_git_repo"
+          value: "{{ openstack_git_base_url }}/openstack/octavia-dashboard"
 
 - name: Fix up config files
   hosts: localhost
