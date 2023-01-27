@@ -24,8 +24,13 @@ Ubuntu 16.04 required:
 Ubuntu 18.04 required:
 
 * Rocky to Stein
-* Stein to Train (testing)
-* Train to Ussuri (testing)
+* Stein to Train
+* Train to Ussuri
+* Ussuri to Victoria
+
+Ubuntu 20.04 required:
+
+* Victoria to Wallaby (testing)
 
 Full docs for Incremental upgrades are `here <incremental.rst>`_.
 
@@ -45,6 +50,4 @@ Full docs for Leapfrog upgrades are `here <leapfrog.rst>`_.
 Job Testing
 -----------
 
-Currently no automated testing is in place as the Jenkins system under CIT
-is not maintained.
-`RPC Jenkins (EOL) <https://rpc.jenkins.cit.rackspace.net/view/Upgrades>`_ server.
+Currently no automated testing is in place
