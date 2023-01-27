@@ -24,13 +24,17 @@ Supported incremental upgrades (must be running on Ubuntu 18.04):
 * Rocky to Stein
 * Stein to Train
 * Train to Ussuri
+* Ussuri to Victoria
+
+Supported incremental upgrades (must be running on Ubuntu 20.04):
+
+* Victoria to Wallaby
 
 
 Job Testing
 -----------
 
-The status of supported versions can be viewed from the periodic jobs located on the
-`RPC Jenkins <https://rpc.jenkins.cit.rackspace.net/view/Upgrades>`_ server.
+N/A
 
 Pre Upgrade Tasks
 ------------------
@@ -54,8 +58,6 @@ for each version you will be upgrading to.  This will put the needed apt files i
     openstack-ansible preload-apt-packages.yml -e target_release=queens
     openstack-ansible preload-apt-packages.yml -e target_release=rocky
     openstack-ansible preload-apt-packages.yml -e target_release=stein
-    openstack-ansible preload-apt-packages.yml -e target_release=train
-    openstack-ansible preload-apt-packages.yml -e target_release=ussuri
 
 This will temporarily install the apt sources for the target_release and apt download packages for infra and
 compute hosts.  It also removes any rpco and uca repos that are currently in place as the upgrade will install
