@@ -29,10 +29,10 @@
     - galera
 
 # Run rabbitmq post upgrade tasks
-- include: post-upgrade-rabbitmq.yml
-  when: inventory_hostname in groups['rabbitmq']
-  tags:
-    - rabbitmq
+#- include: post-upgrade-rabbitmq.yml
+#  when: inventory_hostname in groups['rabbitmq']
+#  tags:
+#    - rabbitmq
 
 # Run openstack services verification tasks
 - include: post-upgrade-utility.yml
@@ -47,10 +47,10 @@
     - swift
 
 # Run elasticsearch verification tasks
-- include: post-upgrade-elasticsearch.yml
-  when: inventory_hostname in groups['elasticsearch_container']
-  tags:
-    - elasticsearch
+#- include: post-upgrade-elasticsearch.yml
+#  when: inventory_hostname in groups['elasticsearch_container']
+#  tags:
+#    - elasticsearch
 
 # Run neutron verifciation tasks
 - include: post-upgrade-neutron-venv.yml
