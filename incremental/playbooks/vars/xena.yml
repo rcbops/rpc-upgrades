@@ -1,0 +1,9 @@
+---
+
+# Workaround until https://review.opendev.org/c/openstack/openstack-ansible/+/869748
+# merges
+
+openstack_opendev_base_url: "https://opendev.org"
+openstack_github_base_url: "https://github.com"
+
+openstack_git_base_url: "{{ openstack_github_base_url }}"

@@ -84,6 +84,10 @@ function determine_release {
       export CODE_UPGRADE_FROM="wallaby"
       echo "You seem to be running Wallaby"
     ;;
+    *24|xena)
+      export CODE_UPGRADE_FROM="xena"
+      echo "You seem to be running Xena"
+    ;;
     *)
       echo "Unable to detect current OpenStack version, failing...."
       exit 99
@@ -383,6 +387,16 @@ function prepare_wallaby {
   pushd /opt/rpc-upgrades/incremental/playbooks
     if [[ ! -f "${UPGRADES_WORKING_DIR}/wallaby_upgrade_prep.complete" ]]; then
       openstack-ansible prepare-wallaby-upgrade.yml
+    fi
+  popd
+}
+
+function prepare_xena {
+  ensure_working_dir
+
+  pushd /opt/rpc-upgrades/incremental/playbooks
+    if [[ ! -f "${UPGRADES_WORKING_DIR}/xena_upgrade_prep.complete" ]]; then
+      openstack-ansible prepare-xena-upgrade.yml
     fi
   popd
 }
