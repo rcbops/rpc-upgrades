@@ -24,7 +24,7 @@ require_ubuntu_version 20
 export OSA_SHA="24.6.1"
 export SKIP_INSTALL=${SKIP_INSTALL:-'no'}
 export RPC_PRODUCT_RELEASE="xena"
-export RPC_ANSIBLE_VERSION="2.10.10"
+export RPC_ANSIBLE_VERSION="2.11.6"
 
 # Skip OSA env.d check as RPC deploys custom env.d configurations
 test -f /etc/openstack_deploy/env.d/cephrgwdummy.yml 2>&1 && export SKIP_CUSTOM_ENVD_CHECK=true
