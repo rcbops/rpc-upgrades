@@ -21,7 +21,7 @@ source lib/vars.sh
 
 require_ubuntu_version 20
 
-export OSA_SHA="24.6.1"
+export OSA_SHA="e40beef76b22854a57a3fc7e5e291c0f83d3e1c9" #Bugfix for #2038315
 export SKIP_INSTALL=${SKIP_INSTALL:-'no'}
 export RPC_PRODUCT_RELEASE="xena"
 export RPC_ANSIBLE_VERSION="2.11.6"
