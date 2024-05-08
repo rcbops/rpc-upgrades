@@ -88,6 +88,10 @@ function determine_release {
       export CODE_UPGRADE_FROM="xena"
       echo "You seem to be running Xena"
     ;;
+    *25|yoga)
+      export CODE_UPGRADE_FROM="yoga"
+      echo "You seem to be running Yoga"
+    ;;
     *)
       echo "Unable to detect current OpenStack version, failing...."
       exit 99
@@ -237,7 +241,11 @@ function install_ansible_source {
                                             python-dev python3-dev \
                                             python-minimal python-virtualenv
 
-  /opt/rpc-ansible/bin/pip install --isolated "ansible==${RPC_ANSIBLE_VERSION}"
+  if [ -n "$RPC_ANSIBLE_VERSION" ]; then
+    /opt/rpc-ansible/bin/pip install --isolated "ansible==${RPC_ANSIBLE_VERSION}"
+  elif [ -n "$RPC_ANSIBLE_PACKAGE" ]; then
+    /opt/rpc-ansible/bin/pip install --isolated "${RPC_ANSIBLE_PACKAGE}"
+  fi
 }
 
 function check_rpc_config {
@@ -397,6 +405,16 @@ function prepare_xena {
   pushd /opt/rpc-upgrades/incremental/playbooks
     if [[ ! -f "${UPGRADES_WORKING_DIR}/xena_upgrade_prep.complete" ]]; then
       openstack-ansible prepare-xena-upgrade.yml
+    fi
+  popd
+}
+
+function prepare_yoga {
+  ensure_working_dir
+
+  pushd /opt/rpc-upgrades/incremental/playbooks
+    if [[ ! -f "${UPGRADES_WORKING_DIR}/yoga_upgrade_prep.complete" ]]; then
+      openstack-ansible prepare-yoga-upgrade.yml
     fi
   popd
 }
