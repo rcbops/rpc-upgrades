@@ -21,7 +21,7 @@ source lib/vars.sh
 
 require_ubuntu_version 20
 
-export OSA_SHA="yoga-em"
+export OSA_SHA="76a3176385e63007c4dd31852dc5f12f1bc99f17"
 export SKIP_INSTALL=${SKIP_INSTALL:-'no'}
 export RPC_PRODUCT_RELEASE="yoga"
 export RPC_ANSIBLE_PACKAGE="ansible-core==2.12.8"
