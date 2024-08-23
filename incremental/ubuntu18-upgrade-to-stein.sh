@@ -16,8 +16,8 @@
 
 set -evu
 
-source lib/functions.sh
 source lib/vars.sh
+source lib/functions.sh
 
 require_ubuntu_version 18
 
