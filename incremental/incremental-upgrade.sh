@@ -16,8 +16,8 @@
 
 set -ev
 
-source lib/functions.sh
 source lib/vars.sh
+source lib/functions.sh
 
 discover_code_version
 require_ubuntu_version 16

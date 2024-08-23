@@ -191,24 +191,28 @@ function checkout_openstack_ansible {
 
 function ensure_osa_bootstrap {
   ensure_working_dir
+  export SETUP_ARA=true
 
-  if [ ! -f "/etc/openstack_deploy/osa_bootstrapped.complete" ]; then
+  if [ ! -f "/etc/openstack_deploy/upgrade-${RPC_PRODUCT_RELEASE}/osa_bootstrapped.complete" ]; then
     # purge osa and wrapper so that we start fresh without RPC-O settings
     if [ -d "/opt/openstack-ansible" ]; then
       rm -rf /opt/openstack-ansible
       rm -f /usr/local/bin/openstack-ansible
       rm -f /usr/local/bin/openstack-ansible.rc
     fi
+
+    checkout_openstack_ansible
+    touch /etc/openstack_deploy/upgrade-${RPC_PRODUCT_RELEASE}/osa_bootstrapped.complete
   fi
-  export SETUP_ARA=true
-  checkout_openstack_ansible
-  pushd /opt/openstack-ansible
-    scripts/bootstrap-ansible.sh
-  popd
-  touch /etc/openstack_deploy/osa_bootstrapped.complete
-  # ensure we don't rerun bootstrap-ansible in run-upgrade script
-  # by telling it to skip bootstrap
-  touch /etc/openstack_deploy/upgrade-${RPC_PRODUCT_RELEASE}/bootstrap-ansible.complete
+
+  if [ ! -f "/etc/openstack_deploy/upgrade-${RPC_PRODUCT_RELEASE}/bootstrap-ansible.complete"]; then
+    pushd /opt/openstack-ansible
+      scripts/bootstrap-ansible.sh
+    popd
+    # ensure we don't rerun bootstrap-ansible in run-upgrade script
+    # by telling it to skip bootstrap
+    test $? -eq 0 && touch /etc/openstack_deploy/upgrade-${RPC_PRODUCT_RELEASE}/bootstrap-ansible.complete
+  fi
 }
 
 
@@ -429,7 +433,6 @@ function mark_started {
   ensure_working_dir
 
   echo "Starting ${RPC_PRODUCT_RELEASE^} upgrade..."
-  ensure_working_dir
   if [ ! -f ${UPGRADES_WORKING_DIR}/upgrade-to-${RPC_PRODUCT_RELEASE}.started ]; then
     cp /etc/openstack-release ${UPGRADES_WORKING_DIR}/openstack-release.upgrade
   fi
