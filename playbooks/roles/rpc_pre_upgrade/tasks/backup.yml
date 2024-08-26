@@ -19,7 +19,7 @@
     state: directory
 
 - name: Backup the /etc/openstack_deploy directory
-  command: "tar czf {{ backup_dir }}/openstack_deploy-{{ datetime_stamp }}.tar.gz /etc/openstack_deploy"
+  command: "tar czhf {{ backup_dir }}/openstack_deploy-{{ datetime_stamp }}.tar.gz /etc/openstack_deploy"
   tags:
     - skip_ansible_lint
 
