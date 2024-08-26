@@ -21,7 +21,7 @@ source lib/functions.sh
 
 require_ubuntu_version 20
 
-export OSA_SHA="5064a6d10f9123700c6b4438af26565d38a16d14" #Bugfix for #2038315 and newer openstack pckages
+export OSA_SHA="52f79cd337409bd245f4b023a73382b6b2dee5a2" #Bugfix for #2038315 and newer openstack pckages
 export SKIP_INSTALL=${SKIP_INSTALL:-'no'}
 export RPC_PRODUCT_RELEASE="xena"
 export RPC_ANSIBLE_VERSION="2.11.6"
