@@ -25,7 +25,8 @@ RELEASES="newton
           ussuri
           victoria
           wallaby
-          xena"
+          xena
+          yoga"
 
 STARTING_RELEASE=false
 SKIP_PREFLIGHT=${SKIP_PREFLIGHT:-false}

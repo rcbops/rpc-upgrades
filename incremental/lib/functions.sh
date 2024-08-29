@@ -204,7 +204,7 @@ function ensure_osa_bootstrap {
     checkout_openstack_ansible
   fi
 
-  if [ ! -f "/etc/openstack_deploy/upgrade-${RPC_PRODUCT_RELEASE}/bootstrap-ansible.complete"]; then
+  if [ ! -f "/etc/openstack_deploy/upgrade-${RPC_PRODUCT_RELEASE}/bootstrap-ansible.complete" ]; then
     pushd /opt/openstack-ansible
       scripts/bootstrap-ansible.sh
     popd
