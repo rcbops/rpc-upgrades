@@ -33,11 +33,6 @@
         line: "{{ item.key }}: {{ item.value }}"
         state: present
       with_items:
-        - key: "venv_wheel_build_skip_check"
-          value: True
-        - key: "venv_wheel_build_enable"
-          value: True
-
         - key: "novncproxy_git_repo"
           value: "{{ openstack_git_base_url }}/novnc/noVNC"
 
@@ -86,6 +81,9 @@
 
         - key: "manila_git_repo"
           value: "{{ openstack_git_base_url }}/openstack/manila"
+
+        - key: "masakari_git_repo"
+          value: "{{ openstack_git_base_url }}/openstack/masakari"
 
         - key: "neutron_git_repo"
           value: "{{ openstack_git_base_url }}/openstack/neutron"

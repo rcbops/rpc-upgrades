@@ -109,6 +109,13 @@
         - key: "octavia_dashboard_git_repo"
           value: "{{ openstack_git_base_url }}/openstack/octavia-dashboard"
 
+#Reverting back to nova 24.2.1 pre service token
+        - key: "nova_git_install_branch"
+          value: "xena-em"
+
+        - key: "cinder_git_install_branch"
+          value: "xena-em"
+
 - name: Fix up config files
   hosts: localhost
   user: root
