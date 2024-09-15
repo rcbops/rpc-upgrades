@@ -21,7 +21,7 @@ source lib/functions.sh
 
 require_ubuntu_version 20
 
-export OSA_SHA="76a3176385e63007c4dd31852dc5f12f1bc99f17"
+export OSA_SHA="70a48ec19df21ba6a4f902e21f0c087dcb5f652b"
 export SKIP_INSTALL=${SKIP_INSTALL:-'no'}
 export RPC_PRODUCT_RELEASE="yoga"
 export RPC_ANSIBLE_PACKAGE="ansible-core==2.12.8"
