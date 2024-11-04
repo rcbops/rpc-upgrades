@@ -76,6 +76,16 @@
         - key: "apply_security_hardening"
           value: "false"
 
+    - name: Disable neutron package upgrade
+      lineinfile:
+        dest: "{{ upgrade_config_file }}"
+        regexp: "{{ item.regexp | default('^' + item.key) }}"
+        line: "{{ item.key }}: {{ item.value }}"
+        state: present
+      with_items:
+        - key: "neutron_package_state"
+          value: "present"
+
     - name: Remove serialization throttle for upgrade
       lineinfile:
         dest: "{{ upgrade_config_file }}"
@@ -107,5 +117,3 @@
           value: "100%"
         - key: "glance_registry_rolling"
           value: "100%"
-        - key: "neutron_package_state"
-          value: "present"
