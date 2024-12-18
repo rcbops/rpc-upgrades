@@ -37,7 +37,7 @@
           value: "{{ openstack_git_base_url }}/novnc/noVNC"
 
         - key: "spicehtml5_git_repo"
-          value: "{{ openstack_git_base_url }}/freedesktop/spice-html5"
+          value: "https://gitlab.freedesktop.org/spice/spice-html5"
 
         - key: "aodh_git_repo"
           value: "{{ openstack_git_base_url }}/openstack/aodh"
@@ -116,3 +116,19 @@
         path: /etc/openstack_deploy/rpc-upgrades/yoga_upgrade_prep.complete
         state: touch
         mode: 0644
+
+# Add missing include config for ssh pki config to work
+# especially for OS which got upgraded from 18.04 to 20.04
+- name: Ensure include for ssh_config.d directory
+  hosts: hosts
+  user: root
+  tasks:
+    - name: Add include directive
+      lineinfile:
+        path: "/etc/ssh/sshd_config"
+        line: "Include /etc/ssh/sshd_config.d/*.conf"
+      when: ansible_distribution in ['Debian', 'Ubuntu']
+      notify:
+        - SSH reload
+  handlers:
+    - include: "handlers/main.yml"

@@ -42,7 +42,7 @@
           value: "{{ openstack_git_base_url }}/novnc/noVNC"
 
         - key: "spicehtml5_git_repo"
-          value: "{{ openstack_git_base_url }}/freedesktop/spice-html5"
+          value: "https://gitlab.freedesktop.org/spice/spice-html5"
 
         - key: "aodh_git_repo"
           value: "{{ openstack_git_base_url }}/openstack/aodh"
