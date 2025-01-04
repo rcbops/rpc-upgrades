@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Copyright 2024, Rackspace Technology, Inc.
+# Copyright 2025, Rackspace Technology, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,10 +21,10 @@ source lib/functions.sh
 
 require_ubuntu_version 20
 
-export OSA_SHA="70a48ec19df21ba6a4f902e21f0c087dcb5f652b"
+export OSA_SHA="26679e3b4e6950b20f7f6e99cbeb6f04328b4de2"
 export SKIP_INSTALL=${SKIP_INSTALL:-'no'}
-export RPC_PRODUCT_RELEASE="yoga"
-export RPC_ANSIBLE_PACKAGE="ansible-core==2.12.8"
+export RPC_PRODUCT_RELEASE="zed"
+export RPC_ANSIBLE_PACKAGE="ansible-core==2.13.4"
 
 # Skip OSA env.d check as RPC deploys custom env.d configurations
 test -f /etc/openstack_deploy/env.d/cephrgwdummy.yml 2>&1 && export SKIP_CUSTOM_ENVD_CHECK=true

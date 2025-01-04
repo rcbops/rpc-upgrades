@@ -92,6 +92,10 @@ function determine_release {
       export CODE_UPGRADE_FROM="yoga"
       echo "You seem to be running Yoga"
     ;;
+    *26|zed)
+      export CODE_UPGRADE_FROM="zed"
+      echo "You seem to be running Zed"
+    ;;
     *)
       echo "Unable to detect current OpenStack version, failing...."
       exit 99
@@ -419,6 +423,16 @@ function prepare_yoga {
   pushd /opt/rpc-upgrades/incremental/playbooks
     if [[ ! -f "${UPGRADES_WORKING_DIR}/yoga_upgrade_prep.complete" ]]; then
       openstack-ansible prepare-yoga-upgrade.yml
+    fi
+  popd
+}
+
+function prepare_zed {
+  ensure_working_dir
+
+  pushd /opt/rpc-upgrades/incremental/playbooks
+    if [[ ! -f "${UPGRADES_WORKING_DIR}/zed_upgrade_prep.complete" ]]; then
+      openstack-ansible prepare-zed-upgrade.yml
     fi
   popd
 }
