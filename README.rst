@@ -30,7 +30,9 @@ Ubuntu 18.04 required:
 
 Ubuntu 20.04 required:
 
-* Victoria to Wallaby (testing)
+* Victoria to Wallaby
+* Wallaby to Yoga
+* Yoga to Zed
 
 Full docs for Incremental upgrades are `here <incremental.rst>`_.
 
