@@ -96,6 +96,10 @@ function determine_release {
       export CODE_UPGRADE_FROM="zed"
       echo "You seem to be running Zed"
     ;;
+    *27|antelope)
+      export CODE_UPGRADE_FROM="antelope"
+      echo "You seem to be running Antelope (2023.1)"
+    ;;
     *)
       echo "Unable to detect current OpenStack version, failing...."
       exit 99
@@ -433,6 +437,16 @@ function prepare_zed {
   pushd /opt/rpc-upgrades/incremental/playbooks
     if [[ ! -f "${UPGRADES_WORKING_DIR}/zed_upgrade_prep.complete" ]]; then
       openstack-ansible prepare-zed-upgrade.yml
+    fi
+  popd
+}
+
+function prepare_antelope {
+  ensure_working_dir
+
+  pushd /opt/rpc-upgrades/incremental/playbooks
+    if [[ ! -f "${UPGRADES_WORKING_DIR}/antelope_upgrade_prep.complete" ]]; then
+      openstack-ansible prepare-antelope-upgrade.yml
     fi
   popd
 }
