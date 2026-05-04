@@ -1,5 +1,5 @@
 ---
-# Copyright 2025, Rackspace Technology Inc.
+# Copyright 2026, Rackspace Technology Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,14 +19,14 @@
   vars:
     upgrade_config_file: /etc/openstack_deploy/user_rpco_upgrade.yml
   vars_files:
-    - "vars/zed.yml"
+    - "vars/antelope.yml"
   tasks:
     - name: Ensure user_rpco_upgrade.yml exists
       file:
         path: "{{ upgrade_config_file }}"
         state: touch
 
-    - name: Configure overrides only for Zed upgrade
+    - name: Configure overrides only for Antelope upgrade
       lineinfile:
         dest: "{{ upgrade_config_file }}"
         regexp: "{{ item.regexp | default('^' + item.key) }}"
@@ -113,12 +113,12 @@
   tasks:
     - name: Set lock file
       file:
-        path: /etc/openstack_deploy/rpc-upgrades/zed_upgrade_prep.complete
+        path: /etc/openstack_deploy/rpc-upgrades/antelope_upgrade_prep.complete
         state: touch
         mode: 0644
 
 # Add missing include config for ssh pki config to work
-# especially for OS which got upgraded from 18.04 to 20.04
+# especially for OS which got upgraded
 - name: Ensure include for ssh_config.d directory
   hosts: hosts
   user: root
